@@ -1,0 +1,15 @@
+{
+  "item.minecardmod.empty_minecard_card": "Empty minecard Card",
+  "block.minecardmod.minecard_table": "minecard Table",
+  "screen.minecardmod.minecard_table": "minecard Table",
+  "tooltip.shift": "Hold §e§lSHIFT for more Information",
+  "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
+  "tooltip.gui.options": "Options and tools",
+
+  "tooltip.minecardmod.cards.yellow":"Its yellow",
+
+  "tooltip.minecardmod.cards.blue":"Its blue",
+
+  "tooltip.minecardmod.cards.brown":"Its brown"
+
+}
