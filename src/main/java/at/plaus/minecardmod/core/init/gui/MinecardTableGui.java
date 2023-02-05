@@ -8,6 +8,7 @@ import at.plaus.minecardmod.core.init.gui.cards.BrownMinecardCard;
 import at.plaus.minecardmod.core.init.gui.cards.YellowMinecardCard;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
@@ -153,12 +154,12 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         renderCardsFromList(matrixStack, ownBoard.specialBoard);
     }
     public void renderOtherStuff(MatrixStack matrixStack) {
-        this.minecraft.getTextureManager().getTexture(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/pass.png"));
+        this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/pass.png"));
         this.blit(matrixStack, offsetX+ MinecardTableImageLocations.PassX, offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY, 0, 0, MinecardTableImageLocations.PassWidth, MinecardTableImageLocations.PassHeight);
-        this.minecraft.getTextureManager().getTexture(new ResourceLocation(""));
+        this.minecraft.getTextureManager().bind(new ResourceLocation(""));
         this.blit(matrixStack, offsetX+ MinecardTableImageLocations.guiwidth- MinecardCard.cardwidth-10, offsetY+ MinecardTableImageLocations.guiheight- MinecardCard.cardheight-10, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
         this.blit(matrixStack, offsetX+ MinecardTableImageLocations.guiwidth- MinecardCard.cardwidth-10, offsetY+10, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
-        this.minecraft.getTextureManager().getTexture(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/heart.png"));
+        this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/heart.png"));
         if (ownBoard.lifePoints == 2) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.ownHeartX, offsetY+ MinecardTableImageLocations.ownHeartY, MinecardTableImageLocations.heartWidth, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
         } else if (ownBoard.lifePoints == 1) {
@@ -169,12 +170,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         } else if (enemyBoard.lifePoints == 1) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.enemyHeartX, offsetY+ MinecardTableImageLocations.enemyHeartY, 0, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
         }
-        this.minecraft.getTextureManager().getTexture(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/grey.png"));
+        this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/grey.png"));
         this.blit(matrixStack, offsetX+MinecardTableImageLocations.optionsX, offsetY+MinecardTableImageLocations.optionsY, 0, 0, MinecardTableImageLocations.optionsSide, MinecardTableImageLocations.optionsSide);
     }
 
     public void renderWindow(MatrixStack matrixStack, int offsetX, int offsetY) {
-        this.minecraft.getTextureManager().getTexture(GUI);
+        assert this.minecraft != null;
+        this.minecraft.getTextureManager().bind(GUI);
         this.blit(matrixStack, offsetX, offsetY, 0, 0, MinecardTableImageLocations.guiwidth, MinecardTableImageLocations.guiheight);
     }
 
@@ -263,7 +265,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         }
         onClose();
     }
-    
+
     public void loadGame(MinecardBoardState[] boardstate) {
         ownBoard = boardstate[0];
         enemyBoard = boardstate[1];

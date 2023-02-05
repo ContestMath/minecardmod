@@ -73,7 +73,7 @@ public abstract class AbstractMinecardScreen extends Screen {
         int index = 0;
         for (MinecardCard card:list) {
             assert this.minecraft != null;
-            this.minecraft.getTextureManager().getTexture(card.getTexture());
+            this.minecraft.getTextureManager().bind(card.getTexture());
             int x = getCardPosInList(index, list)[0];
             int y = getCardPosInList(index, list)[1];
             this.blit(matrixStack, x, y, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);

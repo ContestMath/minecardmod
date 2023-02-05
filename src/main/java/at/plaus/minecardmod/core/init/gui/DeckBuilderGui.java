@@ -62,7 +62,8 @@ public class DeckBuilderGui extends AbstractMinecardScreen{
     }
 
     public void renderWindow(MatrixStack matrixStack, int offsetX, int offsetY) {
-        this.minecraft.getTextureManager().getTexture(GUI);
+        assert this.minecraft != null;
+        this.minecraft.getTextureManager().bind(GUI);
         this.blit(matrixStack, offsetX, offsetY, 0, 0, MinecardTableImageLocations.guiwidth, MinecardTableImageLocations.guiheight);
     }
 
