@@ -12,7 +12,7 @@ public class ZombieCard extends MinecardCard {
                 2,
                 "textures/gui/zombie_card.png",
                 CardTypes.MELEE,
-                "tooltip.minecardmod.cards.zombie",
+                new String[]{"tooltip.minecardmod.cards.zombie"},
                 "Zombie"
         );
     }
@@ -40,7 +40,7 @@ public class ZombieCard extends MinecardCard {
         }
         board.own.deck.removeAll(negTempList);
         negTempList = new ArrayList<MinecardCard>();
-        
+
         for (MinecardCard z:zombies) {
             tempBoard = tempBoard.playCard(z, BothBordstates.Player.OWN);
         }

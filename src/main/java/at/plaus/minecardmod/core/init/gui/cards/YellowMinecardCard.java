@@ -11,7 +11,7 @@ public class YellowMinecardCard extends MinecardCard {
                 3,
                 "textures/gui/yellow_minecard_card.png",
                 CardTypes.MELEE,
-                "tooltip.minecardmod.cards.yellow",
+                new String[]{"tooltip.minecardmod.cards.yellow"},
                 "Yellow card"
         );
     }

@@ -19,12 +19,8 @@ public class BothBordstates {
         }
     }
 
-    public MinecardBoardState getOpponentBoardState(Player p) {
-        if (p == Player.OWN) {
-            return enemy;
-        } else {
-            return own;
-        }
+    public BothBordstates getReverse(){
+        return new BothBordstates(enemy, own);
     }
 
     public BothBordstates(MinecardBoardState own, MinecardBoardState enemy) {
@@ -35,32 +31,37 @@ public class BothBordstates {
     public BothBordstates playCardFromHand(int i, Player player) {
         MinecardCard card = this.getBoardState(player).hand.get(i);
         this.getBoardState(player).hand.remove(i);
-        playCard(card, player);
-        return card.ETB(this);
+        return playCard(card, player);
     }
 
     public BothBordstates playCard(MinecardCard card, Player player) {
-        MinecardBoardState b = this.getBoardState(player);
-        if (!card.isSpy) {
+        boolean isOwnBoard = true;
+        if (player == Player.ENEMY) {
+            isOwnBoard = !isOwnBoard;
+        }
+        if (card.isSpy) {
+            isOwnBoard = !isOwnBoard;
+        }
+
+        if (isOwnBoard) {
             if (Objects.equals(card.type, CardTypes.MELEE)) {
-                b.meleeBoard.add(card);
+                this.own.meleeBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.RANGED)) {
-                b.rangedBoard.add(card);
+                this.own.rangedBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
-                b.specialBoard.add(card);
+                this.own.specialBoard.add(card);
             }
         } else {
-            b = this.getBoardState(player);
             if (Objects.equals(card.type, CardTypes.MELEE)) {
-                b.meleeBoard.add(card);
+                this.enemy.meleeBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.RANGED)) {
-                b.rangedBoard.add(card);
+                this.enemy.rangedBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
-                b.specialBoard.add(card);
+                this.enemy.specialBoard.add(card);
             }
         }
         return card.ETB(this);

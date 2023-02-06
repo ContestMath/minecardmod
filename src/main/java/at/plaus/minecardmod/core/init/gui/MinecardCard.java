@@ -16,26 +16,21 @@ public class MinecardCard {
 
     public static final int cardheight = 30;
     public static final int cardwidth = 20;
-    public final ITextComponent tooltip;
+
+    public final String[] tooltip;
     public final CardTypes type;
     public final int strength;
     public final String texture;
     public final String name;
     public boolean isSpy = false;
+    public ResourceLocation frame = new ResourceLocation(Minecardmod.MOD_ID,"textures/gui/frame.png");
 
-    public MinecardCard(int strength, String texture, CardTypes type, String tooltip, String name) {
+    public MinecardCard(int strength, String texture, CardTypes type, String[] tooltip, String name) {
         this.strength = strength;
         this.texture = texture;
         this.type = type;
-        this.tooltip = new TranslationTextComponent(tooltip);
+        this.tooltip = tooltip;
         this.name = name;
-    }
-
-    public static int getCardheight(){
-        return cardheight;
-    }
-    public static int getCardwidth(){
-        return cardwidth;
     }
 
     public ResourceLocation getTexture() {
@@ -49,7 +44,9 @@ public class MinecardCard {
         temptooltip.add(new StringTextComponent(this.name));
         temptooltip.add(new StringTextComponent("§o" + type.toString().toLowerCase()));
         temptooltip.add(new StringTextComponent(""));
-        temptooltip.add(tooltip);
+        for (String textComponent:tooltip) {
+            temptooltip.add(new TranslationTextComponent(textComponent));
+        }
         temptooltip.add(new StringTextComponent(""));
         temptooltip.add(new StringTextComponent("Strength: ").append(new StringTextComponent(Integer.toString(strength))));
 
@@ -59,9 +56,7 @@ public class MinecardCard {
     public int getStrength(){
         return this.strength;
     }
-    public CardTypes getType() {
-        return type;
-    }
+
     public static int getStrengthFromList(List<MinecardCard> cardList) {
         int total = 0;
         for (MinecardCard i:cardList){
@@ -86,6 +81,8 @@ public class MinecardCard {
                 return new ZombieCard();
             case WHITHER_SKELETON:
                 return new WitherSkeletonCard();
+            case BAT:
+                return new BatCard();
         }
         return null;
     }

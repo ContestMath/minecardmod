@@ -10,7 +10,7 @@ public class WitherSkeletonCard extends MinecardCard {
                 7,
                 "textures/gui/wither_skeleton_card.png",
                 CardTypes.MELEE,
-                "tooltip.minecardmod.cards.wither_skeleton",
+                new String[]{"tooltip.minecardmod.cards.wither_skeleton"},
                 "Wither Skeleton"
         );
     }

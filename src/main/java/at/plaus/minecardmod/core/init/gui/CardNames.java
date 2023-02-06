@@ -5,6 +5,7 @@ public enum CardNames {
     BLUE, //1
     BROWN, //2
     ZOMBIE, //3
-    WHITHER_SKELETON //4
+    WHITHER_SKELETON, //4
+    BAT //5
 
 }

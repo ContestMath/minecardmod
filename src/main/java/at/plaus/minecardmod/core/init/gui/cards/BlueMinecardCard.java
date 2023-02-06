@@ -10,7 +10,7 @@ public class BlueMinecardCard extends MinecardCard {
                 5,
                 "textures/gui/blue_minecard_card.png",
                 CardTypes.RANGED,
-                "tooltip.minecardmod.cards.blue",
+                new String[]{"tooltip.minecardmod.cards.blue"},
                 "Blue card");
     }
 }

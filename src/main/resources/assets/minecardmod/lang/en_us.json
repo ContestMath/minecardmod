@@ -15,5 +15,10 @@
 
   "tooltip.minecardmod.cards.zombie": "ETB: Play every zombie from your hand and deck.",
 
-  "tooltip.minecardmod.cards.wither_skeleton": "§oCrawling around in nether fortresses"
+  "tooltip.minecardmod.cards.wither_skeleton": "§oCrawling around in nether fortresses",
+
+  "tooltip.minecardmod.cards.bat1": "Spy",
+  "tooltip.minecardmod.cards.bat2": "ETB: Your opponent draws a card."
+
+
 }

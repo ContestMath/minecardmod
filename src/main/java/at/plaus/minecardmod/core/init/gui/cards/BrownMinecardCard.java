@@ -10,7 +10,7 @@ public class BrownMinecardCard extends MinecardCard {
                 8,
                 "textures/gui/brown_minecard_card.png",
                 CardTypes.SPECIAL,
-                "tooltip.minecardmod.cards.brown",
+                new String[]{"tooltip.minecardmod.cards.brown"},
                 "Brown card");
     }
 }
