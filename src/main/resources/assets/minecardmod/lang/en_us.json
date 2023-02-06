@@ -6,10 +6,14 @@
   "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
   "tooltip.gui.options": "Options and tools",
 
+
   "tooltip.minecardmod.cards.yellow":"Its yellow",
 
   "tooltip.minecardmod.cards.blue":"Its blue",
 
-  "tooltip.minecardmod.cards.brown":"Its brown"
+  "tooltip.minecardmod.cards.brown":"Its brown",
 
+  "tooltip.minecardmod.cards.zombie": "ETB: Play every zombie from your hand and deck.",
+
+  "tooltip.minecardmod.cards.wither_skeleton": "§oCrawling around in nether fortresses"
 }

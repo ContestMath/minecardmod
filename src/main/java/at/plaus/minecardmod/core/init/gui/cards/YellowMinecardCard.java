@@ -1,7 +1,7 @@
 package at.plaus.minecardmod.core.init.gui.cards;
 
+import at.plaus.minecardmod.core.init.gui.CardTypes;
 import at.plaus.minecardmod.core.init.gui.MinecardCard;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class YellowMinecardCard extends MinecardCard {
 
@@ -10,8 +10,9 @@ public class YellowMinecardCard extends MinecardCard {
         super(
                 3,
                 "textures/gui/yellow_minecard_card.png",
-                "Melee",
-                new TranslationTextComponent("tooltip.minecardmod.cards.yellow")
+                CardTypes.MELEE,
+                "tooltip.minecardmod.cards.yellow",
+                "Yellow card"
         );
     }
 }

@@ -8,11 +8,9 @@ import at.plaus.minecardmod.core.init.gui.cards.BrownMinecardCard;
 import at.plaus.minecardmod.core.init.gui.cards.YellowMinecardCard;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -21,9 +19,8 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     private final ResourceLocation GUI = new ResourceLocation(Minecardmod.MOD_ID,
             "textures/gui/minecard_table_gui.png");
 
-
-    public MinecardBoardState ownBoard = new MinecardBoardState();
-    public MinecardBoardState enemyBoard = new MinecardBoardState();
+    
+    public BothBordstates board = new BothBordstates(new MinecardBoardState(), new MinecardBoardState());
     public static final ITextComponent title = new TranslationTextComponent("tooltip.minecardmod.minecard_table");
 
     int index = 0;
@@ -40,19 +37,19 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         int x = offsetX + MinecardTableImageLocations.guiwidth/2 - 5 * (list.size()-1) + 10*i + MinecardCard.cardwidth*i - MinecardCard.cardwidth/2*list.size();
         int yStart = offsetY+ MinecardTableImageLocations.guiheight- MinecardCard.cardheight;
         int space = 5;
-        if (list.equals(ownBoard.hand)) {
+        if (list.equals(board.own.hand)) {
             return new int[]{x-15, yStart-10};
-        } else if (list.equals(ownBoard.specialBoard)) {
+        } else if (list.equals(board.own.specialBoard)) {
             return new int[]{x, yStart- MinecardCard.cardheight-3*space};
-        } else if (list.equals(ownBoard.rangedBoard)) {
+        } else if (list.equals(board.own.rangedBoard)) {
             return new int[]{x, yStart- MinecardCard.cardheight*2-4*space};
-        } else if (list.equals(ownBoard.meleeBoard)) {
+        } else if (list.equals(board.own.meleeBoard)) {
             return new int[]{x, yStart - MinecardCard.cardheight *3-5*space};
-        } else if (list.equals(enemyBoard.meleeBoard)) {
+        } else if (list.equals(board.enemy.meleeBoard)) {
             return new int[]{x, yStart- MinecardCard.cardheight*4-6*space};
-        } else if (list.equals(enemyBoard.rangedBoard)) {
+        } else if (list.equals(board.enemy.rangedBoard)) {
             return new int[]{x, yStart- MinecardCard.cardheight*5-7*space};
-        } else if (list.equals(enemyBoard.specialBoard)) {
+        } else if (list.equals(board.enemy.specialBoard)) {
             return new int[]{x, yStart- MinecardCard.cardheight*6-8*space};
         }
         else return new int[]{0, 0};
@@ -65,27 +62,26 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         if (GlobalValues.savedBoardTemp.containsKey(p)) {
             loadGame(GlobalValues.savedBoardTemp.get(p));
         } else {
-
             if (GlobalValues.deck1.containsKey(p)) {
                 List<MinecardCard> d = GlobalValues.deck1.get(p);
                 Collections.shuffle(d, new Random());
-                ownBoard.deck.addAll(d);
+                board.own.deck.addAll(d);
             } else {
-                enemyBoard.isYourTurn = false;
+                board.enemy.isYourTurn = false;
                 for (int i = 0; i < 10; i++) {
-                    ownBoard.deck.push(new BlueMinecardCard());
-                    ownBoard.deck.push(new YellowMinecardCard());
-                    ownBoard.deck.push(new BrownMinecardCard());
+                    board.own.deck.push(new BlueMinecardCard());
+                    board.own.deck.push(new YellowMinecardCard());
+                    board.own.deck.push(new BrownMinecardCard());
                 }
             }
             for (int i = 0; i < 10; i++) {
-                enemyBoard.deck.push(new BlueMinecardCard());
-                enemyBoard.deck.push(new YellowMinecardCard());
-                enemyBoard.deck.push(new BrownMinecardCard());
+                board.enemy.deck.push(new BlueMinecardCard());
+                board.enemy.deck.push(new YellowMinecardCard());
+                board.enemy.deck.push(new BrownMinecardCard());
             }
 
-            ownBoard.drawCard(MinecardRules.startingHandsize);
-            enemyBoard.drawCard(MinecardRules.startingHandsize);
+            board.own.drawCard(MinecardRules.startingHandsize);
+            board.enemy.drawCard(MinecardRules.startingHandsize);
         }
         super.startup();
     }
@@ -105,25 +101,25 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     @Override
     public void tick() {
-        if (enemyBoard.hasPassed) {
-            enemyBoard.isYourTurn = false;
+        if (board.enemy.hasPassed) {
+            board.enemy.isYourTurn = false;
         }
         enemyPlay();
-        if (ownBoard.hasPassed) {
-            ownBoard.isYourTurn = false;
-            enemyBoard.isYourTurn = true;
+        if (board.own.hasPassed) {
+            board.own.isYourTurn = false;
+            board.enemy.isYourTurn = true;
         }
-        if (ownBoard.lifePoints == 0 || enemyBoard.lifePoints == 0) {
+        if (board.own.lifePoints == 0 || board.enemy.lifePoints == 0) {
             endGame();
         }
-        if (ownBoard.hasPassed && enemyBoard.hasPassed) {
+        if (board.own.hasPassed && board.enemy.hasPassed) {
             endRound();
         }
     }
 
     private void renderHighlight(MatrixStack matrixStack, int mouseX, int mouseY) {
 
-        renderCardHighlightFromList(matrixStack, mouseX, mouseY, ownBoard.hand);
+        renderCardHighlightFromList(matrixStack, mouseX, mouseY, board.own.hand);
 
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
             fillGradient(matrixStack, offsetX+20, offsetY+ MinecardTableImageLocations.guiheight-25-20, offsetX+20+40, offsetY+ MinecardTableImageLocations.guiheight-25-20+25, -1072689136, -804253680);
@@ -135,23 +131,23 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             //renderTooltip(matrixStack, new StringTextComponent("hi"), mouseX, mouseY);
             renderTooltip(matrixStack, new TranslationTextComponent("tooltip.gui.options"), mouseX, mouseY);
         }
-        renderCardTooltip(matrixStack, ownBoard.hand, mouseX, mouseY);
-        renderCardTooltip(matrixStack, ownBoard.meleeBoard, mouseX, mouseY);
-        renderCardTooltip(matrixStack, ownBoard.rangedBoard, mouseX, mouseY);
-        renderCardTooltip(matrixStack, ownBoard.specialBoard, mouseX, mouseY);
-        renderCardTooltip(matrixStack, enemyBoard.meleeBoard, mouseX, mouseY);
-        renderCardTooltip(matrixStack, enemyBoard.rangedBoard, mouseX, mouseY);
-        renderCardTooltip(matrixStack, enemyBoard.specialBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.own.hand, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.own.meleeBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.own.rangedBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.own.specialBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.enemy.meleeBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.enemy.rangedBoard, mouseX, mouseY);
+        renderCardTooltip(matrixStack, board.enemy.specialBoard, mouseX, mouseY);
     }
 
     public void renderCards (MatrixStack matrixStack) {
-        renderCardsFromList(matrixStack, ownBoard.hand);
-        renderCardsFromList(matrixStack, ownBoard.meleeBoard);
-        renderCardsFromList(matrixStack, ownBoard.rangedBoard);
-        renderCardsFromList(matrixStack, enemyBoard.meleeBoard);
-        renderCardsFromList(matrixStack, enemyBoard.rangedBoard);
-        renderCardsFromList(matrixStack, enemyBoard.specialBoard);
-        renderCardsFromList(matrixStack, ownBoard.specialBoard);
+        renderCardsFromList(matrixStack, board.own.hand);
+        renderCardsFromList(matrixStack, board.own.meleeBoard);
+        renderCardsFromList(matrixStack, board.own.rangedBoard);
+        renderCardsFromList(matrixStack, board.enemy.meleeBoard);
+        renderCardsFromList(matrixStack, board.enemy.rangedBoard);
+        renderCardsFromList(matrixStack, board.enemy.specialBoard);
+        renderCardsFromList(matrixStack, board.own.specialBoard);
     }
     public void renderOtherStuff(MatrixStack matrixStack) {
         this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/pass.png"));
@@ -160,14 +156,14 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.blit(matrixStack, offsetX+ MinecardTableImageLocations.guiwidth- MinecardCard.cardwidth-10, offsetY+ MinecardTableImageLocations.guiheight- MinecardCard.cardheight-10, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
         this.blit(matrixStack, offsetX+ MinecardTableImageLocations.guiwidth- MinecardCard.cardwidth-10, offsetY+10, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
         this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/heart.png"));
-        if (ownBoard.lifePoints == 2) {
+        if (board.own.lifePoints == 2) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.ownHeartX, offsetY+ MinecardTableImageLocations.ownHeartY, MinecardTableImageLocations.heartWidth, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
-        } else if (ownBoard.lifePoints == 1) {
+        } else if (board.own.lifePoints == 1) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.ownHeartX, offsetY+ MinecardTableImageLocations.ownHeartY, 0, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
         }
-        if (enemyBoard.lifePoints == 2) {
+        if (board.enemy.lifePoints == 2) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.enemyHeartX, offsetY+ MinecardTableImageLocations.enemyHeartY, MinecardTableImageLocations.heartWidth, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
-        } else if (enemyBoard.lifePoints == 1) {
+        } else if (board.enemy.lifePoints == 1) {
             this.blit(matrixStack, offsetX+ MinecardTableImageLocations.enemyHeartX, offsetY+ MinecardTableImageLocations.enemyHeartY, 0, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
         }
         this.minecraft.getTextureManager().bind(new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/grey.png"));
@@ -180,21 +176,21 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.blit(matrixStack, offsetX, offsetY, 0, 0, MinecardTableImageLocations.guiwidth, MinecardTableImageLocations.guiheight);
     }
 
-
     public void renderValues(MatrixStack matrixStack, int offsetX, int offsetY) {
-        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(ownBoard.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(ownBoard.deck.size()).length())-16, offsetY+ MinecardTableImageLocations.guiheight-18, -1);
-        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(enemyBoard.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(ownBoard.deck.size()).length())-16, offsetY+ MinecardCard.cardheight+2, -1);
-        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(enemyBoard.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(enemyBoard.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2-20, -1);
-        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(ownBoard.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(ownBoard.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
+        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(board.own.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length())-16, offsetY+ MinecardTableImageLocations.guiheight-18, -1);
+        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(board.enemy.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length())-16, offsetY+ MinecardCard.cardheight+2, -1);
+        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(board.enemy.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.enemy.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2-20, -1);
+        this.font.draw(matrixStack, ITextComponent.nullToEmpty(Integer.toString(board.own.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
+            onCloseOrSwitch();
             Minecraft.getInstance().setScreen(new DeckBuilderGui());
             return true;
         } else if (keyCode == 81) {
-            ownBoard.drawCard();
+            board.own.drawCard();
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
@@ -203,19 +199,20 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int cardindex = getTouchingCardFromList(mouseX, mouseY, ownBoard.hand);
+        int cardindex = getTouchingCardFromList(mouseX, mouseY, board.own.hand);
         if (button == 0) { //left mouse
-            if (ownBoard.isYourTurn) {
-                if (ownBoard.playCard(cardindex)) {
-                    ownBoard.isYourTurn=false;
-                    enemyBoard.isYourTurn=true;
+            if (board.own.isYourTurn) {
+                if (cardindex != -1){//board.PlayCardFromHand(cardindex, BothBordstates.Player.OWN)) {
+                    board = board.playCardFromHand(cardindex, BothBordstates.Player.OWN);
+                    board.own.isYourTurn=false;
+                    board.enemy.isYourTurn=true;
                 }
-                if (ownBoard.hand.size() == 0) {
-                    ownBoard.hasPassed = true;
+                if (board.own.hand.size() == 0) {
+                    board.own.hasPassed = true;
                 }
             }
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
-                ownBoard.hasPassed = true;
+                board.own.hasPassed = true;
             }
         }
         /*
@@ -226,58 +223,62 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void enemyPlay() {
-        if (enemyBoard.hand.size() == 0) {
-            enemyBoard.hasPassed = true;
-            enemyBoard.isYourTurn = false;
+        if (board.enemy.hand.size() == 0) {
+            board.enemy.hasPassed = true;
+            board.enemy.isYourTurn = false;
         }
-        if (enemyBoard.isYourTurn) {
-            enemyBoard.playCard(ThreadLocalRandom.current().nextInt(0, enemyBoard.hand.size()));
+        if (board.enemy.isYourTurn) {
+            board = board.playCardFromHand(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size()), BothBordstates.Player.ENEMY);
         }
-        enemyBoard.isYourTurn = false;
-        ownBoard.isYourTurn = true;
+        board.enemy.isYourTurn = false;
+        board.own.isYourTurn = true;
     }
     public void endRound() {
-        if (ownBoard.getStrength() > enemyBoard.getStrength()) {
-            enemyBoard.lifePoints --;
+        if (board.own.getStrength() > board.enemy.getStrength()) {
+            board.enemy.lifePoints --;
         }
-        if (ownBoard.getStrength() < enemyBoard.getStrength()) {
-            ownBoard.lifePoints --;
+        if (board.own.getStrength() < board.enemy.getStrength()) {
+            board.own.lifePoints --;
         }
-        if (ownBoard.getStrength() == enemyBoard.getStrength()) {
-            ownBoard.lifePoints --;
-            enemyBoard.lifePoints --;
+        if (board.own.getStrength() == board.enemy.getStrength()) {
+            board.own.lifePoints --;
+            board.enemy.lifePoints --;
         }
-        enemyBoard.hasPassed = false;
-        ownBoard.hasPassed = false;
-        enemyBoard.clearBoard();
-        ownBoard.clearBoard();
-        enemyBoard.drawCard(2);
-        ownBoard.drawCard(2);
+        board.enemy.hasPassed = false;
+        board.own.hasPassed = false;
+        board.enemy.clearBoard();
+        board.own.clearBoard();
+        board.enemy.drawCard(2);
+        board.own.drawCard(2);
     }
     public void endGame() {
         gameHasEnded = true;
-        if (enemyBoard.lifePoints == 0 && ownBoard.lifePoints == 0) {
+        if (board.enemy.lifePoints == 0 && board.own.lifePoints == 0) {
             Minecraft.getInstance().player.chat("It is a Draw!");
-        } else if(enemyBoard.lifePoints == 0) {
+        } else if(board.enemy.lifePoints == 0) {
             Minecraft.getInstance().player.chat("You have won!");
-        } else if(ownBoard.lifePoints == 0) {
+        } else if(board.own.lifePoints == 0) {
             Minecraft.getInstance().player.chat("You Have Lost!");
         }
         onClose();
     }
 
     public void loadGame(MinecardBoardState[] boardstate) {
-        ownBoard = boardstate[0];
-        enemyBoard = boardstate[1];
+        board.own = boardstate[0];
+        board.enemy = boardstate[1];
+    }
+
+    public void onCloseOrSwitch() {
+        if (!gameHasEnded) {
+            GlobalValues.savedBoardTemp.put(Minecraft.getInstance().player, new MinecardBoardState[]{board.own, board.enemy});
+        } else {
+            GlobalValues.savedBoardTemp.remove(Minecraft.getInstance().player);
+        }
     }
 
     @Override
     public void onClose() {
-        if (!gameHasEnded) {
-            GlobalValues.savedBoardTemp.put(Minecraft.getInstance().player, new MinecardBoardState[]{ownBoard, enemyBoard});
-        } else {
-            GlobalValues.savedBoardTemp.remove(Minecraft.getInstance().player);
-        }
+        onCloseOrSwitch();
         super.onClose();
     }
 

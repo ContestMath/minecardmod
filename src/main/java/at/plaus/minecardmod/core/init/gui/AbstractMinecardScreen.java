@@ -11,6 +11,8 @@ import net.minecraft.util.text.TextComponent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip;
+
 public abstract class AbstractMinecardScreen extends Screen {
 
     public int offsetX;
@@ -39,6 +41,7 @@ public abstract class AbstractMinecardScreen extends Screen {
             int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
             int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
             renderComponentTooltip(matrixStack, list.get(getTouchingCardFromList(mouseX, mouseY, list)).getTooltip(), mouseX, mouseY);
+
         }
     }
 

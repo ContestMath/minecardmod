@@ -80,6 +80,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen{
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
+            onCloseOrSwitch();
             Minecraft.getInstance().setScreen(new MinecardTableGui());
             return true;
         } else {
@@ -87,9 +88,12 @@ public class DeckBuilderGui extends AbstractMinecardScreen{
         }
     }
 
+    public void onCloseOrSwitch() {
+        GlobalValues.deck1.put(Minecraft.getInstance().player, deck);
+    }
     @Override
     public void onClose() {
-        GlobalValues.deck1.put(Minecraft.getInstance().player, deck);
+        onCloseOrSwitch();
         super.onClose();
     }
 }

@@ -1,7 +1,6 @@
 package at.plaus.minecardmod.core.init.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.StringTextComponent;
 
 import java.util.*;
 
@@ -35,23 +34,6 @@ public class MinecardBoardState {
         for (int i=0; i<x ; i++){
             drawCard();
         }
-    }
-
-    public boolean playCard(int i) {
-        if (i != -1) {
-            if (Objects.equals(hand.get(i).type, "Melee")) {
-                meleeBoard.add(hand.get(i));
-            }
-            if (Objects.equals(hand.get(i).type, "Ranged")) {
-                rangedBoard.add(hand.get(i));
-            }
-            if (Objects.equals(hand.get(i).type, "Special")) {
-                specialBoard.add(hand.get(i));
-            }
-            hand.remove(i);
-            return true;
-        }
-        return false;
     }
 
     public int getStrength () {
