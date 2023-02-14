@@ -17,8 +17,19 @@
 
   "tooltip.minecardmod.cards.wither_skeleton": "§oCrawling around in nether fortresses",
 
-  "tooltip.minecardmod.cards.bat1": "Spy",
-  "tooltip.minecardmod.cards.bat2": "ETB: Your opponent draws a card."
+  "tooltip.minecardmod.cards.spy": "Spy",
+  "tooltip.minecardmod.cards.bat2": "ETB: Your opponent draws a card.",
+
+  "tooltip.minecardmod.cards.skeleton": "ETB: Deal 3 damage",
+
+  "tooltip.minecardmod.cards.creeper": "Explodes if another creature is placed in the melee zone.",
+
+  "tooltip.minecardmod.cards.mushroom_cow": "ETB: Generate a mushroom soup in your hand",
+
+  "tooltip.minecardmod.cards.mushroom_soup": "Mushroom soup: Fully heal an entity"
+
+
+
 
 
 }

@@ -16,8 +16,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MinecardTableGui extends AbstractMinecardScreen {
 
-    private final ResourceLocation GUI = new ResourceLocation(Minecardmod.MOD_ID,
-            "textures/gui/minecard_table_gui.png");
+    private final ResourceLocation GUI1 = new ResourceLocation(Minecardmod.MOD_ID,
+            "textures/gui/minecard_table_gui1.png");
+    private final ResourceLocation GUI2 = new ResourceLocation(Minecardmod.MOD_ID,
+            "textures/gui/minecard_table_gui2.png");
 
     
     public BothBordstates board = new BothBordstates(new MinecardBoardState(), new MinecardBoardState());
@@ -25,9 +27,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     int index = 0;
     public int numberStringWidth = 6;
-    //int offsetX;
-    //int offsetY;
-    boolean gameHasEnded = false;
+    public boolean gameHasEnded = false;
 
     public MinecardTableGui() {
         super(new TranslationTextComponent("tooltip.minecardmod.minecard_table"));
@@ -118,9 +118,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     private void renderHighlight(MatrixStack matrixStack, int mouseX, int mouseY) {
-
-        renderCardHighlightFromList(matrixStack, mouseX, mouseY, board.own.hand);
-
+        if (!board.gamePaused) {
+            renderCardHighlightFromList(matrixStack, mouseX, mouseY, board.own.hand);
+        } else {
+            for (List<MinecardCard> list:board.selectionTargets) {
+                renderCardHighlightFromList(matrixStack, mouseX, mouseY, list);
+            }
+        }
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
             fillGradient(matrixStack, offsetX+20, offsetY+ MinecardTableImageLocations.guiheight-25-20, offsetX+20+40, offsetY+ MinecardTableImageLocations.guiheight-25-20+25, -1072689136, -804253680);
         }
@@ -172,8 +176,10 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     public void renderWindow(MatrixStack matrixStack, int offsetX, int offsetY) {
         assert this.minecraft != null;
-        this.minecraft.getTextureManager().bind(GUI);
-        this.blit(matrixStack, offsetX, offsetY, 0, 0, MinecardTableImageLocations.guiwidth, MinecardTableImageLocations.guiheight);
+        this.minecraft.getTextureManager().bind(GUI1);
+        this.blit(matrixStack, offsetX, offsetY, 0, 0, 256, MinecardTableImageLocations.guiheight);
+        this.minecraft.getTextureManager().bind(GUI2);
+        this.blit(matrixStack, offsetX+256, offsetY, 0, 0, MinecardTableImageLocations.guiwidth-256, MinecardTableImageLocations.guiheight);
     }
 
     public void renderValues(MatrixStack matrixStack, int offsetX, int offsetY) {
@@ -199,26 +205,52 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int cardindex = getTouchingCardFromList(mouseX, mouseY, board.own.hand);
-        if (button == 0) { //left mouse
-            if (board.own.isYourTurn) {
-                if (cardindex != -1){//board.PlayCardFromHand(cardindex, BothBordstates.Player.OWN)) {
-                    board = board.playCardFromHand(cardindex, BothBordstates.Player.OWN);
-                    board.own.isYourTurn=false;
-                    board.enemy.isYourTurn=true;
+        if (button == 0) {
+            if (!board.gamePaused) {
+                int cardindex = getTouchingCardFromList(mouseX, mouseY, board.own.hand);
+                if (board.own.isYourTurn) {
+                    if (cardindex != -1){
+                        board = board.playCardFromHand(cardindex, BothBordstates.Player.OWN);
+                        board.own.isYourTurn=false;
+                        board.enemy.isYourTurn=true;
+                    }
+                    if (board.own.hand.size() == 0 && !board.gamePaused) {
+                        board.own.hasPassed = true;
+                    }
                 }
-                if (board.own.hand.size() == 0) {
-                    board.own.hasPassed = true;
+
+
+            } else {
+                boolean allEmpty = true;
+                int cardindex = -1;
+                List<MinecardCard> listIndex;
+                for (List<MinecardCard> list:board.selectionTargets) {
+                    if (!list.isEmpty()) {
+                        allEmpty = false;
+                    }
+                    cardindex = getTouchingCardFromList(mouseX, mouseY, list);
+                    if (cardindex != -1) {
+                        listIndex = list;
+                        board = listIndex.get(cardindex).selected(board);
+                        board.own.isYourTurn=false;
+                        board.enemy.isYourTurn=true;
+                        if (board.own.hand.size() == 0) {
+                            board.own.hasPassed = true;
+                        }
+                    }
+                }
+                if (allEmpty) {
+                    board.switchTurn();
                 }
             }
+
+
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
                 board.own.hasPassed = true;
             }
         }
-        /*
-        if (button == 1) { // right mouse
-        }
-         */
+
+
         return true;
     }
 
@@ -227,7 +259,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             board.enemy.hasPassed = true;
             board.enemy.isYourTurn = false;
         }
-        if (board.enemy.isYourTurn) {
+        if (board.enemy.isYourTurn && !board.gamePaused) {
             board = board.playCardFromHand(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size()), BothBordstates.Player.ENEMY);
         }
         board.enemy.isYourTurn = false;
@@ -246,8 +278,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         }
         board.enemy.hasPassed = false;
         board.own.hasPassed = false;
-        board.enemy.clearBoard();
-        board.own.clearBoard();
+        board = board.clearBoard();
         board.enemy.drawCard(2);
         board.own.drawCard(2);
     }
@@ -263,14 +294,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         onClose();
     }
 
-    public void loadGame(MinecardBoardState[] boardstate) {
-        board.own = boardstate[0];
-        board.enemy = boardstate[1];
+    public void loadGame(BothBordstates boardstate) {
+        board = boardstate;
     }
 
     public void onCloseOrSwitch() {
         if (!gameHasEnded) {
-            GlobalValues.savedBoardTemp.put(Minecraft.getInstance().player, new MinecardBoardState[]{board.own, board.enemy});
+            GlobalValues.savedBoardTemp.put(Minecraft.getInstance().player, board);
         } else {
             GlobalValues.savedBoardTemp.remove(Minecraft.getInstance().player);
         }

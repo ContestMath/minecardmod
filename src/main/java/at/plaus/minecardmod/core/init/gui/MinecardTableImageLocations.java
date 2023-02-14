@@ -2,7 +2,7 @@ package at.plaus.minecardmod.core.init.gui;
 
 public final class MinecardTableImageLocations {
     public static final int guiwidth = 460;
-    public static final int guiheight = 260;
+    public static final int guiheight = 256;
     public static final int PassX = 20;
     public static final int PassY = 20;
     public static final int PassWidth = 40;

@@ -3,12 +3,16 @@ package at.plaus.minecardmod.core.init.gui;
 
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.gui.cards.*;
+import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
+import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
+import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,10 +23,12 @@ public class MinecardCard {
 
     public final String[] tooltip;
     public final CardTypes type;
-    public final int strength;
+    public int strength;
     public final String texture;
     public final String name;
     public boolean isSpy = false;
+    public boolean hasActiveSelection = false;
+
     public ResourceLocation frame = new ResourceLocation(Minecardmod.MOD_ID,"textures/gui/frame.png");
 
     public MinecardCard(int strength, String texture, CardTypes type, String[] tooltip, String name) {
@@ -65,7 +71,18 @@ public class MinecardCard {
         return total;
     }
 
-    public BothBordstates ETB(BothBordstates board) {
+    public BothBordstates etb(BothBordstates board) {
+        /*
+        for (int i = 0; i < board.etbListeners.size(); i++) {
+            newBoard = board.etbListeners.get(i).onEtb(this, board);
+        }
+
+         */
+        //afterEtb(board);
+        return board;
+    }
+
+    public BothBordstates afterEtb(BothBordstates board) {
         return board;
     }
 
@@ -83,8 +100,57 @@ public class MinecardCard {
                 return new WitherSkeletonCard();
             case BAT:
                 return new BatCard();
+            case SKELETON:
+                return new SkeletonCard();
+            case CREEPER:
+                return new CreeperCard();
+            case MUSHROOM_COW:
+                return new MushroomCowCard();
         }
         return null;
+    }
+
+    public boolean isOwned(BothBordstates board) {
+        for (MinecardCard card:board.own.hand) {
+            if (card.equals(this)) {
+                return true;
+            }
+        }
+        for (MinecardCard card:board.own.hand) {
+            if (card.equals(this)) {
+                return true;
+            }
+        }
+        for (MinecardCard card:board.own.meleeBoard) {
+            if (card.equals(this)) {
+                return true;
+            }
+        }
+        for (MinecardCard card:board.own.rangedBoard) {
+            if (card.equals(this)) {
+                return true;
+            }
+        }
+        for (MinecardCard card:board.own.specialBoard) {
+            if (card.equals(this)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int[] getCardPos(BothBordstates board){
+        int x = 0;
+        int y = 0;
+        int index = 0;
+        for (List<MinecardCard> list: board.getListOfCardLists()) {
+            if (list.contains(this)) {
+                x = index;
+                y = list.indexOf(this);
+            }
+            index++;
+        }
+        return new int[]{x, y};
     }
 
     public CardNames getNameFromCard() {
@@ -116,6 +182,45 @@ public class MinecardCard {
             list.add(MinecardCard.getCardFromName(cardName));
         }
         return list;
+    }
+
+    public BothBordstates damage(int x, BothBordstates board) {
+        strength -= x;
+        for (CardDamagedEvent listener:board.damageListeners) {
+            listener.onDamaged(x, this, board);
+        }
+
+        return board;
+    }
+    public BothBordstates selected(BothBordstates board) {
+        for (CardSelectedEvent listener:board.selectionListeners) {
+            listener.onCardSelected(this);
+        }
+        board.gamePaused = false;
+        board.selectionListeners = new ArrayList<CardSelectedEvent>();
+        board.selectionTargets = new ArrayList<List<MinecardCard>>();
+        return board;
+    }
+
+
+    public BothBordstates die(BothBordstates board) {
+        return board;
+    }
+
+    public BothBordstates removeFromBoard(BothBordstates board) {
+        board.getListOfCardLists().get(0).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(1).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(2).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(3).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(4).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(5).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(6).removeIf(i -> i.equals(this));
+        board.getListOfCardLists().get(7).removeIf(i -> i.equals(this));
+        return board;
+    }
+
+    public boolean equals(MinecardCard card, BothBordstates board1, BothBordstates board2) {
+        return Objects.equals(card.name, name) && this.getCardPos(board1) == card.getCardPos(board2);
     }
 }
 

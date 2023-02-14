@@ -18,7 +18,7 @@ public class ZombieCard extends MinecardCard {
     }
 
     @Override
-    public BothBordstates ETB(BothBordstates board) {
+    public BothBordstates etb(BothBordstates board) {
         List<MinecardCard> zombies = new ArrayList<MinecardCard>();
         List<MinecardCard> negTempList = new ArrayList<MinecardCard>();
         BothBordstates tempBoard = board;
@@ -44,6 +44,6 @@ public class ZombieCard extends MinecardCard {
         for (MinecardCard z:zombies) {
             tempBoard = tempBoard.playCard(z, BothBordstates.Player.OWN);
         }
-        return super.ETB(tempBoard);
+        return super.etb(tempBoard);
     }
 }

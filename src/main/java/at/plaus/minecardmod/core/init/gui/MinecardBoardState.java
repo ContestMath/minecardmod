@@ -6,10 +6,10 @@ import java.util.*;
 
 public class MinecardBoardState {
     public Stack<at.plaus.minecardmod.core.init.gui.MinecardCard> deck;
-    public final List<MinecardCard> hand;
-    public final List<MinecardCard> meleeBoard;
-    public final List<MinecardCard> rangedBoard;
-    public final List<MinecardCard> specialBoard;
+    public List<MinecardCard> hand;
+    public List<MinecardCard> meleeBoard;
+    public List<MinecardCard> rangedBoard;
+    public List<MinecardCard> specialBoard;
     public boolean isYourTurn = true;
     public boolean hasPassed = false;
     public int lifePoints = 2;
@@ -22,6 +22,20 @@ public class MinecardBoardState {
         this.rangedBoard = new ArrayList<MinecardCard>();
         this.specialBoard = new ArrayList<MinecardCard>();
     }
+
+    public MinecardBoardState(MinecardBoardState boardState) {
+        this.isYourTurn = boardState.isYourTurn;
+        this.hasPassed = boardState.hasPassed;
+        this.lifePoints = boardState.lifePoints;
+        Stack<MinecardCard> newDeck = new Stack<>();
+        newDeck.addAll(boardState.deck);
+        this.deck = newDeck;
+        this.hand = new ArrayList<MinecardCard>(boardState.hand);
+        this.meleeBoard = new ArrayList<MinecardCard>(boardState.meleeBoard);
+        this.rangedBoard = new ArrayList<MinecardCard>(boardState.rangedBoard);
+        this.specialBoard = new ArrayList<MinecardCard>(boardState.specialBoard);
+    }
+
     public void drawCard() {
         if (this.deck.size() < 1){
             Minecraft.getInstance().player.chat("no deck");
@@ -46,27 +60,7 @@ public class MinecardBoardState {
         this.isYourTurn = b;
     }
 
-    public void clearBoard() {
-        //List<minecardCard> wholeBoard = new ArrayList<minecardCard>();
-        //wholeBoard.addAll(meleeBoard);
-        //wholeBoard.addAll(rangedBoard);
-        //wholeBoard.addAll(specialBoard);
-        Iterator<MinecardCard> iMelee = meleeBoard.iterator();
-        Iterator<MinecardCard> iRanged = rangedBoard.iterator();
-        Iterator<MinecardCard> iSpecial = specialBoard.iterator();
-        while (iMelee.hasNext()) {
-            MinecardCard card = iMelee.next();
-            iMelee.remove();
-        }
-        while (iRanged.hasNext()) {
-            MinecardCard card = iRanged.next();
-            iRanged.remove();
-        }
-        while (iSpecial.hasNext()) {
-            MinecardCard card = iSpecial.next();
-            iSpecial.remove();
-        }
-    }
+
     public List<MinecardCard> getAllCards() {
         List<MinecardCard> cards = new ArrayList<MinecardCard>();
         cards.addAll(this.deck);

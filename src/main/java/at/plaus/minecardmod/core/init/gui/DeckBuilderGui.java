@@ -60,11 +60,6 @@ public class DeckBuilderGui extends AbstractMinecardScreen{
 
     private void renderHighlight(MatrixStack matrixStack, int mouseX, int mouseY) {
         renderCardHighlightFromList(matrixStack, mouseX, mouseY, MinecardCard.getListOfAllCards());
-        if (getTouchingPartCardFromList(mouseX, mouseY, deck) != -1) {
-            if (getTouchingPartCardFromList(mouseX, mouseY, deck) == deck.size()) {
-                renderCardHighlightFromList(matrixStack, mouseX, mouseY, deck);
-            }
-        }
     }
 
     private void renderCards(MatrixStack matrixStack, int mouseX, int mouseY) {
@@ -92,17 +87,10 @@ public class DeckBuilderGui extends AbstractMinecardScreen{
             deck.add(list.get(cardindex));
         }
 
-        cardindex = getTouchingPartCardFromList(mouseX, mouseY, list);
+        cardindex = getTouchingPartCardFromList(mouseX, mouseY, deck);
         if (button == 0 && cardindex != -1) { //left mouse
-            deck.remove(list.get(cardindex));
+            deck.remove(deck.get(cardindex));
         }
-        cardindex = getTouchingCardFromList(mouseX, mouseY, list);
-        if (button == 0 && cardindex != -1) { //left mouse
-            if (getTouchingPartCardFromList(mouseX, mouseY, deck) == deck.size()) {
-                deck.remove(list.get(cardindex));
-            }
-        }
-
         return true;
     }
 

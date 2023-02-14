@@ -6,6 +6,9 @@ public enum CardNames {
     BROWN, //2
     ZOMBIE, //3
     WHITHER_SKELETON, //4
-    BAT //5
+    BAT, //5
+    SKELETON, //6
+    CREEPER, //7
+    MUSHROOM_COW //8
 
 }
