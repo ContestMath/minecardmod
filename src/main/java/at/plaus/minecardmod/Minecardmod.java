@@ -2,16 +2,19 @@ package at.plaus.minecardmod;
 
 import at.plaus.minecardmod.core.init.BlockInit;
 import at.plaus.minecardmod.core.init.Iteminit;
+import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
+import at.plaus.minecardmod.core.init.menu.MenuTypeInit;
 import at.plaus.minecardmod.tileentity.ModTileEntities;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,16 +30,34 @@ public class Minecardmod {
     public Minecardmod() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        BlockInit.BLOCKS.register(bus);
-        Iteminit.ITEMS.register(bus);
+        BlockInit.register(bus);
+        Iteminit.register(bus);
         ModTileEntities.register(bus);
+        MenuTypeInit.register(bus);
         MinecraftForge.EVENT_BUS.register(this);
+        bus.addListener(this::commonSetup);
+        bus.addListener(this::addCreativeTab);
     }
 
-    @SubscribeEvent
-    public static void onRegigisterItems(final RegistryEvent.Register<Item> event) {
-        BlockInit.BLOCKS.getEntries().stream().map(RegistryObject::get).forEach((block -> {
-            event.getRegistry().register(new BlockItem(block, new Item.Properties().tab(ItemGroup.TAB_COMBAT)).setRegistryName(block.getRegistryName()));
-        }));
+    private void addCreativeTab(CreativeModeTabEvent.BuildContents event) {
+        if (event.getTab() == CreativeModeTabs.COMBAT) {
+            event.accept(Iteminit.EMPTY_MINECARD_CARD);
+            event.accept(BlockInit.minecard_TABLE);
+        }
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+
+        });
+    }
+
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    public static class ClientModEvents {
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            MenuScreens.register(MenuTypeInit.MINECARD_TABLE_MENU.get(), MinecardTableGui::new);
+        }
     }
 }
+

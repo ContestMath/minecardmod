@@ -5,14 +5,9 @@ import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
 import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
-import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,17 +39,18 @@ public class MinecardCard {
                 this.texture);
     }
 
-    public List<ITextComponent> getTooltip() {
-        List<ITextComponent> temptooltip = new ArrayList<ITextComponent>();
+    public List<Component> getTooltip() {
+        List<Component> temptooltip = new ArrayList<Component>();
 
-        temptooltip.add(new StringTextComponent(this.name));
-        temptooltip.add(new StringTextComponent("§o" + type.toString().toLowerCase()));
-        temptooltip.add(new StringTextComponent(""));
+        temptooltip.add(Component.literal(this.name));
+        temptooltip.add(Component.literal(this.name));
+        temptooltip.add(Component.literal("§o" + type.toString().toLowerCase()));
+        temptooltip.add(Component.literal(""));
         for (String textComponent:tooltip) {
-            temptooltip.add(new TranslationTextComponent(textComponent));
+            temptooltip.add(Component.translatable(textComponent));
         }
-        temptooltip.add(new StringTextComponent(""));
-        temptooltip.add(new StringTextComponent("Strength: ").append(new StringTextComponent(Integer.toString(strength))));
+        temptooltip.add(Component.literal(""));
+        temptooltip.add(Component.literal("Strength: ").append(Component.literal(Integer.toString(strength))));
 
         return temptooltip;
     }

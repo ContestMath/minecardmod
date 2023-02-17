@@ -1,6 +1,7 @@
 package at.plaus.minecardmod.core.init.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class MinecardBoardState {
 
     public void drawCard() {
         if (this.deck.size() < 1){
-            Minecraft.getInstance().player.chat("no deck");
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("no Deck"));
         } else {
             hand.add(this.deck.pop());
         }

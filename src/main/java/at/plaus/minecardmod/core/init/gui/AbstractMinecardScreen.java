@@ -1,21 +1,33 @@
 package at.plaus.minecardmod.core.init.gui;
 
 import at.plaus.minecardmod.core.init.GlobalValues;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.ITextComponent;
+import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+
 import java.util.List;
 
 
-public abstract class AbstractMinecardScreen extends Screen {
+
+public abstract class AbstractMinecardScreen extends AbstractContainerScreen<MinecardScreenMenu> implements MenuProvider {
 
     public int offsetX;
     public int offsetY;
     boolean isFirstTimeInit = true;
 
-    protected AbstractMinecardScreen(ITextComponent titleIn) {
-        super(titleIn);
+    public AbstractMinecardScreen(MinecardScreenMenu p_97741_, Inventory p_97742_, Component p_97743_) {
+        super(p_97741_, p_97742_, p_97743_);
     }
+
+
     public abstract int[] getCardPosInList(int i, List<MinecardCard> list);
 
     @Override
@@ -30,20 +42,19 @@ public abstract class AbstractMinecardScreen extends Screen {
     public void startup() {
         GlobalValues.switchToOther = false;
     }
-    public void renderCardTooltip(MatrixStack matrixStack, List<MinecardCard> list, int mouseX, int mouseY) {
+    public void renderCardTooltip(PoseStack poseStack, List<MinecardCard> list, int mouseX, int mouseY) {
         if (getTouchingCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
             int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
             int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
-            renderComponentTooltip(matrixStack, list.get(getTouchingCardFromList(mouseX, mouseY, list)).getTooltip(), mouseX, mouseY);
-
+            renderComponentTooltip(poseStack, list.get(getTouchingCardFromList(mouseX, mouseY, list)).getTooltip(), mouseX, mouseY);
         }
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.offsetX = (this.width - MinecardTableImageLocations.guiwidth) / 2;
         this.offsetY = (this.height - MinecardTableImageLocations.guiheight) / 2;
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
     public boolean isWithinBoundingBox(double x, double y, int xMin, int xMax, int yMin, int yMax) {
@@ -81,44 +92,44 @@ public abstract class AbstractMinecardScreen extends Screen {
         return touchedcard;
     }
 
-    public void renderCardsFromList (MatrixStack matrixStack, List<MinecardCard> list) {
+    public void renderCardsFromList (PoseStack poseStack, List<MinecardCard> list) {
         int index = 0;
         for (MinecardCard card:list) {
             assert this.minecraft != null;
             int x = getCardPosInList(index, list)[0];
             int y = getCardPosInList(index, list)[1];
 
-            this.minecraft.getTextureManager().bind(card.getTexture());
-            this.blit(matrixStack, x, y, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
+            RenderSystem.setShaderTexture(0,card.getTexture());
+            this.blit(poseStack, x, y, 0, 0, MinecardCard.cardwidth, MinecardCard.cardheight);
 
-            this.minecraft.getTextureManager().bind(card.frame);
-            this.blit(matrixStack, x, y, 10, 10, MinecardCard.cardwidth, MinecardCard.cardheight);
+            RenderSystem.setShaderTexture(0,card.frame);
+            this.blit(poseStack, x, y, 10, 10, MinecardCard.cardwidth, MinecardCard.cardheight);
 
-            this.font.draw(matrixStack, Integer.toString(card.getStrength()), x+ MinecardCard.cardwidth-6, y+ MinecardCard.cardheight-8, 0);
+            this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ MinecardCard.cardwidth-6, y+ MinecardCard.cardheight-8, 0);
             index ++;
         }
         index = 0;
 
     }
 
-    public void renderCardHighlightFromList(MatrixStack matrixStack, int mouseX, int mouseY, List<MinecardCard> list) {
+    public void renderCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY, List<MinecardCard> list) {
         if (getTouchingCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
             int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
             int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
-            fillGradient(matrixStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ MinecardCard.cardheight, -1072689136, -804253680);
+            fillGradient(poseStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ MinecardCard.cardheight, -1072689136, -804253680);
         }
     }
 
-    public void renderPartCardHighlightFromList(MatrixStack matrixStack, int mouseX, int mouseY, List<MinecardCard> list) {
+    public void renderPartCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY, List<MinecardCard> list) {
         if (getTouchingPartCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
             if (getTouchingPartCardFromList(mouseX, mouseY, list) < list.size()-1) {
                 int xMin = getCardPosInList(getTouchingPartCardFromList(mouseX, mouseY, list), list)[0];
                 int yMin = getCardPosInList(getTouchingPartCardFromList(mouseX, mouseY, list), list)[1];
-                fillGradient(matrixStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ DeckBuilderGui.cardOffset, -1072689136, -804253680);
+                fillGradient(poseStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ DeckBuilderGui.cardOffset, -1072689136, -804253680);
             } else {
                 int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
                 int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
-                fillGradient(matrixStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ MinecardCard.cardheight, -1072689136, -804253680);
+                fillGradient(poseStack, xMin, yMin, xMin+ MinecardCard.cardwidth, yMin+ MinecardCard.cardheight, -1072689136, -804253680);
             }
 
         }

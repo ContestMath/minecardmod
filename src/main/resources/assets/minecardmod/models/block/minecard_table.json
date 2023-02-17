@@ -1,6 +1,6 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecardmod:blocks/minecard_table"
+    "all": "minecardmod:block/minecard_table"
   }
 }

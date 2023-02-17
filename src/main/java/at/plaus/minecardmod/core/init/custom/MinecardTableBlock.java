@@ -1,53 +1,52 @@
 package at.plaus.minecardmod.core.init.custom;
-import at.plaus.minecardmod.core.init.gui.DeckBuilderGui;
-import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
-import at.plaus.minecardmod.tileentity.MinecardTableTile;
-import at.plaus.minecardmod.tileentity.ModTileEntities;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import at.plaus.minecardmod.tileentity.MinecardTableBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 
-
-import javax.annotation.Nullable;
-
-public class MinecardTableBlock extends Block {
+public class MinecardTableBlock extends BaseEntityBlock {
     public MinecardTableBlock(Properties properties) {
         super(properties);
     }
 
+    
     @Override
-    public ActionResultType use(BlockState p_225533_1_, World worldIn, BlockPos pos, PlayerEntity player, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
-        if(!worldIn.isClientSide()) {
-            TileEntity tileEntity = worldIn.getBlockEntity(pos);
+    public InteractionResult use(BlockState p_225533_1_, Level level, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult blockHitResult) {
+        if(!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(blockHitResult.getBlockPos());
 
             if(!player.isCrouching()) {
-                if(tileEntity instanceof MinecardTableTile) {
-                    Minecraft.getInstance().setScreen(new MinecardTableGui());
+                if(blockEntity instanceof MinecardTableBlockEntity && player instanceof ServerPlayer) {
+                    NetworkHooks.openScreen((ServerPlayer) player, (MinecardTableBlockEntity) blockEntity, pos);
                 } else {
                     throw new IllegalStateException("Our Container provider is missing!");
                 }
             }
         }
-        return super.use(p_225533_1_, worldIn, pos, player, p_225533_5_, p_225533_6_);
+        return super.use(p_225533_1_, level, pos, player, p_225533_5_, blockHitResult);
     }
 
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return ModTileEntities.minecard_TABLE_TILE.get().create();
-    }
+
 
     @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
+    public RenderShape getRenderShape(BlockState p_49232_) {
+        return RenderShape.MODEL;
     }
+
+    @org.jetbrains.annotations.Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new MinecardTableBlockEntity(blockPos, blockState);
+    }
+
 }

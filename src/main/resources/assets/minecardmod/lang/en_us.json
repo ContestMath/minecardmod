@@ -1,8 +1,8 @@
 {
-  "item.minecardmod.empty_minecard_card": "Empty minecard Card",
-  "block.minecardmod.minecard_table": "minecard Table",
-  "screen.minecardmod.minecard_table": "minecard Table",
-  "tooltip.shift": "Hold §e§lSHIFT for more Information",
+  "item.minecardmod.empty_minecard_card": "Empty minecard card",
+  "block.minecardmod.minecard_table": "Minecard table",
+  "screen.minecardmod.minecard_table": "Minecard table",
+  "tooltip.shift": "Hold §e§lSHIFT for more information",
   "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
   "tooltip.gui.options": "Options and tools",
 

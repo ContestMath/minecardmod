@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "minecardmod:items/empty_minecard_card"
+    "layer0": "minecardmod:item/empty_minecard_card"
   }
 }
