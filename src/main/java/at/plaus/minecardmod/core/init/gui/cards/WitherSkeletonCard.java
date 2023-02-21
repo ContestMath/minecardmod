@@ -1,9 +1,9 @@
 package at.plaus.minecardmod.core.init.gui.cards;
 
 import at.plaus.minecardmod.core.init.gui.CardTypes;
-import at.plaus.minecardmod.core.init.gui.MinecardCard;
+import at.plaus.minecardmod.core.init.gui.Card;
 
-public class WitherSkeletonCard extends MinecardCard {
+public class WitherSkeletonCard extends Card {
 
     public WitherSkeletonCard() {
         super(

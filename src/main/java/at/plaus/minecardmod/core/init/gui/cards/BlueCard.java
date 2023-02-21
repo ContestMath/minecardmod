@@ -1,16 +1,17 @@
 package at.plaus.minecardmod.core.init.gui.cards;
 
+import at.plaus.minecardmod.core.init.gui.Card;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
-import at.plaus.minecardmod.core.init.gui.MinecardCard;
 
-public class BlueMinecardCard extends MinecardCard {
+public class BlueCard extends Card {
 
-    public BlueMinecardCard() {
+    public BlueCard() {
         super(
                 5,
-                "textures/gui/blue_minecard_card.png",
+                "textures/gui/big_blue_card.png",
                 CardTypes.RANGED,
                 new String[]{"tooltip.minecardmod.cards.blue"},
                 "Blue card");
+        this.isToken = true;
     }
 }

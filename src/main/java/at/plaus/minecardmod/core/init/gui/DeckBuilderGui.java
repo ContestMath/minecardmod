@@ -22,7 +22,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public static final int cardOffset = 5;
     public final int rows = 5;
     public final int collums = 8;
-    public List<MinecardCard> deck = new ArrayList<MinecardCard>();
+    public List<Card> deck = new ArrayList<Card>();
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
     public final MinecardScreenMenu menu;
     public final Inventory inv;
@@ -41,17 +41,17 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     @Override
-    public int[] getCardPosInList(int i, List<MinecardCard> list) {
+    public int[] getCardPosInList(int i, List<Card> list) {
         int space = 5;
         if (list.equals(deck)) {
             return new int[] {
-                    MinecardTableImageLocations.guiwidth+offsetX-MinecardCard.cardwidth-10,
+                    MinecardTableImageLocations.guiwidth+offsetX- Card.cardwidth-10,
                     offsetY+10+i*cardOffset
             };
         } else if (rows*collums*page <= i && i < rows*collums*(page+1)) {
             return new int[] {
-                    10+offsetX+(MinecardCard.cardwidth+space)*(i%collums),
-                    15+offsetY+(MinecardCard.cardheight+space)*(i/collums)
+                    10+offsetX+(Card.cardwidth+space)*(i%collums),
+                    15+offsetY+(Card.cardheight+space)*(i/collums)
             };
         }
 
@@ -67,7 +67,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         renderCards(PoseStack, mouseX, mouseY);
         renderDeck(PoseStack);
         renderHighlight(PoseStack, mouseX, mouseY);
-        renderCardTooltip(PoseStack, MinecardCard.getListOfAllCards(), mouseX, mouseY);
+        renderCardTooltip(PoseStack, Card.getListOfAllNonTokenCards(), mouseX, mouseY);
         this.font.draw(PoseStack, Component.literal("Deck builder"), offsetX+2, offsetY+2, -1);
     }
 
@@ -77,17 +77,17 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
-        renderCardHighlightFromList(PoseStack, mouseX, mouseY, MinecardCard.getListOfAllCards());
+        renderCardHighlightFromList(PoseStack, mouseX, mouseY, Card.getListOfAllNonTokenCards());
     }
 
     private void renderCards(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardsFromList(PoseStack, deck);
         renderPartCardHighlightFromList(PoseStack, mouseX, mouseY, deck);
-        renderCardsFromList(PoseStack, MinecardCard.getListOfAllCards());
+        renderCardsFromList(PoseStack, Card.getListOfAllNonTokenCards());
     }
 
     private void renderDeck(PoseStack PoseStack) {
-        renderCardsFromList(PoseStack, MinecardCard.getListOfAllCards());
+        renderCardsFromList(PoseStack, Card.getListOfAllNonTokenCards());
     }
 
 
@@ -98,7 +98,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        List<MinecardCard> list = MinecardCard.getListOfAllCards();
+        List<Card> list = Card.getListOfAllNonTokenCards();
         int cardindex = getTouchingCardFromList(mouseX, mouseY, list);
         if (button == 0 && cardindex != -1) { //left mouse
             deck.add(list.get(cardindex));

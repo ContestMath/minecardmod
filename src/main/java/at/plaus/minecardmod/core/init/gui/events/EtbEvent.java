@@ -1,8 +1,8 @@
 package at.plaus.minecardmod.core.init.gui.events;
 
-import at.plaus.minecardmod.core.init.gui.BothBordstates;
-import at.plaus.minecardmod.core.init.gui.MinecardCard;
+import at.plaus.minecardmod.core.init.gui.Boardstate;
+import at.plaus.minecardmod.core.init.gui.Card;
 
 public interface EtbEvent {
-    BothBordstates onEtb(MinecardCard card, BothBordstates board);
+    Boardstate onEtb(Card card, Boardstate board);
 }

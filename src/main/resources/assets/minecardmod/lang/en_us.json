@@ -7,6 +7,9 @@
   "tooltip.gui.options": "Options and tools",
 
 
+  "tooltip.minecardmod.cards.spy": "Spy",
+
+
   "tooltip.minecardmod.cards.yellow":"Its yellow",
 
   "tooltip.minecardmod.cards.blue":"Its blue",
@@ -26,9 +29,13 @@
 
   "tooltip.minecardmod.cards.mushroom_cow": "ETB: Generate a mushroom soup in your hand",
 
-  "tooltip.minecardmod.cards.mushroom_soup": "Mushroom soup: Fully heal an entity"
+  "tooltip.minecardmod.cards.mushroom_soup1": "Mushroom soup: Fully heal an entity and add 3 strength",
 
+  "tooltip.minecardmod.cards.mushroom_soup2": "Fully heal an entity and add 3 strength",
 
+  "tooltip.minecardmod.cards.glow_squid": "Does nothing",
+
+  "tooltip.minecardmod.cards.red_dragon": "Discard a card to play Red dragon."
 
 
 

@@ -9,6 +9,8 @@ public enum CardNames {
     BAT, //5
     SKELETON, //6
     CREEPER, //7
-    MUSHROOM_COW //8
+    MUSHROOM_COW, //8
+    GLOW_SQUID, //9
+    RED_DRAGON, //10
 
 }

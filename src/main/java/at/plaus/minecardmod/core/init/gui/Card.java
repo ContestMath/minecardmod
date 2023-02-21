@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecardCard {
+public class Card {
 
     public static final int cardheight = 30;
     public static final int cardwidth = 20;
+    public static final int bigCardheight = 120;
+    public static final int bigCwidth = 80;
 
     public final String[] tooltip;
     public final CardTypes type;
@@ -23,10 +25,11 @@ public class MinecardCard {
     public final String name;
     public boolean isSpy = false;
     public boolean hasActiveSelection = false;
+    public boolean isToken = false;
 
     public ResourceLocation frame = new ResourceLocation(Minecardmod.MOD_ID,"textures/gui/frame.png");
 
-    public MinecardCard(int strength, String texture, CardTypes type, String[] tooltip, String name) {
+    public Card(int strength, String texture, CardTypes type, String[] tooltip, String name) {
         this.strength = strength;
         this.texture = texture;
         this.type = type;
@@ -39,35 +42,43 @@ public class MinecardCard {
                 this.texture);
     }
 
-    public List<Component> getTooltip() {
-        List<Component> temptooltip = new ArrayList<Component>();
+    public List<Component> getTooltip1() {
+        List<Component> tempTooltip = new ArrayList<Component>();
 
-        temptooltip.add(Component.literal(this.name));
-        temptooltip.add(Component.literal(this.name));
-        temptooltip.add(Component.literal("§o" + type.toString().toLowerCase()));
-        temptooltip.add(Component.literal(""));
+        tempTooltip.add(Component.literal(this.name));
+        tempTooltip.add(Component.literal("§o" + type.toString().toLowerCase()));
+
+
+
+        return tempTooltip;
+    }
+
+    public List<Component> getTooltip2() {
+        List<Component> tempTooltip = new ArrayList<Component>();
+
         for (String textComponent:tooltip) {
-            temptooltip.add(Component.translatable(textComponent));
+            tempTooltip.add(Component.translatable(textComponent));
         }
-        temptooltip.add(Component.literal(""));
-        temptooltip.add(Component.literal("Strength: ").append(Component.literal(Integer.toString(strength))));
+        tempTooltip.add(Component.literal(""));
+        tempTooltip.add(Component.literal("Strength: ").append(Component.literal(Integer.toString(strength))));
 
-        return temptooltip;
+
+        return tempTooltip;
     }
 
     public int getStrength(){
         return this.strength;
     }
 
-    public static int getStrengthFromList(List<MinecardCard> cardList) {
+    public static int getStrengthFromList(List<Card> cardList) {
         int total = 0;
-        for (MinecardCard i:cardList){
+        for (Card i:cardList){
             total += i.getStrength();
         }
         return total;
     }
 
-    public BothBordstates etb(BothBordstates board) {
+    public Boardstate etb(Boardstate board) {
         /*
         for (int i = 0; i < board.etbListeners.size(); i++) {
             newBoard = board.etbListeners.get(i).onEtb(this, board);
@@ -78,18 +89,18 @@ public class MinecardCard {
         return board;
     }
 
-    public BothBordstates afterEtb(BothBordstates board) {
+    public Boardstate afterEtb(Boardstate board) {
         return board;
     }
 
-    public static MinecardCard getCardFromName(CardNames s) {
+    public static Card getCardFromName(CardNames s) {
         switch (s) {
             case YELLOW:
-                return new YellowMinecardCard();
+                return new YellowCard();
             case BLUE:
-                return new BlueMinecardCard();
+                return new BlueCard();
             case BROWN:
-                return new BrownMinecardCard();
+                return new BrownCard();
             case ZOMBIE:
                 return new ZombieCard();
             case WHITHER_SKELETON:
@@ -102,32 +113,36 @@ public class MinecardCard {
                 return new CreeperCard();
             case MUSHROOM_COW:
                 return new MushroomCowCard();
+            case GLOW_SQUID:
+                return new GlowSquidCard();
+            case RED_DRAGON:
+                return new RedDragonCard();
         }
         return null;
     }
 
-    public boolean isOwned(BothBordstates board) {
-        for (MinecardCard card:board.own.hand) {
+    public boolean isOwned(Boardstate board) {
+        for (Card card:board.own.hand) {
             if (card.equals(this)) {
                 return true;
             }
         }
-        for (MinecardCard card:board.own.hand) {
+        for (Card card:board.own.hand) {
             if (card.equals(this)) {
                 return true;
             }
         }
-        for (MinecardCard card:board.own.meleeBoard) {
+        for (Card card:board.own.meleeBoard) {
             if (card.equals(this)) {
                 return true;
             }
         }
-        for (MinecardCard card:board.own.rangedBoard) {
+        for (Card card:board.own.rangedBoard) {
             if (card.equals(this)) {
                 return true;
             }
         }
-        for (MinecardCard card:board.own.specialBoard) {
+        for (Card card:board.own.specialBoard) {
             if (card.equals(this)) {
                 return true;
             }
@@ -135,11 +150,11 @@ public class MinecardCard {
         return false;
     }
 
-    public int[] getCardPos(BothBordstates board){
+    public int[] getCardPos(Boardstate board){
         int x = 0;
         int y = 0;
         int index = 0;
-        for (List<MinecardCard> list: board.getListOfCardLists()) {
+        for (List<Card> list: board.getListOfCardLists()) {
             if (list.contains(this)) {
                 x = index;
                 y = list.indexOf(this);
@@ -158,7 +173,7 @@ public class MinecardCard {
         return null;
     }
 
-    public static MinecardCard getCardFromId(int i) {
+    public static Card getCardFromId(int i) {
         return getCardFromName(CardNames.values()[i]);
     }
 
@@ -172,38 +187,42 @@ public class MinecardCard {
         }
         return -1;
     }
-    public static List<MinecardCard> getListOfAllCards(){
-        List<MinecardCard> list = new ArrayList<>();
+    public static List<Card> getListOfAllNonTokenCards(){
+        List<Card> list = new ArrayList<>();
         for (CardNames cardName:CardNames.class.getEnumConstants()) {
-            list.add(MinecardCard.getCardFromName(cardName));
+            Card card = getCardFromName(cardName);
+            if (!card.isToken) {
+                list.add(Card.getCardFromName(cardName));
+            }
         }
         return list;
     }
 
-    public BothBordstates damage(int x, BothBordstates board) {
+    public Boardstate damage(int x, Boardstate board) {
         strength -= x;
         for (CardDamagedEvent listener:board.damageListeners) {
             listener.onDamaged(x, this, board);
         }
 
+
         return board;
     }
-    public BothBordstates selected(BothBordstates board) {
-        for (CardSelectedEvent listener:board.selectionListeners) {
-            listener.onCardSelected(this);
+    public Boardstate selected(Boardstate board) {
+        board.selectionListeners.get(0).onCardSelected(this);
+        if (board.selectionListeners.isEmpty()) {
+            board.gamePaused = false;
+            board.selectionListeners = new ArrayList<CardSelectedEvent>();
         }
-        board.gamePaused = false;
-        board.selectionListeners = new ArrayList<CardSelectedEvent>();
-        board.selectionTargets = new ArrayList<List<MinecardCard>>();
+        board.selectionTargets.remove(0);
         return board;
     }
 
 
-    public BothBordstates die(BothBordstates board) {
+    public Boardstate die(Boardstate board) {
         return board;
     }
 
-    public BothBordstates removeFromBoard(BothBordstates board) {
+    public Boardstate removeFromBoard(Boardstate board) {
         board.getListOfCardLists().get(0).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(1).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(2).removeIf(i -> i.equals(this));
@@ -215,8 +234,12 @@ public class MinecardCard {
         return board;
     }
 
-    public boolean equals(MinecardCard card, BothBordstates board1, BothBordstates board2) {
+    public boolean equals(Card card, Boardstate board1, Boardstate board2) {
         return Objects.equals(card.name, name) && this.getCardPos(board1) == card.getCardPos(board2);
+    }
+
+    public int getDefaultStrength(){
+        return Objects.requireNonNull(getCardFromName(this.getNameFromCard())).strength;
     }
 }
 

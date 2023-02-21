@@ -5,7 +5,7 @@ import at.plaus.minecardmod.core.init.gui.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZombieCard extends MinecardCard {
+public class ZombieCard extends Card {
 
     public ZombieCard() {
         super(
@@ -18,31 +18,31 @@ public class ZombieCard extends MinecardCard {
     }
 
     @Override
-    public BothBordstates etb(BothBordstates board) {
-        List<MinecardCard> zombies = new ArrayList<MinecardCard>();
-        List<MinecardCard> negTempList = new ArrayList<MinecardCard>();
-        BothBordstates tempBoard = board;
+    public Boardstate etb(Boardstate board) {
+        List<Card> zombies = new ArrayList<Card>();
+        List<Card> negTempList = new ArrayList<Card>();
+        Boardstate tempBoard = board;
 
-        for (MinecardCard card:board.own.hand) {
+        for (Card card:board.own.hand) {
             if (card.getNameFromCard().equals(CardNames.ZOMBIE)) {
                 negTempList.add(card);
                 zombies.add(card);
             }
         }
         board.own.hand.removeAll(negTempList);
-        negTempList = new ArrayList<MinecardCard>();
+        negTempList = new ArrayList<Card>();
 
-        for (MinecardCard card:board.own.deck) {
+        for (Card card:board.own.deck) {
             if (card.getNameFromCard().equals(CardNames.ZOMBIE)) {
                 negTempList.add(card);
                 zombies.add(card);
             }
         }
         board.own.deck.removeAll(negTempList);
-        negTempList = new ArrayList<MinecardCard>();
+        negTempList = new ArrayList<Card>();
 
-        for (MinecardCard z:zombies) {
-            tempBoard = tempBoard.playCard(z, BothBordstates.Player.OWN);
+        for (Card z:zombies) {
+            tempBoard = tempBoard.playCard(z, Boardstate.Player.OWN);
         }
         return super.etb(tempBoard);
     }
