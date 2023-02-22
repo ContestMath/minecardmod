@@ -208,13 +208,18 @@ public class Card {
         return board;
     }
     public Boardstate selected(Boardstate board) {
-        board.selectionListeners.get(0).onCardSelected(this);
-        if (board.selectionListeners.isEmpty()) {
-            board.gamePaused = false;
-            board.selectionListeners = new ArrayList<CardSelectedEvent>();
+        Boardstate newBoard = new Boardstate(board);
+
+        newBoard.selectionListeners.get(0).onCardSelected(this);
+
+        newBoard.selectionListeners.remove(0);
+        if (newBoard.selectionListeners.isEmpty()) {
+            newBoard.gamePaused = false;
+            newBoard.selectionListeners = new ArrayList<>();
+            newBoard.selectionTargets = new ArrayList<>();
         }
-        board.selectionTargets.remove(0);
-        return board;
+
+        return newBoard;
     }
 
 

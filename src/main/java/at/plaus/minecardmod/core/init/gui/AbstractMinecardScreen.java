@@ -19,7 +19,7 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
 
     public int offsetX;
     public int offsetY;
-    boolean isFirstTimeInit = true;
+    public boolean isFirstTimeInit = true;
 
     public AbstractMinecardScreen(MinecardScreenMenu p_97741_, Inventory p_97742_, Component p_97743_) {
         super(p_97741_, p_97742_, p_97743_);
@@ -28,25 +28,26 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
 
     public abstract int[] getCardPosInList(int i, List<Card> list);
 
-    @Override
-    protected void init() {
-        super.init();
-        if (this.isFirstTimeInit){
-            startup();
-        }
-        this.isFirstTimeInit = false;
-    }
 
-    public void startup() {
-        GlobalValues.switchToOther = false;
-    }
+    public void startup() {}
+
     public void renderCardTooltip(PoseStack poseStack, List<Card> list, int mouseX, int mouseY) {
         if (getTouchingCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
             int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
             int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
             ModClientEvents.eventCard = list.get(getTouchingCardFromList(mouseX, mouseY, list));
             renderComponentTooltip(poseStack, list.get(getTouchingCardFromList(mouseX, mouseY, list)).getTooltip1(), mouseX, mouseY);
+            ModClientEvents.eventCard = null;
         }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (isFirstTimeInit){
+            startup();
+        }
+        isFirstTimeInit = false;
     }
 
     @Override

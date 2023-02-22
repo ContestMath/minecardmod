@@ -36,9 +36,15 @@ public class Boardstate {
         return new Boardstate(enemy, own);
     }
 
+    @Deprecated
     public Boardstate(HalveBoardState own, HalveBoardState enemy) {
         this.enemy = enemy;
         this.own = own;
+    }
+
+    public Boardstate() {
+        this.enemy = new HalveBoardState();
+        this.own = new HalveBoardState();
     }
 
     public Boardstate(Boardstate board) {
@@ -93,7 +99,8 @@ public class Boardstate {
                 this.enemy.graveyard.add(card);
             }
         }
-        Boardstate tempBoard = this;List<EtbEvent> tempListener = new ArrayList<>();
+        Boardstate tempBoard = this;
+        List<EtbEvent> tempListener = new ArrayList<>();
         tempListener.addAll(etbListeners);
         tempBoard = card.etb(tempBoard);
 
@@ -152,12 +159,6 @@ public class Boardstate {
     public void switchTurn() {
         own.isYourTurn = !own.isYourTurn;
         enemy.isYourTurn = !enemy.isYourTurn;
-        if (enemy.hand.isEmpty()) {
-            enemy.hasPassed = true;
-        }
-        if (own.hand.isEmpty()) {
-            own.hasPassed = true;
-        }
     }
 
 

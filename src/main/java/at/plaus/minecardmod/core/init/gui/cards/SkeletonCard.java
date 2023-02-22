@@ -23,10 +23,7 @@ public class SkeletonCard extends Card {
         board.selectionTargets.add(board.enemy.meleeBoard);
         board.selectionTargets.add(board.enemy.rangedBoard);
         board.selectionTargets.add(board.enemy.specialBoard);
-        board.selectionListeners.add((card) -> {
-            Boardstate b = card.damage(3, board);
-            return board;
-        });
+        board.selectionListeners.add((card) -> card.damage(3, new Boardstate(board)));
         return super.etb(board);
     }
 }

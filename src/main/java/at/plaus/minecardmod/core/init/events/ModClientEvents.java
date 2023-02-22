@@ -30,11 +30,13 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void gatherComponents(RenderTooltipEvent.GatherComponents event)
     {
-        if (eventCard != null)
+        if (eventCard != null) {
             event.getTooltipElements().add(Either.right(new CardTooltipComponent(eventCard)));
-        for (Component tooltipElement:eventCard.getTooltip2()) {
-            event.getTooltipElements().add(Either.left(tooltipElement));
+            for (Component tooltipElement:eventCard.getTooltip2()) {
+                event.getTooltipElements().add(Either.left(tooltipElement));
+            }
         }
+
     }
 
 
