@@ -4,6 +4,7 @@ import at.plaus.minecardmod.core.init.BlockInit;
 import at.plaus.minecardmod.core.init.Iteminit;
 import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
 import at.plaus.minecardmod.core.init.menu.MenuTypeInit;
+import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.tileentity.ModTileEntities;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -50,6 +51,7 @@ public class Minecardmod {
         event.enqueueWork(() -> {
 
         });
+        ModMessages.register();
     }
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

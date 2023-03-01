@@ -9,7 +9,7 @@ public class RedDragonCard extends Card {
         super(
                 12,
                 "textures/gui/red_dragon.png",
-                CardTypes.RANGED,
+                CardTypes.SPECIAL,
                 new String[]{"tooltip.minecardmod.cards.red_dragon"},
                 "Red dragon");
     }
@@ -18,16 +18,7 @@ public class RedDragonCard extends Card {
     public Boardstate etb(Boardstate board) {
         board.gamePaused = true;
         board.selectionTargets.add(board.own.hand);
-        board.selectionListeners.add((card) -> {
-            board.own.hand.remove(card);
-            board.own.graveyard.add(card);
-            return board;
-        });
-        board.selectionListeners.add((card) -> {
-            board.own.hand.remove(card);
-            board.own.graveyard.add(card);
-            return board;
-        });
+        board.selectionListeners.add(Card::discard);
         return super.etb(board);
     }
 }

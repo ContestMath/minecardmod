@@ -12,5 +12,14 @@ public enum CardNames {
     MUSHROOM_COW, //8
     GLOW_SQUID, //9
     RED_DRAGON, //10
+    ENDER_MITE, //11
+    LIGHTING_STRIKE, //12
+    ALEX, //13
+    STEVE, //14
+    GIANT, //15
+    LIGHTNING_STORM, //16
+    PICKAXE, //17
+    SQUID, //18
+
 
 }

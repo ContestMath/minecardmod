@@ -1,13 +1,19 @@
 package at.plaus.minecardmod.core.init.gui;
 
+import at.plaus.minecardmod.Capability.DeckProvider;
+import at.plaus.minecardmod.Capability.SavedDecks;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
+import at.plaus.minecardmod.networking.ModMessages;
+import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
+import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -15,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class DeckBuilderGui extends AbstractMinecardScreen {
 
@@ -123,12 +131,40 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     public void onCloseOrSwitch() {
-        GlobalValues.deck1.put(Minecraft.getInstance().player, deck);
+        String s = deckString(deck);
+        ModMessages.sendToServer(new DeckC2SPacket(s));
     }
+
     @Override
     public void onClose() {
         onCloseOrSwitch();
         super.onClose();
+    }
+
+    public static String deckString(List<Card> cardList) {
+        StringBuilder string = new StringBuilder();
+        for (Card card:cardList) {
+            string.append(Card.getIdStringFromCardName(card.getNameFromCard()));
+        }
+        return string.toString();
+    }
+
+    public static Stack<Card> stringToDeck(String s) {
+        Stack<Card> deck =  new Stack<>();
+        List<Character> chars = s.chars().mapToObj(e->(char)e).collect(Collectors.toList());
+        StringBuilder tempString = new StringBuilder();
+        int i = 0;
+
+        for (Character character:chars) {
+            tempString.append(character);
+            i++;
+            if ((i % 4) == 0) {
+                deck.push(Card.getCardFromId(Integer.parseInt(tempString.toString())));
+                i = 0;
+                tempString = new StringBuilder();
+            }
+        }
+        return deck;
     }
 
     @Override

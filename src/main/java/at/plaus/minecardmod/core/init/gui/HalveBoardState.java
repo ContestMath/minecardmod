@@ -15,6 +15,7 @@ public class HalveBoardState {
     public boolean isYourTurn = true;
     public boolean hasPassed = false;
     public int lifePoints = 2;
+    public int emeraldCount = 0;
 
 
     public HalveBoardState() {
@@ -38,7 +39,15 @@ public class HalveBoardState {
         this.rangedBoard = new ArrayList<Card>(boardState.rangedBoard);
         this.specialBoard = new ArrayList<Card>(boardState.specialBoard);
         this.graveyard = new ArrayList<Card>(boardState.graveyard);
+        this.emeraldCount = boardState.emeraldCount;
+    }
 
+    public HalveBoardState getOther(Boardstate board) {
+        if (board.own == this) {
+            return board.enemy;
+        } else {
+            return board.own;
+        }
     }
 
     public void drawCard() {

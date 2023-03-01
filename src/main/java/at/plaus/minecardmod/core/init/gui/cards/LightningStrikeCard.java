@@ -1,17 +1,17 @@
 package at.plaus.minecardmod.core.init.gui.cards;
 
 import at.plaus.minecardmod.core.init.gui.Boardstate;
-import at.plaus.minecardmod.core.init.gui.CardTypes;
 import at.plaus.minecardmod.core.init.gui.Card;
+import at.plaus.minecardmod.core.init.gui.CardTypes;
 
-public class SkeletonCard extends Card {
-    public SkeletonCard() {
+public class LightningStrikeCard extends Card {
+    public LightningStrikeCard() {
         super(
-                4,
-                "textures/gui/skeleton_card.png",
-                CardTypes.RANGED,
-                new String[]{"tooltip.minecardmod.cards.skeleton"},
-                "Skeleton");
+                0,
+                "textures/gui/lighting_strike.png",
+                CardTypes.SPELL,
+                new String[]{"tooltip.minecardmod.cards.lighting_strike"},
+                "Lighting Strike");
     }
 
     @Override
@@ -23,7 +23,7 @@ public class SkeletonCard extends Card {
         board.selectionTargets.add(board.enemy.meleeBoard);
         board.selectionTargets.add(board.enemy.rangedBoard);
         board.selectionTargets.add(board.enemy.specialBoard);
-        board.selectionListeners.add((card, boardstate) -> card.damage(3, new Boardstate(boardstate)));
+        board.selectionListeners.add((card, boardstate) -> card.damage(8, new Boardstate(boardstate)));
         return super.etb(board);
     }
 }

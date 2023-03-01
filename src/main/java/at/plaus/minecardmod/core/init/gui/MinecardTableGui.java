@@ -1,6 +1,8 @@
 package at.plaus.minecardmod.core.init.gui;
 
+import at.plaus.minecardmod.Capability.DeckProvider;
 import at.plaus.minecardmod.Minecardmod;
+import at.plaus.minecardmod.client.ClientDeckData;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.core.init.gui.cards.BlueCard;
@@ -80,15 +82,12 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             loadGame(GlobalValues.savedBoardTemp.get(p));
         } else {
             board.enemy.isYourTurn = false;
-            if (GlobalValues.deck1.containsKey(p)) {
-                List<Card> d = new ArrayList<>();
+            String deckString = ClientDeckData.getDeck();
+            if (!Objects.equals(deckString, "")) {
 
-                for (Card card:GlobalValues.deck1.get(p)) {
-                    d.add(Card.getCardFromName(card.getNameFromCard()));
-                }
-
-                Collections.shuffle(d, new Random());
-                board.own.deck.addAll(d);
+                board.own.deck = DeckBuilderGui.stringToDeck(deckString);
+                
+                Collections.shuffle(board.own.deck, new Random());
             } else {
                 for (int i = 0; i < 10; i++) {
                     board.own.deck.push(new BlueCard());
@@ -115,34 +114,27 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void playLoop() {
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         if (board.enemy.hand.isEmpty()) {
             board.enemy.hasPassed = true;
         }
         if (board.own.hand.isEmpty()) {
             board.own.hasPassed = true;
         }
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         if (board.own.hasPassed && board.enemy.hasPassed) {
             endRound();
         }
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         if (board.own.lifePoints == 0 || board.enemy.lifePoints == 0) {
             endGame();
         }
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         if (board.enemy.hasPassed) {
             board.enemy.isYourTurn = false;
             board.own.isYourTurn = true;
         }
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         if (board.own.hasPassed) {
             board.own.isYourTurn = false;
             board.enemy.isYourTurn = true;
         }
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
         enemyPlay();
-        Minecraft.getInstance().player.sendSystemMessage(Component.literal(Boolean.toString(board.enemy.isYourTurn)));
     }
 
     @Override
@@ -242,7 +234,6 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             Minecraft.getInstance().setScreen(new DeckBuilderGui(menu, inv, component));
             return true;
         } else if (keyCode == 81) {
-            board.own.drawCard();
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);

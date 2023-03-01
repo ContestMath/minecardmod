@@ -4,7 +4,6 @@ package at.plaus.minecardmod.core.init.gui;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
-import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ public class Card {
     public int strength;
     public final String texture;
     public final String name;
+    public boolean isHero = false;
     public boolean isSpy = false;
     public boolean hasActiveSelection = false;
     public boolean isToken = false;
@@ -79,13 +79,6 @@ public class Card {
     }
 
     public Boardstate etb(Boardstate board) {
-        /*
-        for (int i = 0; i < board.etbListeners.size(); i++) {
-            newBoard = board.etbListeners.get(i).onEtb(this, board);
-        }
-
-         */
-        //afterEtb(board);
         return board;
     }
 
@@ -117,6 +110,22 @@ public class Card {
                 return new GlowSquidCard();
             case RED_DRAGON:
                 return new RedDragonCard();
+            case STEVE:
+                return new SteveCard();
+            case ALEX:
+                return new AlexCard();
+            case LIGHTING_STRIKE:
+                return new LightningStrikeCard();
+            case ENDER_MITE:
+                return new EnderMite();
+            case GIANT:
+                return new GiantCard();
+            case SQUID:
+                return new SquidCard();
+            case PICKAXE:
+                return new PickaxeCard();
+            case LIGHTNING_STORM:
+                return new LightningStormCard();
         }
         return null;
     }
@@ -148,6 +157,35 @@ public class Card {
             }
         }
         return false;
+    }
+
+    public HalveBoardState getOwedHalveBoard(Boardstate board) {
+        for (Card card:board.own.hand) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        for (Card card:board.own.meleeBoard) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        for (Card card:board.own.rangedBoard) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        for (Card card:board.own.specialBoard) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        for (Card card:board.own.graveyard) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        return board.enemy;
     }
 
     public int[] getCardPos(Boardstate board){
@@ -187,6 +225,18 @@ public class Card {
         }
         return -1;
     }
+
+    public static String getIdStringFromCardName(CardNames s) {
+        int id = getIdFromCardName(s);
+        int numberZeros = 3 - Integer.toString(id).length();
+        StringBuilder toreturn = new StringBuilder();
+        for (int i=0; i<=numberZeros; i++) {
+            toreturn.append(0);
+        }
+        toreturn.append(id);
+        return String.valueOf(toreturn);
+    }
+
     public static List<Card> getListOfAllNonTokenCards(){
         List<Card> list = new ArrayList<>();
         for (CardNames cardName:CardNames.class.getEnumConstants()) {
@@ -200,17 +250,22 @@ public class Card {
 
     public Boardstate damage(int x, Boardstate board) {
         strength -= x;
+        Boardstate tempBoard =  new Boardstate(board);
         for (CardDamagedEvent listener:board.damageListeners) {
             listener.onDamaged(x, this, board);
         }
+        if (strength <= 0) {
+            this.removeFromBoard(tempBoard);
+            this.die(tempBoard);
+        }
 
-
-        return board;
+        return tempBoard;
     }
+
     public Boardstate selected(Boardstate board) {
         Boardstate newBoard = new Boardstate(board);
 
-        newBoard.selectionListeners.get(0).onCardSelected(this);
+        newBoard = newBoard.selectionListeners.get(0).onCardSelected(this, newBoard);
 
         newBoard.selectionListeners.remove(0);
         if (newBoard.selectionListeners.isEmpty()) {
@@ -219,6 +274,17 @@ public class Card {
             newBoard.selectionTargets = new ArrayList<>();
         }
 
+        return newBoard;
+    }
+
+    public Boardstate discard(Boardstate boardstate) {
+        Boardstate newBoard = new Boardstate(boardstate);
+        if (this.isOwned(newBoard)) {
+            newBoard.own.graveyard.add(getCardFromName(this.getNameFromCard()));
+        } else {
+            newBoard.enemy.graveyard.add(getCardFromName(this.getNameFromCard()));
+        }
+        this.removeFromBoard(newBoard);
         return newBoard;
     }
 
