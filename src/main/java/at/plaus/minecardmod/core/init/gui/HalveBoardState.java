@@ -16,6 +16,7 @@ public class HalveBoardState {
     public boolean hasPassed = false;
     public int lifePoints = 2;
     public int emeraldCount = 0;
+    public int cthulhuCounter = 0;
 
 
     public HalveBoardState() {
@@ -40,6 +41,7 @@ public class HalveBoardState {
         this.specialBoard = new ArrayList<Card>(boardState.specialBoard);
         this.graveyard = new ArrayList<Card>(boardState.graveyard);
         this.emeraldCount = boardState.emeraldCount;
+        this.cthulhuCounter = boardState.cthulhuCounter;
     }
 
     public HalveBoardState getOther(Boardstate board) {
@@ -79,6 +81,15 @@ public class HalveBoardState {
         List<Card> cards = new ArrayList<Card>();
         cards.addAll(this.deck);
         cards.addAll(this.hand);
+        cards.addAll(this.meleeBoard);
+        cards.addAll(this.rangedBoard);
+        cards.addAll(this.specialBoard);
+        cards.addAll(this.graveyard);
+        return cards;
+    }
+
+    public List<Card> getAllCardsOnBoard() {
+        List<Card> cards = new ArrayList<Card>();
         cards.addAll(this.meleeBoard);
         cards.addAll(this.rangedBoard);
         cards.addAll(this.specialBoard);

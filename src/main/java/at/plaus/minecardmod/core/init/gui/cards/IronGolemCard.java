@@ -2,19 +2,20 @@ package at.plaus.minecardmod.core.init.gui.cards;
 
 import at.plaus.minecardmod.core.init.gui.Boardstate;
 import at.plaus.minecardmod.core.init.gui.Card;
-import at.plaus.minecardmod.core.init.gui.CardSubtypes;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
 
-public class LightningStrikeCard extends Card {
-    public LightningStrikeCard() {
+public class IronGolemCard extends Card {
+
+    public IronGolemCard() {
         super(
-                0,
-                "textures/gui/lighting_strike.png",
-                CardTypes.SPELL,
-                new String[]{"tooltip.minecardmod.cards.lighting_strike"},
-                "Lighting Strike"
+                14,
+                "textures/gui/iron_golem.png",
+                CardTypes.MELEE,
+                new String[]{"tooltip.minecardmod.cards.iron_golem"},
+                "Iron Golem"
         );
-        this.subtypes.add(CardSubtypes.Lightning);
+        this.emeraldCost = 7;
+        this.resistance = 4;
     }
 
     @Override
@@ -27,7 +28,14 @@ public class LightningStrikeCard extends Card {
         board.selectionTargets.add(board.enemy.rangedBoard);
         board.selectionTargets.add(board.enemy.specialBoard);
         board.selectionSource = this;
-        board.selectionListeners.add((source, card, boardstate) -> card.damage(8, new Boardstate(boardstate)));
+        board.selectionListeners.add((source, card, boardstate) -> {
+            Boardstate newBoard = new Boardstate(boardstate);
+            int damageX = source.strength;
+            int damageY = card.strength;
+            newBoard = card.damage(damageX, new Boardstate(newBoard));
+            newBoard = source.damage(damageY, new Boardstate(newBoard));
+            return newBoard;
+        });
         return super.etb(board);
     }
 }

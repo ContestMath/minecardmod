@@ -18,7 +18,8 @@ public class RedDragonCard extends Card {
     public Boardstate etb(Boardstate board) {
         board.gamePaused = true;
         board.selectionTargets.add(board.own.hand);
-        board.selectionListeners.add(Card::discard);
+        board.selectionSource = this;
+        board.selectionListeners.add((source, card, boardstate) -> card.discard(boardstate));
         return super.etb(board);
     }
 }

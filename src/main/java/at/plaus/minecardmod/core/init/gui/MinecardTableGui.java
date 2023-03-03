@@ -1,6 +1,5 @@
 package at.plaus.minecardmod.core.init.gui;
 
-import at.plaus.minecardmod.Capability.DeckProvider;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.client.ClientDeckData;
 import at.plaus.minecardmod.core.init.GlobalValues;
@@ -39,6 +38,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     public final MinecardScreenMenu menu;
     public final Inventory inv;
     public final Component component;
+    public static boolean cardWasPlayed;
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
@@ -156,14 +156,17 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         if (!board.gamePaused) {
-            renderCardHighlightFromList(PoseStack, mouseX, mouseY, board.own.hand);
+            renderCardHighlightFromList(PoseStack, mouseX, mouseY, board.own.hand, board);
         } else {
             for (List<Card> list:board.selectionTargets) {
-                renderCardHighlightFromList(PoseStack, mouseX, mouseY, list);
+                renderCardHighlightFromList(PoseStack, mouseX, mouseY, list, board);
             }
         }
         if (board.own.isYourTurn && isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
             fillGradient(PoseStack, offsetX+20, offsetY+ MinecardTableImageLocations.guiheight-25-20, offsetX+20+40, offsetY+ MinecardTableImageLocations.guiheight-25-20+25, -1072689136, -804253680);
+        }
+        if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)) {
+            fillGradient(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
         }
     }
 
@@ -192,12 +195,15 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         renderCardsFromList(PoseStack, board.enemy.specialBoard);
         renderCardsFromList(PoseStack, board.own.specialBoard);
     }
+
     public void renderOtherStuff(PoseStack PoseStack) {
         RenderSystem.setShaderTexture(0,new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/pass.png"));
         this.blit(PoseStack, offsetX+ MinecardTableImageLocations.PassX, offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY, 0, 0, MinecardTableImageLocations.PassWidth, MinecardTableImageLocations.PassHeight);
         RenderSystem.setShaderTexture(0,new ResourceLocation(""));
         this.blit(PoseStack, offsetX+ MinecardTableImageLocations.guiwidth- Card.cardwidth-10, offsetY+ MinecardTableImageLocations.guiheight- Card.cardheight-10, 0, 0, Card.cardwidth, Card.cardheight);
-        this.blit(PoseStack, offsetX+ MinecardTableImageLocations.guiwidth- Card.cardwidth-10, offsetY+10, 0, 0, Card.cardwidth, Card.cardheight);
+        //this.blit(PoseStack, offsetX+ MinecardTableImageLocations.guiwidth- Card.cardwidth-10, offsetY+10, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
+        //change button
+        this.blit(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
         RenderSystem.setShaderTexture(0,new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/heart.png"));
         if (board.own.lifePoints == 2) {
             this.blit(PoseStack, offsetX+ MinecardTableImageLocations.ownHeartX, offsetY+ MinecardTableImageLocations.ownHeartY, MinecardTableImageLocations.heartWidth, 0, MinecardTableImageLocations.heartWidth, MinecardTableImageLocations.heartHeight);
@@ -221,17 +227,32 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void renderValues(PoseStack PoseStack, int offsetX, int offsetY) {
-        this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length())-16, offsetY+ MinecardTableImageLocations.guiheight-18, -1);
-        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length())-16, offsetY+ Card.cardheight+2, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length()/2)-16, offsetY+ MinecardTableImageLocations.guiheight-18, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length()/2)-16, offsetY+ Card.cardheight+2, -1);
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.enemy.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2-20, -1);
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength()).length())/2, offsetY+5, -1);
+
+        if (!board.selectionTargets.isEmpty()) {
+            this.font.draw(PoseStack, Component.literal("Press space to decline to select target(s)"), 5, this.height-8, -1);
+        }
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
-            onCloseOrSwitch();
-            Minecraft.getInstance().setScreen(new DeckBuilderGui(menu, inv, component));
+            if (!board.selectionListeners.isEmpty()) {
+                board.selectionListeners.remove(0);
+                if (board.selectionListeners.isEmpty()) {
+                    board.gamePaused = false;
+                    board.selectionListeners = new ArrayList<>();
+                    board.selectionTargets = new ArrayList<>();
+                }
+                if (!board.gamePaused) {
+                    board.switchTurn();
+                }
+                playLoop();
+            }
             return true;
         } else if (keyCode == 81) {
             return true;
@@ -248,15 +269,12 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 if (board.own.isYourTurn) {
                     if (cardindex != -1){
                         board = board.playCardFromHand(cardindex, Boardstate.Player.OWN);
-                        if (!board.gamePaused) {
+                        if (!board.gamePaused && cardWasPlayed) {
                             board.switchTurn();
                             playLoop();
                         }
-
                     }
                 }
-
-
             } else {
                 int cardindex = -1;
                 for (List<Card> list:board.selectionTargets) {
@@ -275,6 +293,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
                 board.own.hasPassed = true;
                 playLoop();
+            }
+
+            if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
+                onCloseOrSwitch();
+                Minecraft.getInstance().setScreen(new DeckBuilderGui(menu, inv, component));
             }
         }
 

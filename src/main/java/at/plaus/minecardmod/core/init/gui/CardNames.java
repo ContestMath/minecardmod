@@ -20,6 +20,8 @@ public enum CardNames {
     LIGHTNING_STORM, //16
     PICKAXE, //17
     SQUID, //18
-
+    VILLAGER, //19
+    IRON_GOLEM, //20
+    CTHULHU, //21
 
 }

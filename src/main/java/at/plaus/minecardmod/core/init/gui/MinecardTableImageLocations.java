@@ -16,5 +16,9 @@ public final class MinecardTableImageLocations {
     public static final int optionsX = 5;
     public static final int optionsY = 15;
     public static final int optionsSide = 10;
+    public static final int changeWidth = 35;
+    public static final int changeHeight = 15;
+    public static final int changeX = 10;
+    public static final int changeY = guiheight-changeHeight-10;
 
 }

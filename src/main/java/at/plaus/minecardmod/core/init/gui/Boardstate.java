@@ -4,6 +4,7 @@ import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
 import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
 import net.minecraft.nbt.CompoundTag;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class Boardstate {
     public HalveBoardState enemy;
     public boolean gamePaused = false;
     public List<CardSelectedEvent> selectionListeners = new ArrayList<CardSelectedEvent>();
+    public Card selectionSource;
     public List<CardDamagedEvent> damageListeners = new ArrayList<CardDamagedEvent>();
     public List<EtbEvent> etbListeners = new ArrayList<EtbEvent>();
     public List<List<Card>> selectionTargets = new ArrayList<List<Card>>();
@@ -24,12 +26,20 @@ public class Boardstate {
     }
 
 
+    @Deprecated
     public HalveBoardState getBoardState(Player p) {
         if (p == Player.OWN) {
             return own;
         } else {
             return enemy;
         }
+    }
+
+    public Player getPlayerFromHalveBoard(HalveBoardState halveBoardState) {
+        if (halveBoardState.equals(enemy)) {
+            return Player.ENEMY;
+        }
+        return Player.OWN;
     }
 
     public Boardstate getReverse(){
@@ -55,12 +65,19 @@ public class Boardstate {
         this.damageListeners = new ArrayList<>(board.damageListeners);
         this.etbListeners = new ArrayList<>(board.etbListeners);
         this.selectionTargets = new ArrayList<>(board.selectionTargets);
+        this.selectionSource = board.selectionSource;
     }
 
     public Boardstate playCardFromHand(int i, Player player) {
         Card card = this.getBoardState(player).hand.get(i);
-        this.getBoardState(player).hand.remove(i);
-        return playCard(card, player);
+        if (card.isPlayable(this)) {
+            this.getBoardState(player).emeraldCount -= card.emeraldCost;
+            this.getBoardState(player).hand.remove(i);
+            MinecardTableGui.cardWasPlayed = true;
+            return playCard(card, player);
+        }
+        MinecardTableGui.cardWasPlayed = false;
+        return this;
     }
 
     public Boardstate playCard(Card card, Player player) {
@@ -115,22 +132,28 @@ public class Boardstate {
         Boardstate newBoard = new Boardstate(this);
 
         for (Card card: own.meleeBoard) {
+            newBoard.own.graveyard.add(card);
             newBoard.own.meleeBoard.remove(card);
         }
         for (Card card: own.rangedBoard) {
             newBoard.own.rangedBoard.remove(card);
+            newBoard.own.graveyard.add(card);
         }
         for (Card card: own.specialBoard) {
             newBoard.own.specialBoard.remove(card);
+            newBoard.own.graveyard.add(card);
         }
         for (Card card: enemy.meleeBoard) {
             newBoard.enemy.meleeBoard.remove(card);
+            newBoard.own.graveyard.add(card);
         }
         for (Card card: enemy.rangedBoard) {
             newBoard.enemy.rangedBoard.remove(card);
+            newBoard.own.graveyard.add(card);
         }
         for (Card card: enemy.specialBoard) {
             newBoard.enemy.specialBoard.remove(card);
+            newBoard.own.graveyard.add(card);
         }
 
 
@@ -175,6 +198,12 @@ public class Boardstate {
         return list;
     }
 
+    public List<Card> getAllCardsOnBoard() {
+        List<Card> list = new ArrayList<>();
+        list.addAll(own.getAllCardsOnBoard());
+        list.addAll(enemy.getAllCardsOnBoard());
+        return list;
+    }
 
 
 }

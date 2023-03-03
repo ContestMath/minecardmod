@@ -4,15 +4,15 @@ import at.plaus.minecardmod.core.init.gui.Boardstate;
 import at.plaus.minecardmod.core.init.gui.Card;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
 
-public class EnderMite extends Card {
+public class EnderMiteCard extends Card {
 
-    public EnderMite() {
+    public EnderMiteCard() {
         super(
                 1,
                 "textures/gui/ender_mite_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.ender_mite"},
-                "Steve"
+                "Ender Mite"
         );
         isHero = true;
     }

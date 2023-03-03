@@ -26,6 +26,11 @@ public class Card {
     public boolean isSpy = false;
     public boolean hasActiveSelection = false;
     public boolean isToken = false;
+    public int emeraldCost = 0;
+    public boolean isSwift = false;
+    public int resistance = 0;
+    public boolean undieing = false;
+    public List<CardSubtypes> subtypes = new ArrayList<>();
 
     public ResourceLocation frame = new ResourceLocation(Minecardmod.MOD_ID,"textures/gui/frame.png");
 
@@ -36,6 +41,11 @@ public class Card {
         this.tooltip = tooltip;
         this.name = name;
     }
+
+    public boolean isPlayable(Boardstate board) {
+        return getOwedHalveBoard(board).emeraldCount >= emeraldCost;
+    }
+
 
     public ResourceLocation getTexture() {
         return new ResourceLocation(Minecardmod.MOD_ID,
@@ -117,7 +127,7 @@ public class Card {
             case LIGHTING_STRIKE:
                 return new LightningStrikeCard();
             case ENDER_MITE:
-                return new EnderMite();
+                return new EnderMiteCard();
             case GIANT:
                 return new GiantCard();
             case SQUID:
@@ -126,6 +136,12 @@ public class Card {
                 return new PickaxeCard();
             case LIGHTNING_STORM:
                 return new LightningStormCard();
+            case VILLAGER:
+                return new VillagerCard();
+            case IRON_GOLEM:
+                return new IronGolemCard();
+            case CTHULHU:
+                return new CthulhuCard();
         }
         return null;
     }
@@ -181,6 +197,11 @@ public class Card {
             }
         }
         for (Card card:board.own.graveyard) {
+            if (card.equals(this)) {
+                return board.own;
+            }
+        }
+        for (Card card:board.own.deck) {
             if (card.equals(this)) {
                 return board.own;
             }
@@ -249,23 +270,24 @@ public class Card {
     }
 
     public Boardstate damage(int x, Boardstate board) {
-        strength -= x;
         Boardstate tempBoard =  new Boardstate(board);
-        for (CardDamagedEvent listener:board.damageListeners) {
-            listener.onDamaged(x, this, board);
+        if (x > resistance) {
+            strength -= x - resistance;
+            for (CardDamagedEvent listener:board.damageListeners) {
+                tempBoard = listener.onDamaged(x, this, new Boardstate(tempBoard));
+            }
+            if (strength <= 0) {
+                tempBoard = this.removeFromBoard(tempBoard);
+                tempBoard = this.die(tempBoard);
+            }
         }
-        if (strength <= 0) {
-            this.removeFromBoard(tempBoard);
-            this.die(tempBoard);
-        }
-
         return tempBoard;
     }
 
     public Boardstate selected(Boardstate board) {
         Boardstate newBoard = new Boardstate(board);
 
-        newBoard = newBoard.selectionListeners.get(0).onCardSelected(this, newBoard);
+        newBoard = newBoard.selectionListeners.get(0).onCardSelected(board.selectionSource, this, newBoard);
 
         newBoard.selectionListeners.remove(0);
         if (newBoard.selectionListeners.isEmpty()) {
@@ -294,6 +316,7 @@ public class Card {
     }
 
     public Boardstate removeFromBoard(Boardstate board) {
+        getOwedHalveBoard(board).graveyard.add(this);
         board.getListOfCardLists().get(0).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(1).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(2).removeIf(i -> i.equals(this));
@@ -302,6 +325,7 @@ public class Card {
         board.getListOfCardLists().get(5).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(6).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(7).removeIf(i -> i.equals(this));
+
         return board;
     }
 

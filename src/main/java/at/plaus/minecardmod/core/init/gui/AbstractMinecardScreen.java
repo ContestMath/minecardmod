@@ -113,8 +113,20 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
 
     }
 
+    public void renderCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY, List<Card> list, Boardstate board) {
+        if (getTouchingCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
+            Card card = list.get(getTouchingCardFromList(mouseX, mouseY, list));
+            if (card.isPlayable(board)) {
+                int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
+                int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
+                fillGradient(poseStack, xMin, yMin, xMin+ Card.cardwidth, yMin+ Card.cardheight, -1072689136, -804253680);
+            }
+        }
+    }
+
     public void renderCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY, List<Card> list) {
         if (getTouchingCardFromList(mouseX, mouseY, list) != -1) { // && ownBoard.isYourTurn
+            Card card = list.get(getTouchingCardFromList(mouseX, mouseY, list));
             int xMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[0];
             int yMin = getCardPosInList(getTouchingCardFromList(mouseX, mouseY, list), list)[1];
             fillGradient(poseStack, xMin, yMin, xMin+ Card.cardwidth, yMin+ Card.cardheight, -1072689136, -804253680);

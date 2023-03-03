@@ -74,9 +74,15 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         this.renderWindow(PoseStack, offsetX, offsetY);
         renderCards(PoseStack, mouseX, mouseY);
         renderDeck(PoseStack);
+        renderOtherStuff(PoseStack, mouseX, mouseY);
         renderHighlight(PoseStack, mouseX, mouseY);
         renderCardTooltip(PoseStack, Card.getListOfAllNonTokenCards(), mouseX, mouseY);
         this.font.draw(PoseStack, Component.literal("Deck builder"), offsetX+2, offsetY+2, -1);
+    }
+
+    private void renderOtherStuff(PoseStack PoseStack, int mouseX, int mouseY) {
+        RenderSystem.setShaderTexture(0,new ResourceLocation(""));
+        this.blit(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
     }
 
     @Override
@@ -86,6 +92,9 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardHighlightFromList(PoseStack, mouseX, mouseY, Card.getListOfAllNonTokenCards());
+        if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)) {
+            fillGradient(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
+        }
     }
 
     private void renderCards(PoseStack PoseStack, int mouseX, int mouseY) {
@@ -116,14 +125,16 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         if (button == 0 && cardindex != -1) { //left mouse
             deck.remove(deck.get(cardindex));
         }
+        if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
+            onCloseOrSwitch();
+            Minecraft.getInstance().setScreen(new MinecardTableGui(menu, inv, component));
+        }
         return true;
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
-            onCloseOrSwitch();
-            Minecraft.getInstance().setScreen(new MinecardTableGui(menu, inv, component));
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
