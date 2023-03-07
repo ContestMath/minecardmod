@@ -19,6 +19,7 @@ public class CthulhuCard extends Card {
         );
         undieing = true;
         subtypes.add(CardSubtypes.SQUID);
+        this.isToken = true;
     }
 
 }

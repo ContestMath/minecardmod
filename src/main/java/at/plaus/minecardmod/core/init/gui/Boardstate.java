@@ -3,22 +3,24 @@ package at.plaus.minecardmod.core.init.gui;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
 import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
-import net.minecraft.nbt.CompoundTag;
-import org.checkerframework.checker.units.qual.C;
+import at.plaus.minecardmod.core.init.gui.events.SymbolSelectedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
 public class Boardstate {
     public HalveBoardState own;
     public HalveBoardState enemy;
     public boolean gamePaused = false;
-    public List<CardSelectedEvent> selectionListeners = new ArrayList<CardSelectedEvent>();
+    public Stack<CardSelectedEvent> selectionCardListeners = new Stack<>();
+    public Stack<SymbolSelectedEvent> selectionSymbolListeners = new Stack<>();
     public Card selectionSource;
     public List<CardDamagedEvent> damageListeners = new ArrayList<CardDamagedEvent>();
     public List<EtbEvent> etbListeners = new ArrayList<EtbEvent>();
-    public List<List<Card>> selectionTargets = new ArrayList<List<Card>>();
+    public List<List<Card>> selectionCardTargets = new ArrayList<List<Card>>();
+    public List<CardMechanicSymbol> selectionSymbolTargets = new ArrayList<>();
 
     public enum Player {
         OWN,
@@ -61,10 +63,11 @@ public class Boardstate {
         this.enemy = new HalveBoardState(board.enemy);
         this.own = new HalveBoardState(board.own);
         this.gamePaused = board.gamePaused;
-        this.selectionListeners = new ArrayList<>(board.selectionListeners);
+        this.selectionCardListeners = new Stack<>();
+        this.selectionCardListeners.addAll(board.selectionCardListeners);
         this.damageListeners = new ArrayList<>(board.damageListeners);
         this.etbListeners = new ArrayList<>(board.etbListeners);
-        this.selectionTargets = new ArrayList<>(board.selectionTargets);
+        this.selectionCardTargets = new ArrayList<>(board.selectionCardTargets);
         this.selectionSource = board.selectionSource;
     }
 
@@ -179,9 +182,16 @@ public class Boardstate {
 
     }
 
-    public void switchTurn() {
-        own.isYourTurn = !own.isYourTurn;
-        enemy.isYourTurn = !enemy.isYourTurn;
+    public Boardstate switchTurn() {
+        Boardstate tempBoard = new Boardstate(this);
+        tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
+        tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
+        for (Card card:getAllCardsOnBoard()) {
+            if (card.getOwedHalveBoard(tempBoard).isYourTurn) {
+                tempBoard = card.atTheStartOfTurn(tempBoard);
+            }
+        }
+        return tempBoard;
     }
 
 

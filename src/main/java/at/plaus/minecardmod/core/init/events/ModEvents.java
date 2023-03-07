@@ -3,7 +3,6 @@ package at.plaus.minecardmod.core.init.events;
 import at.plaus.minecardmod.Capability.DeckProvider;
 import at.plaus.minecardmod.Capability.SavedDecks;
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.core.init.gui.DeckBuilderGui;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
 import net.minecraft.resources.ResourceLocation;

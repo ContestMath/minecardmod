@@ -21,14 +21,14 @@ public class IronGolemCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.gamePaused = true;
-        board.selectionTargets.add(board.own.meleeBoard);
-        board.selectionTargets.add(board.own.rangedBoard);
-        board.selectionTargets.add(board.own.specialBoard);
-        board.selectionTargets.add(board.enemy.meleeBoard);
-        board.selectionTargets.add(board.enemy.rangedBoard);
-        board.selectionTargets.add(board.enemy.specialBoard);
+        board.selectionCardTargets.add(board.own.meleeBoard);
+        board.selectionCardTargets.add(board.own.rangedBoard);
+        board.selectionCardTargets.add(board.own.specialBoard);
+        board.selectionCardTargets.add(board.enemy.meleeBoard);
+        board.selectionCardTargets.add(board.enemy.rangedBoard);
+        board.selectionCardTargets.add(board.enemy.specialBoard);
         board.selectionSource = this;
-        board.selectionListeners.add((source, card, boardstate) -> {
+        board.selectionCardListeners.add((source, card, boardstate) -> {
             Boardstate newBoard = new Boardstate(boardstate);
             int damageX = source.strength;
             int damageY = card.strength;

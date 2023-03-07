@@ -1,5 +1,6 @@
 package at.plaus.minecardmod.core.init.gui;
 
+
 public enum CardNames {
     YELLOW, //0
     BLUE, //1
@@ -23,5 +24,6 @@ public enum CardNames {
     VILLAGER, //19
     IRON_GOLEM, //20
     CTHULHU, //21
+    CHICKEN, //22
 
 }

@@ -126,13 +126,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         if (board.own.lifePoints == 0 || board.enemy.lifePoints == 0) {
             endGame();
         }
-        if (board.enemy.hasPassed) {
-            board.enemy.isYourTurn = false;
-            board.own.isYourTurn = true;
+        if (board.enemy.hasPassed && board.enemy.isYourTurn) {
+            board = board.switchTurn();
         }
-        if (board.own.hasPassed) {
-            board.own.isYourTurn = false;
-            board.enemy.isYourTurn = true;
+        if (board.own.hasPassed && board.own.isYourTurn) {
+            board = board.switchTurn();
         }
         enemyPlay();
     }
@@ -148,6 +146,41 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal("Minecard table"), offsetX+2, offsetY+2, -1);
         renderValues(PoseStack, offsetX, offsetY);
         renderAllTooltipp(PoseStack, mouseX, mouseY);
+        renderSymbolSelection(PoseStack, mouseX, mouseY);
+    }
+
+    private void renderSymbolSelection(PoseStack poseStack, int mouseX, int mouseY) {
+        if (!board.selectionSymbolListeners.isEmpty()) {
+            int index = 0;
+            this.renderBackground(poseStack);
+            int numberOfTargets = board.selectionSymbolTargets.size();
+            for (CardMechanicSymbol symbol:board.selectionSymbolTargets) {
+                setTextureOfSymbol(symbol, poseStack);
+                int x = (this.width+(MinecardTableImageLocations.cardMechanicWidth+10)*(index*2-numberOfTargets))/2;
+                int y = (this.height-MinecardTableImageLocations.cardMechanicHeight)/2;
+                this.blit(poseStack, x, y,0, 0, MinecardTableImageLocations.cardMechanicWidth, MinecardTableImageLocations.cardMechanicHeight);
+                if (isWithinSymbolBoundingBox(mouseX, mouseY, x, y)) {
+                    this.fillGradient(poseStack, x, y, x+MinecardTableImageLocations.cardMechanicWidth, y+MinecardTableImageLocations.cardMechanicHeight, -1072689136, -804253680);
+                }
+                index ++;
+            }
+        }
+    }
+
+    @Nullable
+    public CardMechanicSymbol getTouchingSymbol(double mouseX, double mouseY){
+        int index = 0;
+        CardMechanicSymbol symbolToReturn = null;
+        int numberOfTargets = board.selectionSymbolTargets.size();
+        for (CardMechanicSymbol symbol:board.selectionSymbolTargets) {
+            int x = (this.width+(MinecardTableImageLocations.cardMechanicWidth+10)*(index*2-numberOfTargets))/2;
+            int y = (this.height-MinecardTableImageLocations.cardMechanicHeight)/2;
+            if (isWithinSymbolBoundingBox(mouseX, mouseY, x, y)) {
+                symbolToReturn = symbol;
+            }
+            index ++;
+        }
+        return symbolToReturn;
     }
 
     @Override
@@ -158,7 +191,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         if (!board.gamePaused) {
             renderCardHighlightFromList(PoseStack, mouseX, mouseY, board.own.hand, board);
         } else {
-            for (List<Card> list:board.selectionTargets) {
+            for (List<Card> list:board.selectionCardTargets) {
                 renderCardHighlightFromList(PoseStack, mouseX, mouseY, list, board);
             }
         }
@@ -177,13 +210,15 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             RenderSystem.setShaderTexture(0, GUI1);
             this.blit(PoseStack, mouseX, mouseY, 0, 0, 20, 20);
         }
-        renderCardTooltip(PoseStack, board.own.hand, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.own.meleeBoard, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.own.rangedBoard, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.own.specialBoard, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.enemy.meleeBoard, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.enemy.rangedBoard, mouseX, mouseY);
-        renderCardTooltip(PoseStack, board.enemy.specialBoard, mouseX, mouseY);
+        if (board.selectionSymbolListeners.isEmpty()) {
+            renderCardTooltip(PoseStack, board.own.hand, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.own.meleeBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.own.rangedBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.own.specialBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.enemy.meleeBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.enemy.rangedBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, board.enemy.specialBoard, mouseX, mouseY);
+        }
     }
 
     public void renderCards (PoseStack PoseStack) {
@@ -233,7 +268,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength()).length())/2, offsetY+5, -1);
 
-        if (!board.selectionTargets.isEmpty()) {
+        if (!board.selectionCardTargets.isEmpty()) {
             this.font.draw(PoseStack, Component.literal("Press space to decline to select target(s)"), 5, this.height-8, -1);
         }
     }
@@ -241,15 +276,25 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
-            if (!board.selectionListeners.isEmpty()) {
-                board.selectionListeners.remove(0);
-                if (board.selectionListeners.isEmpty()) {
+            if (!board.selectionSymbolListeners.isEmpty()) {
+                board.selectionSymbolListeners = new Stack<>();
+                board.gamePaused = false;
+                //board.selectionListeners = new Stack<>();
+                board.selectionSymbolTargets = new ArrayList<>();
+                board = board.switchTurn();
+                playLoop();
+            }
+
+            else if (!board.selectionCardListeners.isEmpty()) {
+                board.selectionCardListeners.pop();
+                if (board.selectionCardListeners.isEmpty()) {
                     board.gamePaused = false;
-                    board.selectionListeners = new ArrayList<>();
-                    board.selectionTargets = new ArrayList<>();
+                    //board.selectionListeners = new Stack<>();
+                    board.selectionCardTargets = new ArrayList<>();
+                    board.selectionSource = null;
                 }
                 if (!board.gamePaused) {
-                    board.switchTurn();
+                    board = board.switchTurn();
                 }
                 playLoop();
             }
@@ -270,28 +315,43 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                     if (cardindex != -1){
                         board = board.playCardFromHand(cardindex, Boardstate.Player.OWN);
                         if (!board.gamePaused && cardWasPlayed) {
-                            board.switchTurn();
+                            board = board.switchTurn();
                             playLoop();
                         }
                     }
                 }
-            } else {
-                int cardindex = -1;
-                for (List<Card> list:board.selectionTargets) {
-                    cardindex = getTouchingCardFromList(mouseX, mouseY, list);
-                    if (cardindex != -1 && board.own.isYourTurn) {
-                        board = list.get(cardindex).selected(board);
+            } else if (!board.selectionSymbolListeners.isEmpty()) {
+                CardMechanicSymbol endSymbol = null;
+                for (CardMechanicSymbol symbol:board.selectionSymbolTargets) {
+                    if (symbol == getTouchingSymbol(mouseX, mouseY) && board.own.isYourTurn) {
+                        board = board.selectionSymbolListeners.pop().onSymbolSelected(symbol, board);
+                        board.selectionSymbolTargets.remove(symbol);
+                        if (board.selectionSymbolListeners.isEmpty()) {
+                            board.gamePaused = false;
+                            board.selectionSymbolTargets = new ArrayList<>();
+                        }
                         if (!board.gamePaused) {
-                            board.switchTurn();
+                            board = board.switchTurn();
                         }
                         playLoop();
                     }
                 }
-
-
+            } else {
+                int cardindex = -1;
+                for (List<Card> list:board.selectionCardTargets) {
+                    cardindex = getTouchingCardFromList(mouseX, mouseY, list);
+                    if (cardindex != -1 && board.own.isYourTurn) {
+                        board = list.get(cardindex).selected(board);
+                        if (!board.gamePaused) {
+                            board = board.switchTurn();
+                        }
+                        playLoop();
+                    }
+                }
             }
-            if (isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
+            if (board.selectionSymbolTargets.isEmpty()&& board.selectionCardTargets.isEmpty() &&isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
                 board.own.hasPassed = true;
+                board = board.switchTurn();
                 playLoop();
             }
 
@@ -305,13 +365,17 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         return true;
     }
 
+    public boolean isWithinSymbolBoundingBox(double x, double y, int xMin, int yMin) {
+        return super.isWithinBoundingBox(x, y, xMin, xMin+MinecardTableImageLocations.cardMechanicWidth, yMin, yMin+MinecardTableImageLocations.cardMechanicHeight);
+    }
+
     public void enemyPlay() {
         if (board.enemy.isYourTurn && !board.gamePaused) {
             board = board.playCardFromHand(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size()), Boardstate.Player.ENEMY);
             if (board.enemy.hand.isEmpty()) {
                 board.enemy.hasPassed = true;
             }
-            board.switchTurn();
+            board = board.switchTurn();
             playLoop();
         }
     }
@@ -348,6 +412,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     public void loadGame(Boardstate boardstate) {
         board = boardstate;
+    }
+
+    public static void setTextureOfSymbol(CardMechanicSymbol symbol, PoseStack poseStack) {
+        switch (symbol) {
+            case Emerald:
+                RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID, "textures/gui/emerald_symbol.png"));
+        }
     }
 
     public void onCloseOrSwitch() {

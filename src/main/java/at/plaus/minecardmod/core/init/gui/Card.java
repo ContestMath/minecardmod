@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
 public class Card {
 
@@ -142,6 +143,8 @@ public class Card {
                 return new IronGolemCard();
             case CTHULHU:
                 return new CthulhuCard();
+            case CHICKEN:
+                return new ChickenCard();
         }
         return null;
     }
@@ -286,17 +289,19 @@ public class Card {
 
     public Boardstate selected(Boardstate board) {
         Boardstate newBoard = new Boardstate(board);
+        newBoard = newBoard.selectionCardListeners.pop().onCardSelected(board.selectionSource, this, newBoard);
 
-        newBoard = newBoard.selectionListeners.get(0).onCardSelected(board.selectionSource, this, newBoard);
-
-        newBoard.selectionListeners.remove(0);
-        if (newBoard.selectionListeners.isEmpty()) {
+        if (newBoard.selectionCardListeners.isEmpty()) {
             newBoard.gamePaused = false;
-            newBoard.selectionListeners = new ArrayList<>();
-            newBoard.selectionTargets = new ArrayList<>();
+            newBoard.selectionCardListeners = new Stack<>();
+            newBoard.selectionCardTargets = new ArrayList<>();
+            newBoard.selectionSource = null;
         }
 
         return newBoard;
+    }
+    public Boardstate atTheStartOfTurn(Boardstate board) {
+        return board;
     }
 
     public Boardstate discard(Boardstate boardstate) {
@@ -309,7 +314,6 @@ public class Card {
         this.removeFromBoard(newBoard);
         return newBoard;
     }
-
 
     public Boardstate die(Boardstate board) {
         return board;
