@@ -6,12 +6,14 @@ import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
 
-public class Card {
+public class Card implements Serializable {
 
     public static final int cardheight = 30;
     public static final int cardwidth = 20;
@@ -28,12 +30,12 @@ public class Card {
     public boolean hasActiveSelection = false;
     public boolean isToken = false;
     public int emeraldCost = 0;
+    public int sacrificeCost = 0;
     public boolean isSwift = false;
     public int resistance = 0;
     public boolean undieing = false;
     public List<CardSubtypes> subtypes = new ArrayList<>();
-
-    public ResourceLocation frame = new ResourceLocation(Minecardmod.MOD_ID,"textures/gui/frame.png");
+    public String frameString = "textures/gui/frame.png";
 
     public Card(int strength, String texture, CardTypes type, String[] tooltip, String name) {
         this.strength = strength;
@@ -44,7 +46,17 @@ public class Card {
     }
 
     public boolean isPlayable(Boardstate board) {
-        return getOwedHalveBoard(board).emeraldCount >= emeraldCost;
+        int sacrificeTargets = 0;
+        for(Card card:board.getAllCardsOnBoard()) {
+            if (card.getOwedHalveBoard(board).equals(getOwedHalveBoard(board))) {
+                sacrificeTargets ++;
+            }
+        }
+        
+        return
+                getOwedHalveBoard(board).emeraldCount >= emeraldCost &&
+                sacrificeTargets >= sacrificeCost
+                ;
     }
 
 
@@ -145,6 +157,14 @@ public class Card {
                 return new CthulhuCard();
             case CHICKEN:
                 return new ChickenCard();
+            case KILLER_BUNNY:
+                return new KillerBunnyCard();
+            case ALLAY:
+                return new AllayCard();
+            case MAGMA_SLIME:
+                return new MagmaSlimeCard();
+            case SNOW_GOLEM:
+                return new SnowGolemCard();
         }
         return null;
     }
@@ -300,6 +320,14 @@ public class Card {
 
         return newBoard;
     }
+
+    public Boardstate destroy(Boardstate board) {
+        Boardstate tempBoard = new Boardstate(board);
+        tempBoard = removeFromBoard(board);
+        tempBoard = die(board);
+        return tempBoard;
+    }
+
     public Boardstate atTheStartOfTurn(Boardstate board) {
         return board;
     }
@@ -316,10 +344,11 @@ public class Card {
     }
 
     public Boardstate die(Boardstate board) {
-        return board;
+        getOwedHalveBoard(board).graveyard.add(this);
+        return this.removeFromBoard(new Boardstate(board));
     }
 
-    public Boardstate removeFromBoard(Boardstate board) {
+    private Boardstate removeFromBoard(Boardstate board) {
         getOwedHalveBoard(board).graveyard.add(this);
         board.getListOfCardLists().get(0).removeIf(i -> i.equals(this));
         board.getListOfCardLists().get(1).removeIf(i -> i.equals(this));

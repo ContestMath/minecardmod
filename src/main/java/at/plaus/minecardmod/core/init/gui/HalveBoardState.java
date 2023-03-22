@@ -3,9 +3,10 @@ package at.plaus.minecardmod.core.init.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class HalveBoardState {
+public class HalveBoardState implements Serializable {
     public Stack<Card> deck;
     public List<Card> hand;
     public List<Card> meleeBoard;

@@ -4,21 +4,21 @@ import at.plaus.minecardmod.core.init.gui.Boardstate;
 import at.plaus.minecardmod.core.init.gui.Card;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
 
-public class SlimeCard extends Card {
+public class MagmaSlimeCard extends Card {
 
-    public SlimeCard() {
+    public MagmaSlimeCard() {
         super(
-                5,
-                "textures/gui/slime_card.png",
+                2,
+                "textures/gui/magma_slime_card.png",
                 CardTypes.MELEE,
-                new String[]{"tooltip.minecardmod.cards.slime"},
+                new String[]{"tooltip.minecardmod.cards.magma_slime"},
                 "Slime"
         );
     }
 
     @Override
     public Boardstate atTheStartOfTurn(Boardstate board) {
-        this.strength += 1;
+        this.strength += 3;
         return super.atTheStartOfTurn(board);
     }
 }

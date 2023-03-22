@@ -1,6 +1,8 @@
 package at.plaus.minecardmod.networking;
 
 import at.plaus.minecardmod.Minecardmod;
+import at.plaus.minecardmod.networking.packet.BoardC2SPacket;
+import at.plaus.minecardmod.networking.packet.BoardSyncS2CPacket;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
 import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +40,18 @@ public class ModMessages {
                 .decoder(DeckSyncS2CPacket::new)
                 .encoder(DeckSyncS2CPacket::toBytes)
                 .consumerMainThread(DeckSyncS2CPacket::handle)
+                .add();
+
+        net.messageBuilder(BoardC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(BoardC2SPacket::new)
+                .encoder(BoardC2SPacket::toBytes)
+                .consumerMainThread(BoardC2SPacket::handle)
+                .add();
+
+        net.messageBuilder(BoardSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(BoardSyncS2CPacket::new)
+                .encoder(BoardSyncS2CPacket::toBytes)
+                .consumerMainThread(BoardSyncS2CPacket::handle)
                 .add();
 
 

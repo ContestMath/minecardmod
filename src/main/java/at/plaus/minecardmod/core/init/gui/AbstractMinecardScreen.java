@@ -1,5 +1,6 @@
 package at.plaus.minecardmod.core.init.gui;
 
+import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.events.ModClientEvents;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
@@ -8,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -104,7 +106,7 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
             RenderSystem.setShaderTexture(0,card.getTexture());
             GuiComponent.blit(poseStack, x, y, 0, (float)0, (float)0, Card.cardwidth, Card.cardheight, 64, 64);
 
-            RenderSystem.setShaderTexture(0,card.frame);
+            RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
 
             this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);

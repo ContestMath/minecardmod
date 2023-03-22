@@ -25,17 +25,22 @@ public class CreeperCard extends Card {
 
         if (card.type == CardTypes.MELEE && this.isOwned(b) && card.isOwned(b)) {
             List<Card> tempMelee = new ArrayList<>(b.own.meleeBoard);
+            /*
             for (Card card1:tempMelee) {
                 b = card1.removeFromBoard(b);
             }
+
+             */
             for (Card card1:tempMelee) {
                 b = card1.die(b);
             }
         } else if (card.type == CardTypes.MELEE && !this.isOwned(b) && !card.isOwned(b)) {
             List<Card> tempMelee = new ArrayList<>(b.enemy.meleeBoard);
+            /*
             for (Card card1:tempMelee) {
                 b = card1.removeFromBoard(b);
             }
+             */
             for (Card card1:tempMelee) {
                 b = card1.die(b);
             }

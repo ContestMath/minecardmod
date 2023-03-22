@@ -5,12 +5,10 @@ import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
 import at.plaus.minecardmod.core.init.gui.events.SymbolSelectedEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
+import java.io.*;
+import java.util.*;
 
-public class Boardstate {
+public class Boardstate implements Serializable {
     public HalveBoardState own;
     public HalveBoardState enemy;
     public boolean gamePaused = false;
@@ -45,7 +43,10 @@ public class Boardstate {
     }
 
     public Boardstate getReverse(){
-        return new Boardstate(enemy, own);
+        Boardstate newBoard = new Boardstate(this);
+        newBoard.enemy = own;
+        newBoard.own = enemy;
+        return newBoard;
     }
 
     @Deprecated
@@ -69,6 +70,8 @@ public class Boardstate {
         this.etbListeners = new ArrayList<>(board.etbListeners);
         this.selectionCardTargets = new ArrayList<>(board.selectionCardTargets);
         this.selectionSource = board.selectionSource;
+        this.selectionSymbolListeners = new Stack<>();
+        this.selectionSymbolListeners.addAll(board.selectionSymbolListeners);
     }
 
     public Boardstate playCardFromHand(int i, Player player) {
@@ -213,6 +216,27 @@ public class Boardstate {
         list.addAll(own.getAllCardsOnBoard());
         list.addAll(enemy.getAllCardsOnBoard());
         return list;
+    }
+
+
+    /** Read the object from Base64 string. */
+    public static Object fromString( String s ) throws IOException,
+            ClassNotFoundException {
+        byte [] data = Base64.getDecoder().decode( s );
+        ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(  data ) );
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    /** Write the object to a Base64 string. */
+    public static String toString( Serializable o ) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream( baos );
+        oos.writeObject( o );
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
 

@@ -25,5 +25,10 @@ public enum CardNames {
     IRON_GOLEM, //20
     CTHULHU, //21
     CHICKEN, //22
+    KILLER_BUNNY, //23
+    ALLAY, //24
+    MAGMA_SLIME, //25
+    SNOW_GOLEM, //26
+
 
 }
