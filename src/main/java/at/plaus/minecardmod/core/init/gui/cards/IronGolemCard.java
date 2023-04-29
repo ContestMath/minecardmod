@@ -11,7 +11,10 @@ public class IronGolemCard extends Card {
                 14,
                 "textures/gui/iron_golem.png",
                 CardTypes.MELEE,
-                new String[]{"tooltip.minecardmod.cards.iron_golem"},
+                new String[]{"tooltip.minecardmod.cards.iron_golem1",
+                        "tooltip.minecardmod.cards.iron_golem2",
+                        "tooltip.minecardmod.cards.iron_golem3"
+                },
                 "Iron Golem"
         );
         this.emeraldCost = 7;
@@ -28,7 +31,7 @@ public class IronGolemCard extends Card {
         board.selectionCardTargets.add(board.enemy.rangedBoard);
         board.selectionCardTargets.add(board.enemy.specialBoard);
         board.selectionSource = this;
-        board.selectionCardListeners.add((source, card, boardstate) -> {
+        board.selectionCardListeners.push((source, card, boardstate) -> {
             Boardstate newBoard = new Boardstate(boardstate);
             int damageX = source.strength;
             int damageY = card.strength;

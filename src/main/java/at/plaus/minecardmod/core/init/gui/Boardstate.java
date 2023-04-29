@@ -12,6 +12,7 @@ public class Boardstate implements Serializable {
     public HalveBoardState own;
     public HalveBoardState enemy;
     public boolean gamePaused = false;
+    int creaturesSacrificed = 0;
     public Stack<CardSelectedEvent> selectionCardListeners = new Stack<>();
     public Stack<SymbolSelectedEvent> selectionSymbolListeners = new Stack<>();
     public Card selectionSource;
@@ -20,26 +21,15 @@ public class Boardstate implements Serializable {
     public List<List<Card>> selectionCardTargets = new ArrayList<List<Card>>();
     public List<CardMechanicSymbol> selectionSymbolTargets = new ArrayList<>();
 
-    public enum Player {
-        OWN,
-        ENEMY
-    }
+    public List<Card> getAllRenderableCards() {
+        List<Card> list = new ArrayList<>(getAllCards());
+        list.removeAll(enemy.graveyard);
+        list.removeAll(own.graveyard);
+        list.removeAll(enemy.hand);
+        list.removeAll(enemy.deck);
+        list.removeAll(own.deck);
 
-
-    @Deprecated
-    public HalveBoardState getBoardState(Player p) {
-        if (p == Player.OWN) {
-            return own;
-        } else {
-            return enemy;
-        }
-    }
-
-    public Player getPlayerFromHalveBoard(HalveBoardState halveBoardState) {
-        if (halveBoardState.equals(enemy)) {
-            return Player.ENEMY;
-        }
-        return Player.OWN;
+        return list;
     }
 
     public Boardstate getReverse(){
@@ -72,28 +62,46 @@ public class Boardstate implements Serializable {
         this.selectionSource = board.selectionSource;
         this.selectionSymbolListeners = new Stack<>();
         this.selectionSymbolListeners.addAll(board.selectionSymbolListeners);
+        this.creaturesSacrificed = board.creaturesSacrificed;
     }
 
-    public Boardstate playCardFromHand(int i, Player player) {
-        Card card = this.getBoardState(player).hand.get(i);
+    public Boardstate playCardFromHand(Card card) {
         if (card.isPlayable(this)) {
-            this.getBoardState(player).emeraldCount -= card.emeraldCost;
-            this.getBoardState(player).hand.remove(i);
-            MinecardTableGui.cardWasPlayed = true;
-            return playCard(card, player);
+            for (int x=0; x<card.sacrificeCost;x++) {
+                gamePaused = true;
+                selectionSource = card;
+                selectionCardTargets.add(card.getOwedHalveBoard(this).getAllCardsOnBoard());
+                selectionCardListeners.push((source, selected, boardstate) -> {
+                    Boardstate newBoard = selected.die(boardstate);
+                    newBoard.creaturesSacrificed++;
+                    if (newBoard.creaturesSacrificed >= source.sacrificeCost) {
+                        source.getOwedHalveBoard(boardstate).emeraldCount -= source.emeraldCost;
+                        newBoard.creaturesSacrificed = 0;
+                        newBoard = newBoard.playCard(source, source.getOwedHalveBoard(boardstate));
+                    }
+                    return newBoard;
+                });
+            }
+            if (creaturesSacrificed >= card.sacrificeCost) {
+                card.getOwedHalveBoard(this).emeraldCount -= card.emeraldCost;
+                MinecardTableGui.cardWasPlayed = true;
+                return playCard(card, card.getOwedHalveBoard(this));
+            }
         }
         MinecardTableGui.cardWasPlayed = false;
         return this;
     }
 
-    public Boardstate playCard(Card card, Player player) {
+    public Boardstate playCard(Card card, HalveBoardState side) {
         boolean isOwnBoard = true;
-        if (player == Player.ENEMY) {
+        if (side.equals(enemy)) {
             isOwnBoard = !isOwnBoard;
         }
         if (card.isSpy) {
             isOwnBoard = !isOwnBoard;
         }
+
+        card.getOwedHalveBoard(this).hand.remove(card);
 
         if (isOwnBoard) {
             if (Objects.equals(card.type, CardTypes.MELEE)) {
@@ -106,7 +114,7 @@ public class Boardstate implements Serializable {
                 this.own.specialBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPELL)) {
-                this.own.graveyard.add(card);
+                own.graveyard.add(card.getNew());
             }
         } else {
             if (Objects.equals(card.type, CardTypes.MELEE)) {
@@ -119,7 +127,7 @@ public class Boardstate implements Serializable {
                 this.enemy.specialBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPELL)) {
-                this.enemy.graveyard.add(card);
+                enemy.graveyard.add(card.getNew());
             }
         }
         Boardstate tempBoard = this;
@@ -137,50 +145,10 @@ public class Boardstate implements Serializable {
     public Boardstate clearBoard() {
         Boardstate newBoard = new Boardstate(this);
 
-        for (Card card: own.meleeBoard) {
-            newBoard.own.graveyard.add(card);
-            newBoard.own.meleeBoard.remove(card);
-        }
-        for (Card card: own.rangedBoard) {
-            newBoard.own.rangedBoard.remove(card);
-            newBoard.own.graveyard.add(card);
-        }
-        for (Card card: own.specialBoard) {
-            newBoard.own.specialBoard.remove(card);
-            newBoard.own.graveyard.add(card);
-        }
-        for (Card card: enemy.meleeBoard) {
-            newBoard.enemy.meleeBoard.remove(card);
-            newBoard.own.graveyard.add(card);
-        }
-        for (Card card: enemy.rangedBoard) {
-            newBoard.enemy.rangedBoard.remove(card);
-            newBoard.own.graveyard.add(card);
-        }
-        for (Card card: enemy.specialBoard) {
-            newBoard.enemy.specialBoard.remove(card);
-            newBoard.own.graveyard.add(card);
+        for (Card card: getAllCardsOnBoard()) {
+            newBoard = card.die(newBoard);
         }
 
-
-        for (Card card: own.meleeBoard) {
-            newBoard = card.die(newBoard);
-        }
-        for (Card card: own.rangedBoard) {
-            newBoard = card.die(newBoard);
-        }
-        for (Card card: own.specialBoard) {
-            newBoard = card.die(newBoard);
-        }
-        for (Card card: enemy.meleeBoard) {
-            newBoard = card.die(newBoard);
-        }
-        for (Card card: enemy.rangedBoard) {
-            newBoard = card.die(newBoard);
-        }
-        for (Card card: enemy.specialBoard) {
-            newBoard = card.die(newBoard);
-        }
         return newBoard;
 
     }
@@ -218,6 +186,13 @@ public class Boardstate implements Serializable {
         return list;
     }
 
+    public List<Card> getAllCards() {
+        List<Card> list = new ArrayList<>();
+        list.addAll(own.getAllCards());
+        list.addAll(enemy.getAllCards());
+        return list;
+    }
+
 
     /** Read the object from Base64 string. */
     public static Object fromString( String s ) throws IOException,
@@ -238,6 +213,5 @@ public class Boardstate implements Serializable {
         oos.close();
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
-
 
 }

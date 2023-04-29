@@ -24,7 +24,7 @@ public class ZombieCard extends Card {
         Boardstate tempBoard = board;
 
         for (Card card:board.own.hand) {
-            if (card.getNameFromCard().equals(CardNames.ZOMBIE)) {
+            if (card.getClass().equals(ZombieCard.class)) {
                 negTempList.add(card);
                 zombies.add(card);
             }
@@ -33,7 +33,7 @@ public class ZombieCard extends Card {
         negTempList = new ArrayList<Card>();
 
         for (Card card:board.own.deck) {
-            if (card.getNameFromCard().equals(CardNames.ZOMBIE)) {
+            if (card.getClass().equals(ZombieCard.class)) {
                 negTempList.add(card);
                 zombies.add(card);
             }
@@ -42,7 +42,7 @@ public class ZombieCard extends Card {
         negTempList = new ArrayList<Card>();
 
         for (Card z:zombies) {
-            tempBoard = tempBoard.playCard(z, Boardstate.Player.OWN);
+            tempBoard = tempBoard.playCard(z, getOwedHalveBoard(board));
         }
         return super.etb(tempBoard);
     }

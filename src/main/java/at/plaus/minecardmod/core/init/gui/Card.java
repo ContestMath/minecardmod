@@ -6,6 +6,9 @@ import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.units.qual.C;
+import org.spongepowered.asm.mixin.Interface;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,8 +48,12 @@ public class Card implements Serializable {
         this.name = name;
     }
 
+
     public boolean isPlayable(Boardstate board) {
         int sacrificeTargets = 0;
+        if (!board.enemy.hand.contains(this) && !board.own.hand.contains(this)) {
+            return false;
+        }
         for(Card card:board.getAllCardsOnBoard()) {
             if (card.getOwedHalveBoard(board).equals(getOwedHalveBoard(board))) {
                 sacrificeTargets ++;
@@ -59,10 +66,76 @@ public class Card implements Serializable {
                 ;
     }
 
+    public static List<Class<? extends Card>> getListOfCardClasses() {
+        List<Class<? extends Card>> list = new ArrayList<>();
+        list.add(BlueCard.class);
+        list.add(YellowCard.class);
+        list.add(BrownCard.class);
+        list.add(ZombieCard.class);
+        list.add(WitherSkeletonCard.class);
+        list.add(BatCard.class);
+        list.add(SkeletonCard.class);
+        list.add(CreeperCard.class);
+        list.add(MushroomCowCard.class);
+        list.add(MushroomSoupCard.class);
+        list.add(GlowSquidCard.class);
+        list.add(RedDragonCard.class);
+        list.add(EnderMiteCard.class);
+        list.add(LightningStrikeCard.class);
+        list.add(AlexCard.class);
+        list.add(SteveCard.class);
+        list.add(GiantCard.class);
+        list.add(ThunderStormCard.class);
+        list.add(PickaxeCard.class);
+        list.add(SquidCard.class);
+        list.add(VillagerCard.class);
+        list.add(IronGolemCard.class);
+        list.add(CthulhuCard.class);
+        list.add(ChickenCard.class);
+        list.add(KillerBunnyCard.class);
+        list.add(AllayCard.class);
+        list.add(MagmaSlimeCard.class);
+        list.add(SnowGolemCard.class);
+        list.add(SlimeCard.class);
+        list.add(CarpetBombingCard.class);
+
+
+        return list;
+    }
+
+    public static List<Card> getListOfAllCards() {
+        List<Card> list = new ArrayList<>();
+        for (Class<? extends Card> clazz:getListOfCardClasses()) {
+            try {
+                list.add(clazz.newInstance());
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return list;
+    }
 
     public ResourceLocation getTexture() {
         return new ResourceLocation(Minecardmod.MOD_ID,
                 this.texture);
+    }
+
+    @NonNull
+    public Card getNew() {
+        for (Class<? extends Card> clazz:getListOfCardClasses()) {
+            if (this.getClass().equals(clazz)) {
+                try {
+                    return clazz.newInstance();
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return null;
     }
 
     public List<Component> getTooltip1() {
@@ -107,66 +180,6 @@ public class Card implements Serializable {
 
     public Boardstate afterEtb(Boardstate board) {
         return board;
-    }
-
-    public static Card getCardFromName(CardNames s) {
-        switch (s) {
-            case YELLOW:
-                return new YellowCard();
-            case BLUE:
-                return new BlueCard();
-            case BROWN:
-                return new BrownCard();
-            case ZOMBIE:
-                return new ZombieCard();
-            case WHITHER_SKELETON:
-                return new WitherSkeletonCard();
-            case BAT:
-                return new BatCard();
-            case SKELETON:
-                return new SkeletonCard();
-            case CREEPER:
-                return new CreeperCard();
-            case MUSHROOM_COW:
-                return new MushroomCowCard();
-            case GLOW_SQUID:
-                return new GlowSquidCard();
-            case RED_DRAGON:
-                return new RedDragonCard();
-            case STEVE:
-                return new SteveCard();
-            case ALEX:
-                return new AlexCard();
-            case LIGHTING_STRIKE:
-                return new LightningStrikeCard();
-            case ENDER_MITE:
-                return new EnderMiteCard();
-            case GIANT:
-                return new GiantCard();
-            case SQUID:
-                return new SquidCard();
-            case PICKAXE:
-                return new PickaxeCard();
-            case LIGHTNING_STORM:
-                return new LightningStormCard();
-            case VILLAGER:
-                return new VillagerCard();
-            case IRON_GOLEM:
-                return new IronGolemCard();
-            case CTHULHU:
-                return new CthulhuCard();
-            case CHICKEN:
-                return new ChickenCard();
-            case KILLER_BUNNY:
-                return new KillerBunnyCard();
-            case ALLAY:
-                return new AllayCard();
-            case MAGMA_SLIME:
-                return new MagmaSlimeCard();
-            case SNOW_GOLEM:
-                return new SnowGolemCard();
-        }
-        return null;
     }
 
     public boolean isOwned(Boardstate board) {
@@ -246,32 +259,17 @@ public class Card implements Serializable {
         return new int[]{x, y};
     }
 
-    public CardNames getNameFromCard() {
-        for (CardNames name:CardNames.values()) {
-            if (Objects.equals(this.name, Objects.requireNonNull(getCardFromName(name)).name)) {
-                return name;
+    public int getId() {
+        for (Class<? extends Card> clazz:getListOfCardClasses()) {
+            if (getClass().equals(clazz)) {
+               return getListOfCardClasses().indexOf(clazz);
             }
-        }
-        return null;
-    }
-
-    public static Card getCardFromId(int i) {
-        return getCardFromName(CardNames.values()[i]);
-    }
-
-    public static int getIdFromCardName(CardNames s) {
-        int index = 0;
-        for (CardNames cardName:CardNames.class.getEnumConstants()) {
-            if (cardName == s) {
-               return index;
-            }
-            index ++;
         }
         return -1;
     }
 
-    public static String getIdStringFromCardName(CardNames s) {
-        int id = getIdFromCardName(s);
+    public String getIdString() {
+        int id = getId();
         int numberZeros = 3 - Integer.toString(id).length();
         StringBuilder toreturn = new StringBuilder();
         for (int i=0; i<=numberZeros; i++) {
@@ -281,12 +279,16 @@ public class Card implements Serializable {
         return String.valueOf(toreturn);
     }
 
+    public static Card getCardFromId(int x) {
+        return getFromClass(getListOfCardClasses().get(x));
+    }
+
+
     public static List<Card> getListOfAllNonTokenCards(){
         List<Card> list = new ArrayList<>();
-        for (CardNames cardName:CardNames.class.getEnumConstants()) {
-            Card card = getCardFromName(cardName);
+        for (Card card:getListOfAllCards()) {
             if (!card.isToken) {
-                list.add(Card.getCardFromName(cardName));
+                list.add(card);
             }
         }
         return list;
@@ -300,7 +302,6 @@ public class Card implements Serializable {
                 tempBoard = listener.onDamaged(x, this, new Boardstate(tempBoard));
             }
             if (strength <= 0) {
-                tempBoard = this.removeFromBoard(tempBoard);
                 tempBoard = this.die(tempBoard);
             }
         }
@@ -321,13 +322,6 @@ public class Card implements Serializable {
         return newBoard;
     }
 
-    public Boardstate destroy(Boardstate board) {
-        Boardstate tempBoard = new Boardstate(board);
-        tempBoard = removeFromBoard(board);
-        tempBoard = die(board);
-        return tempBoard;
-    }
-
     public Boardstate atTheStartOfTurn(Boardstate board) {
         return board;
     }
@@ -335,39 +329,41 @@ public class Card implements Serializable {
     public Boardstate discard(Boardstate boardstate) {
         Boardstate newBoard = new Boardstate(boardstate);
         if (this.isOwned(newBoard)) {
-            newBoard.own.graveyard.add(getCardFromName(this.getNameFromCard()));
+            newBoard.own.graveyard.add(getNew());
         } else {
-            newBoard.enemy.graveyard.add(getCardFromName(this.getNameFromCard()));
+            newBoard.enemy.graveyard.add(getNew());
         }
         this.removeFromBoard(newBoard);
         return newBoard;
     }
 
     public Boardstate die(Boardstate board) {
-        getOwedHalveBoard(board).graveyard.add(this);
-        return this.removeFromBoard(new Boardstate(board));
-    }
-
-    private Boardstate removeFromBoard(Boardstate board) {
-        getOwedHalveBoard(board).graveyard.add(this);
-        board.getListOfCardLists().get(0).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(1).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(2).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(3).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(4).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(5).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(6).removeIf(i -> i.equals(this));
-        board.getListOfCardLists().get(7).removeIf(i -> i.equals(this));
-
+        if (board.getAllCards().contains(this)) {
+            getOwedHalveBoard(board).graveyard.add(getNew());
+            return removeFromBoard(new Boardstate(board));
+        }
         return board;
     }
 
-    public boolean equals(Card card, Boardstate board1, Boardstate board2) {
-        return Objects.equals(card.name, name) && this.getCardPos(board1) == card.getCardPos(board2);
+    private Boardstate removeFromBoard(Boardstate board) {
+        List<Card> o = board.own.meleeBoard;
+        List<Card> e = board.enemy.meleeBoard;
+        for (List<Card> list:board.getListOfCardLists()) {
+            list.remove(this);
+        }
+        return board;
     }
 
     public int getDefaultStrength(){
-        return Objects.requireNonNull(getCardFromName(this.getNameFromCard())).strength;
+        return getNew().strength;
+    }
+
+    public static Card getFromClass(Class<? extends Card> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

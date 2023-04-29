@@ -9,9 +9,12 @@ public class KillerBunnyCard extends Card {
         super(
                 13,
                 "textures/gui/killer_bunny_card.png",
-                CardTypes.RANGED,
-                new String[]{"tooltip.minecardmod.cards.killer_bunny"},
+                CardTypes.MELEE,
+                new String[]{"tooltip.minecardmod.cards.killer_bunny1",
+                        "tooltip.minecardmod.cards.killer_bunny2"
+                },
                 "Killer Bunny");
+        this.sacrificeCost = 2;
     }
 
     @Override
@@ -19,9 +22,9 @@ public class KillerBunnyCard extends Card {
         Boardstate newBoard = new Boardstate(board);
         for (Card card: board.getAllCardsOnBoard()) {
             if (card.strength <= 3) {
-                card.die(board);
+                newBoard = card.die(newBoard);
             }
         }
-        return super.etb(board);
+        return super.etb(newBoard);
     }
 }

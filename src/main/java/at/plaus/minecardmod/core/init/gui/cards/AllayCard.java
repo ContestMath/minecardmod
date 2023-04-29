@@ -10,7 +10,7 @@ public class AllayCard extends Card {
         super(
                 2,
                 "textures/gui/allay_card.png",
-                CardTypes.MELEE,
+                CardTypes.SPECIAL,
                 new String[]{"tooltip.minecardmod.cards.allay"},
                 "Allay"
         );

@@ -1,19 +1,14 @@
 package at.plaus.minecardmod.core.init.gui;
 
-import at.plaus.minecardmod.Capability.DeckProvider;
-import at.plaus.minecardmod.Capability.SavedDecks;
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
-import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,6 +26,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public final int rows = 5;
     public final int collums = 8;
     public List<Card> deck = new ArrayList<Card>();
+    public List<Card> cardSelection = Card.getListOfAllNonTokenCards();
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
     public final MinecardScreenMenu menu;
     public final Inventory inv;
@@ -41,6 +37,19 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     private static final ResourceLocation oGUI = new ResourceLocation(Minecardmod.MOD_ID,
             "textures/gui/untitled.png");
 
+    @Override
+    List<Card> getAllCards() {
+        return cardSelection;
+    }
+
+    @Override
+    List<Card> getAllrenderableCards() {
+        List<Card> list = new ArrayList<>();
+        list.addAll(deck);
+        list.addAll(cardSelection);
+        return list;
+    }
+
     public DeckBuilderGui(MinecardScreenMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
         this.inv = inventory;
@@ -49,12 +58,13 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     @Override
-    public int[] getCardPosInList(int i, List<Card> list) {
+    public int[] getCardPos(Card card) {
         int space = 5;
-        if (list.equals(deck)) {
+        int i = cardSelection.indexOf(card);
+        if (deck.contains(card)) {
             return new int[] {
                     MinecardTableImageLocations.guiwidth+offsetX- Card.cardwidth-10,
-                    offsetY+10+i*cardOffset
+                    offsetY+10+ deck.indexOf(card)*cardOffset
             };
         } else if (rows*collums*page <= i && i < rows*collums*(page+1)) {
             return new int[] {
@@ -62,8 +72,6 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
                     15+offsetY+(Card.cardheight+space)*(i/collums)
             };
         }
-
-        //Minecraft.getInstance().player.sendChatMessage(list.toString());
         return new int[]{0, 0};
     }
 
@@ -73,10 +81,9 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         this.renderBackground(PoseStack); //black Background
         this.renderWindow(PoseStack, offsetX, offsetY);
         renderCards(PoseStack, mouseX, mouseY);
-        renderDeck(PoseStack);
         renderOtherStuff(PoseStack, mouseX, mouseY);
         renderHighlight(PoseStack, mouseX, mouseY);
-        renderCardTooltip(PoseStack, Card.getListOfAllNonTokenCards(), mouseX, mouseY);
+        renderCardTooltip(PoseStack, mouseX, mouseY);
         this.font.draw(PoseStack, Component.literal("Deck builder"), offsetX+2, offsetY+2, -1);
     }
 
@@ -91,7 +98,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
-        renderCardHighlightFromList(PoseStack, mouseX, mouseY, Card.getListOfAllNonTokenCards());
+        renderCardHighlightFromList(PoseStack, mouseX, mouseY);
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)) {
             fillGradient(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
         }
@@ -100,11 +107,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     private void renderCards(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardsFromList(PoseStack, deck);
         renderPartCardHighlightFromList(PoseStack, mouseX, mouseY, deck);
-        renderCardsFromList(PoseStack, Card.getListOfAllNonTokenCards());
-    }
-
-    private void renderDeck(PoseStack PoseStack) {
-        renderCardsFromList(PoseStack, Card.getListOfAllNonTokenCards());
+        renderCardsFromList(PoseStack, cardSelection);
     }
 
 
@@ -116,18 +119,21 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         List<Card> list = Card.getListOfAllNonTokenCards();
-        int cardindex = getTouchingCardFromList(mouseX, mouseY, list);
-        if (button == 0 && cardindex != -1) { //left mouse
-            deck.add(list.get(cardindex));
+        Card partCard = getTouchingPartCardFromList(mouseX, mouseY, deck);
+
+        if (button == 0 && partCard != null) { //left mouse
+            deck.remove(partCard);
+            return true;
         }
 
-        cardindex = getTouchingPartCardFromList(mouseX, mouseY, deck);
-        if (button == 0 && cardindex != -1) { //left mouse
-            deck.remove(deck.get(cardindex));
+        if (button == 0 && getTouchingCard(mouseX, mouseY) != null) {
+            deck.add(getTouchingCard(mouseX, mouseY).getNew());
         }
+
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
             onCloseOrSwitch();
             Minecraft.getInstance().setScreen(new MinecardTableGui(menu, inv, component));
+            return true;
         }
         return true;
     }
@@ -144,6 +150,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public void onCloseOrSwitch() {
         String s = deckString(deck);
         ModMessages.sendToServer(new DeckC2SPacket(s));
+        isFirstTimeInit = true;
     }
 
     @Override
@@ -155,15 +162,15 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public static String deckString(List<Card> cardList) {
         StringBuilder string = new StringBuilder();
         for (Card card:cardList) {
-            string.append(Card.getIdStringFromCardName(card.getNameFromCard()));
+            string.append(card.getIdString());
         }
         return string.toString();
     }
 
     public static Stack<Card> stringToDeck(String s) {
         Stack<Card> deck =  new Stack<>();
-        List<Character> chars = s.chars().mapToObj(e->(char)e).collect(Collectors.toList());
         StringBuilder tempString = new StringBuilder();
+        List<Character> chars = s.chars().mapToObj(e->(char)e).collect(Collectors.toList());
         int i = 0;
 
         for (Character character:chars) {

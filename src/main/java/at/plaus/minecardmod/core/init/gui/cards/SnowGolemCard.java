@@ -10,8 +10,10 @@ public class SnowGolemCard extends Card {
         super(
                 3,
                 "textures/gui/snow_golem.png",
-                CardTypes.MELEE,
-                new String[]{"tooltip.minecardmod.cards.snow_golem"},
+                CardTypes.RANGED,
+                new String[]{"tooltip.minecardmod.cards.snow_golem1",
+                        "tooltip.minecardmod.cards.snow_golem2"
+                },
                 "Snow Golem"
         );
         this.emeraldCost = 1;

@@ -12,7 +12,7 @@ public class MagmaSlimeCard extends Card {
                 "textures/gui/magma_slime_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.magma_slime"},
-                "Slime"
+                "Magma Slime"
         );
     }
 

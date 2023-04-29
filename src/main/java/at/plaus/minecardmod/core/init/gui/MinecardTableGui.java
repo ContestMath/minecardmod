@@ -7,9 +7,8 @@ import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.core.init.gui.cards.BlueCard;
 import at.plaus.minecardmod.core.init.gui.cards.BrownCard;
 import at.plaus.minecardmod.core.init.gui.cards.YellowCard;
+import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
-import at.plaus.minecardmod.networking.ModMessages;
-import at.plaus.minecardmod.networking.packet.BoardC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -19,8 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,6 +43,16 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
+    @Override
+    List<Card> getAllCards() {
+        return board.getAllCards();
+    }
+
+    @Override
+    List<Card> getAllrenderableCards() {
+        return board.getAllRenderableCards();
+    }
+
     public MinecardTableGui(MinecardScreenMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
         this.inv = inventory;
@@ -53,30 +60,49 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.component = component;
 
     }
+    
+    @Nullable
+    public int[] getCardPos(Card card) {
+        List<Card> list = new ArrayList<>();
+        if (board.own.hand.contains(card)) {
+           list =  board.own.hand;
+        } else if (board.own.specialBoard.contains(card)) {
+            list =  board.own.specialBoard;
+        } else if (board.own.rangedBoard.contains(card)) {
+            list =  board.own.rangedBoard;
+        } else if (board.own.meleeBoard.contains(card)) {
+            list =  board.own.meleeBoard;
+        } else if (board.enemy.meleeBoard.contains(card)) {
+            list =  board.enemy.meleeBoard;
+        } else if (board.enemy.rangedBoard.contains(card)) {
+            list =  board.enemy.rangedBoard;
+        } else if (board.enemy.specialBoard.contains(card)) {
+            list =  board.enemy.specialBoard;
+        }
 
-
-    public int[] getCardPosInList(int i, List<Card> list) {
+        int i = list.indexOf(card);
         int x = offsetX + MinecardTableImageLocations.guiwidth/2 - 5 * (list.size()-1) + 10*i + Card.cardwidth*i - Card.cardwidth/2*list.size();
         int yStart = offsetY+ MinecardTableImageLocations.guiheight- Card.cardheight;
         int space = 5;
-        if (list.equals(board.own.hand)) {
-            return new int[]{x-15, yStart-10};
-        } else if (list.equals(board.own.specialBoard)) {
-            return new int[]{x, yStart- Card.cardheight-3*space};
-        } else if (list.equals(board.own.rangedBoard)) {
-            return new int[]{x, yStart- Card.cardheight*2-4*space};
-        } else if (list.equals(board.own.meleeBoard)) {
-            return new int[]{x, yStart - Card.cardheight *3-5*space};
-        } else if (list.equals(board.enemy.meleeBoard)) {
-            return new int[]{x, yStart- Card.cardheight*4-6*space};
-        } else if (list.equals(board.enemy.rangedBoard)) {
-            return new int[]{x, yStart- Card.cardheight*5-7*space};
-        } else if (list.equals(board.enemy.specialBoard)) {
-            return new int[]{x, yStart- Card.cardheight*6-8*space};
+        if (!list.equals(new ArrayList<>())) {
+            if (list.equals(board.own.hand)) {
+                return new int[]{x-15, yStart-10};
+            } else if (list.equals(board.own.specialBoard)) {
+                return new int[]{x, yStart- Card.cardheight-3*space};
+            } else if (list.equals(board.own.rangedBoard)) {
+                return new int[]{x, yStart- Card.cardheight*2-4*space};
+            } else if (list.equals(board.own.meleeBoard)) {
+                return new int[]{x, yStart - Card.cardheight *3-5*space};
+            } else if (list.equals(board.enemy.meleeBoard)) {
+                return new int[]{x, yStart- Card.cardheight*4-6*space};
+            } else if (list.equals(board.enemy.rangedBoard)) {
+                return new int[]{x, yStart- Card.cardheight*5-7*space};
+            } else if (list.equals(board.enemy.specialBoard)) {
+                return new int[]{x, yStart- Card.cardheight*6-8*space};
+            }
         }
-        else return new int[]{0, 0};
+        return new int[]{0, 0};
     }
-
 
     @Override
     public void startup() {
@@ -117,12 +143,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         super.containerTick();
     }
 
-    public void playLoop() throws IOException {
-        if (board.enemy.hand.isEmpty()) {
-
+    public void playLoop() {
+        if (board.enemy.hand.isEmpty() && board.selectionCardListeners.isEmpty()) {
             board.enemy.hasPassed = true;
         }
-        if (board.own.hand.isEmpty()) {
+        if (board.own.hand.isEmpty() && board.selectionCardListeners.isEmpty()) {
             board.own.hasPassed = true;
         }
         if (board.own.hasPassed && board.own.isYourTurn) {
@@ -131,14 +156,15 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         if (board.enemy.hasPassed && board.enemy.isYourTurn) {
             board = board.switchTurn();
         }
-        //enemyPlay();
-        ModMessages.sendToServer(new BoardC2SPacket(Boardstate.toString(board)));
         if (board.own.hasPassed && board.enemy.hasPassed) {
             endRound();
         }
         if (board.own.lifePoints == 0 || board.enemy.lifePoints == 0) {
             endGame();
+            return;
         }
+        enemyPlay();
+        //ModMessages.sendToServer(new BoardC2SPacket(Boardstate.toString(board)));
     }
 
     @Override
@@ -195,10 +221,10 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         if (!board.gamePaused) {
-            renderCardHighlightFromList(PoseStack, mouseX, mouseY, board.own.hand, board);
+            renderCardHighlightFromList(PoseStack, mouseX, mouseY, board);
         } else {
             for (List<Card> list:board.selectionCardTargets) {
-                renderCardHighlightFromList(PoseStack, mouseX, mouseY, list, board);
+                renderCardHighlightFromList(PoseStack, mouseX, mouseY, board);
             }
         }
         if (board.own.isYourTurn && isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
@@ -217,24 +243,18 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             this.blit(PoseStack, mouseX, mouseY, 0, 0, 20, 20);
         }
         if (board.selectionSymbolListeners.isEmpty()) {
-            renderCardTooltip(PoseStack, board.own.hand, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.own.meleeBoard, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.own.rangedBoard, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.own.specialBoard, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.enemy.meleeBoard, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.enemy.rangedBoard, mouseX, mouseY);
-            renderCardTooltip(PoseStack, board.enemy.specialBoard, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
+            renderCardTooltip(PoseStack, mouseX, mouseY);
         }
     }
 
     public void renderCards (PoseStack PoseStack) {
-        renderCardsFromList(PoseStack, board.own.hand);
-        renderCardsFromList(PoseStack, board.own.meleeBoard);
-        renderCardsFromList(PoseStack, board.own.rangedBoard);
-        renderCardsFromList(PoseStack, board.enemy.meleeBoard);
-        renderCardsFromList(PoseStack, board.enemy.rangedBoard);
-        renderCardsFromList(PoseStack, board.enemy.specialBoard);
-        renderCardsFromList(PoseStack, board.own.specialBoard);
+        renderCardsFromList(PoseStack, getAllrenderableCards());
     }
 
     public void renderOtherStuff(PoseStack PoseStack) {
@@ -285,31 +305,20 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             if (!board.selectionSymbolListeners.isEmpty()) {
                 board.selectionSymbolListeners = new Stack<>();
                 board.gamePaused = false;
-                //board.selectionListeners = new Stack<>();
                 board.selectionSymbolTargets = new ArrayList<>();
                 board = board.switchTurn();
-                try {
-                    playLoop();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            else if (!board.selectionCardListeners.isEmpty()) {
+                playLoop();
+            } else if (!board.selectionCardListeners.isEmpty()) {
                 board.selectionCardListeners.pop();
                 if (board.selectionCardListeners.isEmpty()) {
                     board.gamePaused = false;
-                    //board.selectionListeners = new Stack<>();
                     board.selectionCardTargets = new ArrayList<>();
                     board.selectionSource = null;
                 }
                 if (!board.gamePaused) {
                     board = board.switchTurn();
-                }
-                try {
                     playLoop();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+
                 }
             }
             return true;
@@ -323,18 +332,17 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && board.own.isYourTurn) {
+            Stack<CardSelectedEvent> s = board.selectionCardListeners;
             if (!board.gamePaused) {
-                int cardindex = getTouchingCardFromList(mouseX, mouseY, board.own.hand);
+                Card card = getTouchingCard(mouseX, mouseY);
                 if (board.own.isYourTurn) {
-                    if (cardindex != -1){
-                        board = board.playCardFromHand(cardindex, Boardstate.Player.OWN);
+                    if (card != null && board.own.hand.contains(card)){
+                        board = board.playCardFromHand(card);
                         if (!board.gamePaused && cardWasPlayed) {
                             board = board.switchTurn();
-                            try {
-                                playLoop();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
+                            playLoop();
+
+                            return true;
                         }
                     }
                 }
@@ -353,44 +361,39 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                             tempBoard = tempBoard.switchTurn();
                         }
                         board = tempBoard;
-                        try {
-                            playLoop();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        playLoop();
+
+                        return true;
                     }
                 }
 
             } else {
-                int cardindex = -1;
+                Card card = null;
                 for (List<Card> list:board.selectionCardTargets) {
-                    cardindex = getTouchingCardFromList(mouseX, mouseY, list);
-                    if (cardindex != -1 && board.own.isYourTurn) {
-                        board = list.get(cardindex).selected(board);
+                    card = getTouchingCard(mouseX, mouseY);
+                    if (card != null && board.own.isYourTurn) {
+                        board = card.selected(board);
                         if (!board.gamePaused) {
                             board = board.switchTurn();
                         }
-                        try {
-                            playLoop();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        playLoop();
+
+                        return true;
                     }
                 }
             }
             if (board.selectionSymbolTargets.isEmpty()&& board.selectionCardTargets.isEmpty() &&isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
                 board.own.hasPassed = true;
                 board = board.switchTurn();
-                try {
-                    playLoop();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                playLoop();
+
+                return true;
             }
 
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
                 onCloseOrSwitch();
                 Minecraft.getInstance().setScreen(new DeckBuilderGui(menu, inv, component));
+                return true;
             }
         }
 
@@ -406,9 +409,9 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         return super.isWithinBoundingBox(x, y, xMin, xMin+MinecardTableImageLocations.cardMechanicWidth, yMin, yMin+MinecardTableImageLocations.cardMechanicHeight);
     }
 
-    public void enemyPlay() throws IOException {
+    public void enemyPlay() {
         if (board.enemy.isYourTurn && !board.gamePaused) {
-            board = board.playCardFromHand(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size()), Boardstate.Player.ENEMY);
+            board = board.playCardFromHand(board.enemy.hand.get(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size())));
             if (board.enemy.hand.isEmpty()) {
                 board.enemy.hasPassed = true;
             }
@@ -465,6 +468,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             GlobalValues.savedBoardTemp.remove(Minecraft.getInstance().player);
         }
         board = new Boardstate();
+        isFirstTimeInit = true;
     }
 
     @Override

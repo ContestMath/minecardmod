@@ -11,7 +11,7 @@ public class AlexCard extends Card {
                 "textures/gui/alex_card.png",
                 CardTypes.RANGED,
                 new String[]{"tooltip.minecardmod.cards.alex"},
-                "Steve"
+                "Alex"
         );
         isHero = true;
     }

@@ -23,20 +23,47 @@
   "tooltip.minecardmod.cards.spy": "Spy",
   "tooltip.minecardmod.cards.bat2": "ETB: Your opponent draws a card.",
 
-  "tooltip.minecardmod.cards.skeleton": "ETB: Deal 3 damage",
+  "tooltip.minecardmod.cards.skeleton": "ETB: Deal §43 damage§r",
 
   "tooltip.minecardmod.cards.creeper": "Explodes if another creature is placed in the melee zone.",
 
   "tooltip.minecardmod.cards.mushroom_cow": "ETB: Generate a mushroom soup in your hand",
 
-  "tooltip.minecardmod.cards.mushroom_soup1": "Mushroom soup: Fully heal an entity and add 3 strength",
+  "tooltip.minecardmod.cards.mushroom_soup1": "Mushroom soup: Fully heal a mob and add §43 strength§r",
 
-  "tooltip.minecardmod.cards.mushroom_soup2": "Fully heal an entity and add 3 strength",
+  "tooltip.minecardmod.cards.mushroom_soup2": "Fully heal a mob and add §43 strength§r",
 
   "tooltip.minecardmod.cards.glow_squid": "Does nothing",
 
-  "tooltip.minecardmod.cards.red_dragon": "Discard a card to play Red dragon."
+  "tooltip.minecardmod.cards.red_dragon": "Discard a card to play Red dragon.",
 
+  "tooltip.minecardmod.cards.ender_mite": "On Death: Draw a card.",
 
+  "tooltip.minecardmod.cards.lighting_strike": "Deal §410 damage§r.",
 
+  "tooltip.minecardmod.cards.giant": "Your opponent draws a card.",
+
+  "tooltip.minecardmod.cards.thunder_storm": "Deal §43 damage§r to all mobs.",
+
+  "tooltip.minecardmod.cards.pickaxe": "Gain §a7E.",
+
+  "tooltip.minecardmod.cards.villager": "ETB: Gain §a4E§r, then you may spend §a5E§r to draw a card.",
+
+  "tooltip.minecardmod.cards.iron_golem1": "Cost: §a14E",
+  "tooltip.minecardmod.cards.iron_golem2": "Resistance 4",
+  "tooltip.minecardmod.cards.iron_golem3": "ETB: Fight a mob",
+
+  "tooltip.minecardmod.cards.chicken": "Summon another chicken at the start of each of your actions.",
+
+  "tooltip.minecardmod.cards.killer_bunny1": "Cost: Sacrifice 2 mobs",
+  "tooltip.minecardmod.cards.killer_bunny2": "ETB: Kill all mobs with 3 or less strength.",
+
+  "tooltip.minecardmod.cards.allay": "Gain §a3E§r at the start of each of your actions.",
+
+  "tooltip.minecardmod.cards.slime": "Gain §41 strength§r at the start of each action.",
+
+  "tooltip.minecardmod.cards.magma_slime": "Gain §43 strength§r at the start of each action.",
+
+  "tooltip.minecardmod.cards.snow_golem1": "Cost: §a1E§r",
+  "tooltip.minecardmod.cards.snow_golem2": "Deal §41 damage§r to each opponent."
 }

@@ -1,6 +1,6 @@
 package at.plaus.minecardmod.core.init.gui;
 
-
+/*
 public enum CardNames {
     YELLOW, //0
     BLUE, //1
@@ -18,7 +18,7 @@ public enum CardNames {
     ALEX, //13
     STEVE, //14
     GIANT, //15
-    LIGHTNING_STORM, //16
+    THUNDER_STORM, //16
     PICKAXE, //17
     SQUID, //18
     VILLAGER, //19
@@ -29,6 +29,10 @@ public enum CardNames {
     ALLAY, //24
     MAGMA_SLIME, //25
     SNOW_GOLEM, //26
+    SLIME, //27
+
 
 
 }
+
+ */

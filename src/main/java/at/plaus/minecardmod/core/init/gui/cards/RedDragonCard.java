@@ -19,7 +19,7 @@ public class RedDragonCard extends Card {
         board.gamePaused = true;
         board.selectionCardTargets.add(board.own.hand);
         board.selectionSource = this;
-        board.selectionCardListeners.add((source, card, boardstate) -> card.discard(boardstate));
+        board.selectionCardListeners.push((source, card, boardstate) -> card.discard(boardstate));
         return super.etb(board);
     }
 }

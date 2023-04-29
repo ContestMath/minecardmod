@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MinecardRules {
-    public static int startingHandsize = 6;
+    public static int startingHandsize = 9;
 
     public boolean isDeckLegal(List<Card> deck) {
         int numberOfCreatures = 0;

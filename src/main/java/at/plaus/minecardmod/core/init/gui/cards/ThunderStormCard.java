@@ -5,14 +5,14 @@ import at.plaus.minecardmod.core.init.gui.Card;
 import at.plaus.minecardmod.core.init.gui.CardSubtypes;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
 
-public class LightningStormCard extends Card {
-    public LightningStormCard() {
+public class ThunderStormCard extends Card {
+    public ThunderStormCard() {
         super(
                 0,
-                "textures/gui/lighting_storm.png",
+                "textures/gui/thunder_storm.png",
                 CardTypes.SPELL,
-                new String[]{"tooltip.minecardmod.cards.lighting_storm"},
-                "Lighting Storm"
+                new String[]{"tooltip.minecardmod.cards.thunder_storm"},
+                "Thunder Storm"
         );
         this.subtypes.add(CardSubtypes.Lightning);
     }
