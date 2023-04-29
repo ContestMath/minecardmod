@@ -13,7 +13,7 @@ public class KillerBunnyCard extends Card {
                 new String[]{"tooltip.minecardmod.cards.killer_bunny1",
                         "tooltip.minecardmod.cards.killer_bunny2"
                 },
-                "Killer Bunny");
+                "Killer Bunnys");
         this.sacrificeCost = 2;
     }
 
