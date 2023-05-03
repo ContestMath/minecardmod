@@ -7,7 +7,7 @@ public class ClientCardData {
         ClientCardData.cards = cards;
     }
 
-    public static String getDeck() {
+    public static String get() {
         return cards;
     }
 }

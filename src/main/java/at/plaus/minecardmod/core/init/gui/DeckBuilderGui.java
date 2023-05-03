@@ -4,6 +4,8 @@ import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
+import at.plaus.minecardmod.networking.packet.UnlockedCardsC2SPacket;
+import at.plaus.minecardmod.networking.packet.UnlockedCardsSyncS2CPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -149,7 +151,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     public void onCloseOrSwitch() {
         String s = deckString(deck);
-        ModMessages.sendToServer(new DeckC2SPacket(s, 2));
+        ModMessages.sendToServer(new UnlockedCardsC2SPacket(s));
         isFirstTimeInit = true;
     }
 

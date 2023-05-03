@@ -1,10 +1,7 @@
 package at.plaus.minecardmod.networking;
 
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.networking.packet.BoardC2SPacket;
-import at.plaus.minecardmod.networking.packet.BoardSyncS2CPacket;
-import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
-import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
+import at.plaus.minecardmod.networking.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -54,7 +51,17 @@ public class ModMessages {
                 .consumerMainThread(BoardSyncS2CPacket::handle)
                 .add();
 
+        net.messageBuilder(UnlockedCardsSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(UnlockedCardsSyncS2CPacket::new)
+                .encoder(UnlockedCardsSyncS2CPacket::toBytes)
+                .consumerMainThread(UnlockedCardsSyncS2CPacket::handle)
+                .add();
 
+        net.messageBuilder(UnlockedCardsC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(UnlockedCardsC2SPacket::new)
+                .encoder(UnlockedCardsC2SPacket::toBytes)
+                .consumerMainThread(UnlockedCardsC2SPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

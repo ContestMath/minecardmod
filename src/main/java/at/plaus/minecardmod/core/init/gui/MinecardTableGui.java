@@ -1,12 +1,10 @@
 package at.plaus.minecardmod.core.init.gui;
 
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.client.ClientDeckData;
+import at.plaus.minecardmod.client.ClientCardData;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.core.init.gui.cards.*;
-import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
-import at.plaus.minecardmod.core.init.gui.events.FindTargetsEvent;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -111,8 +109,8 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             loadGame(GlobalValues.savedBoardTemp.get(p));
         } else {
             board.enemy.isYourTurn = false;
-            String deckString = ClientDeckData.getDeck2();
-            if (!Objects.equals(deckString, "")) {
+            String deckString = ClientCardData.get();
+            if (!Objects.equals(deckString, "") && !Objects.equals(deckString, null)) {
 
                 board.own.deck = DeckBuilderGui.stringToDeck(deckString);
                 

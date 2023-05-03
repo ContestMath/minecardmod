@@ -2,9 +2,12 @@ package at.plaus.minecardmod.core.init.events;
 
 import at.plaus.minecardmod.Capability.DeckProvider;
 import at.plaus.minecardmod.Capability.SavedDeck;
+import at.plaus.minecardmod.Capability.SavedUnlockedCards;
+import at.plaus.minecardmod.Capability.UnlockedCardsProvider;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
+import at.plaus.minecardmod.networking.packet.UnlockedCardsSyncS2CPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -23,7 +26,19 @@ public class ModEvents {
     public static void onAttachCapabilitiesPlayer(AttachCapabilitiesEvent<Entity> event) {
         if(event.getObject() instanceof Player) {
             if(!event.getObject().getCapability(DeckProvider.PlayerDeck1).isPresent()) {
-                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "tempdeck"), new DeckProvider());
+                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "deck1"), new DeckProvider());
+            }
+            if(!event.getObject().getCapability(DeckProvider.PlayerDeck2).isPresent()) {
+                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "deck2"), new DeckProvider());
+            }
+            if(!event.getObject().getCapability(DeckProvider.PlayerDeck3).isPresent()) {
+                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "deck3"), new DeckProvider());
+            }
+            if(!event.getObject().getCapability(DeckProvider.PlayerDeck4).isPresent()) {
+                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "deck4"), new DeckProvider());
+            }
+            if(!event.getObject().getCapability(UnlockedCardsProvider.PlayerUnlockedCards).isPresent()) {
+                event.addCapability(new ResourceLocation(Minecardmod.MOD_ID, "cards"), new UnlockedCardsProvider());
             }
         }
     }
@@ -36,6 +51,26 @@ public class ModEvents {
                     newStore.copyFrom(oldStore);
                 });
             });
+            event.getOriginal().getCapability(DeckProvider.PlayerDeck2).ifPresent(oldStore -> {
+                event.getOriginal().getCapability(DeckProvider.PlayerDeck2).ifPresent(newStore -> {
+                    newStore.copyFrom(oldStore);
+                });
+            });
+            event.getOriginal().getCapability(DeckProvider.PlayerDeck3).ifPresent(oldStore -> {
+                event.getOriginal().getCapability(DeckProvider.PlayerDeck3).ifPresent(newStore -> {
+                    newStore.copyFrom(oldStore);
+                });
+            });
+            event.getOriginal().getCapability(DeckProvider.PlayerDeck4).ifPresent(oldStore -> {
+                event.getOriginal().getCapability(DeckProvider.PlayerDeck4).ifPresent(newStore -> {
+                    newStore.copyFrom(oldStore);
+                });
+            });
+            event.getOriginal().getCapability(UnlockedCardsProvider.PlayerUnlockedCards).ifPresent(oldStore -> {
+                event.getOriginal().getCapability(UnlockedCardsProvider.PlayerUnlockedCards).ifPresent(newStore -> {
+                    newStore.copyFrom(oldStore);
+                });
+            });
         }
     }
 
@@ -43,12 +78,16 @@ public class ModEvents {
     @SubscribeEvent
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         event.register(SavedDeck.class);
+        event.register(SavedUnlockedCards.class);
     }
 
     @SubscribeEvent
     public static void onPlayerJoinWorld(EntityJoinLevelEvent event) {
         if(!event.getLevel().isClientSide()) {
             if(event.getEntity() instanceof ServerPlayer player) {
+                player.getCapability(UnlockedCardsProvider.PlayerUnlockedCards).ifPresent(cards -> {
+                    ModMessages.sendToPlayer(new UnlockedCardsSyncS2CPacket(cards.getCards()), player);
+                });
                 player.getCapability(DeckProvider.PlayerDeck1).ifPresent(deck -> {
                     ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getDeck(), 1), player);
                 });
