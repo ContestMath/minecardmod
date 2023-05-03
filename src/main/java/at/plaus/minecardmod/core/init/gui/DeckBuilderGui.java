@@ -149,7 +149,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     public void onCloseOrSwitch() {
         String s = deckString(deck);
-        ModMessages.sendToServer(new DeckC2SPacket(s));
+        ModMessages.sendToServer(new DeckC2SPacket(s, 2));
         isFirstTimeInit = true;
     }
 

@@ -4,6 +4,7 @@ import at.plaus.minecardmod.core.init.gui.Boardstate;
 import at.plaus.minecardmod.core.init.gui.Card;
 import at.plaus.minecardmod.core.init.gui.CardTypes;
 import at.plaus.minecardmod.core.init.gui.events.EtbEvent;
+import net.minecraft.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,32 +22,23 @@ public class CreeperCard extends Card {
         this.isSpy = true;
     }
 
-    private final EtbEvent explodeEvent = (card, b) -> {
+    private final Tuple<EtbEvent, Card> explodeEvent = new Tuple<>((card, b, source) -> {
 
         if (card.type == CardTypes.MELEE && this.isOwned(b) && card.isOwned(b)) {
             List<Card> tempMelee = new ArrayList<>(b.own.meleeBoard);
-            /*
-            for (Card card1:tempMelee) {
-                b = card1.removeFromBoard(b);
-            }
-
-             */
             for (Card card1:tempMelee) {
                 b = card1.die(b);
             }
         } else if (card.type == CardTypes.MELEE && !this.isOwned(b) && !card.isOwned(b)) {
             List<Card> tempMelee = new ArrayList<>(b.enemy.meleeBoard);
-            /*
-            for (Card card1:tempMelee) {
-                b = card1.removeFromBoard(b);
-            }
-             */
             for (Card card1:tempMelee) {
                 b = card1.die(b);
             }
         }
         return b;
-    };
+    },
+            this
+    );
 
     @Override
     public Boardstate etb(Boardstate board) {

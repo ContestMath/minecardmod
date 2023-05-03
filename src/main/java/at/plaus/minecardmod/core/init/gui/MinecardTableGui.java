@@ -4,10 +4,9 @@ import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.client.ClientDeckData;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
-import at.plaus.minecardmod.core.init.gui.cards.BlueCard;
-import at.plaus.minecardmod.core.init.gui.cards.BrownCard;
-import at.plaus.minecardmod.core.init.gui.cards.YellowCard;
+import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
+import at.plaus.minecardmod.core.init.gui.events.FindTargetsEvent;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -112,7 +111,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             loadGame(GlobalValues.savedBoardTemp.get(p));
         } else {
             board.enemy.isYourTurn = false;
-            String deckString = ClientDeckData.getDeck();
+            String deckString = ClientDeckData.getDeck2();
             if (!Objects.equals(deckString, "")) {
 
                 board.own.deck = DeckBuilderGui.stringToDeck(deckString);
@@ -130,6 +129,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 board.enemy.deck.push(new YellowCard());
                 board.enemy.deck.push(new BrownCard());
             }
+            board.enemy.deck.push(new PhantomSwarmCard());
+            board.enemy.deck.push(new PhantomSwarmCard());
+            board.enemy.deck.push(new PhantomSwarmCard());
+            board.enemy.deck.push(new PhantomSwarmCard());
+            board.enemy.deck.push(new PhantomSwarmCard());
 
             board.own.drawCard(MinecardRules.startingHandsize);
             board.enemy.drawCard(MinecardRules.startingHandsize);
@@ -144,10 +148,14 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void playLoop() {
-        if (board.enemy.hand.isEmpty() && board.selectionCardListeners.isEmpty()) {
+        Boardstate.loopIndex = 0;
+        if (!board.selectionStack.isEmpty()) {
+            board.gamePaused = true;
+        }
+        if (board.enemy.hand.isEmpty() && board.selectionStack.isEmpty()) {
             board.enemy.hasPassed = true;
         }
-        if (board.own.hand.isEmpty() && board.selectionCardListeners.isEmpty()) {
+        if (board.own.hand.isEmpty() && board.selectionStack.isEmpty()) {
             board.own.hasPassed = true;
         }
         if (board.own.hasPassed && board.own.isYourTurn) {
@@ -222,8 +230,8 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         if (!board.gamePaused) {
             renderCardHighlightFromList(PoseStack, mouseX, mouseY, board);
-        } else {
-            for (List<Card> list:board.selectionCardTargets) {
+        } else if (!board.selectionSymbolListeners.isEmpty() && !board.selectionStack.isEmpty()) {
+            for (Card list:board.getSelectionTargets()){
                 renderCardHighlightFromList(PoseStack, mouseX, mouseY, board);
             }
         }
@@ -294,7 +302,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength()).length())/2, offsetY+5, -1);
 
-        if (!board.selectionCardTargets.isEmpty()) {
+        if (!board.selectionStack.isEmpty()) {
             this.font.draw(PoseStack, Component.literal("Press space to decline to select target(s)"), 5, this.height-8, -1);
         }
     }
@@ -308,17 +316,14 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 board.selectionSymbolTargets = new ArrayList<>();
                 board = board.switchTurn();
                 playLoop();
-            } else if (!board.selectionCardListeners.isEmpty()) {
-                board.selectionCardListeners.pop();
-                if (board.selectionCardListeners.isEmpty()) {
+            } else if (!board.selectionStack.isEmpty()) {
+                board.selectionStack.pop();
+                if (board.selectionStack.isEmpty()) {
                     board.gamePaused = false;
-                    board.selectionCardTargets = new ArrayList<>();
-                    board.selectionSource = null;
                 }
                 if (!board.gamePaused) {
                     board = board.switchTurn();
                     playLoop();
-
                 }
             }
             return true;
@@ -332,16 +337,16 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && board.own.isYourTurn) {
-            Stack<CardSelectedEvent> s = board.selectionCardListeners;
             if (!board.gamePaused) {
                 Card card = getTouchingCard(mouseX, mouseY);
                 if (board.own.isYourTurn) {
                     if (card != null && board.own.hand.contains(card)){
                         board = board.playCardFromHand(card);
                         if (!board.gamePaused && cardWasPlayed) {
-                            board = board.switchTurn();
+                            if (board.selectionStack.isEmpty()) {
+                                board = board.switchTurn();
+                            }
                             playLoop();
-
                             return true;
                         }
                     }
@@ -366,23 +371,19 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                         return true;
                     }
                 }
-
             } else {
-                Card card = null;
-                for (List<Card> list:board.selectionCardTargets) {
-                    card = getTouchingCard(mouseX, mouseY);
-                    if (card != null && board.own.isYourTurn) {
-                        board = card.selected(board);
-                        if (!board.gamePaused) {
-                            board = board.switchTurn();
-                        }
-                        playLoop();
-
-                        return true;
+                Card card = getTouchingCard(mouseX, mouseY);
+                if (card != null && board.own.isYourTurn) {
+                    board = card.selected(board);
+                    if (!board.gamePaused) {
+                        board = board.switchTurn();
                     }
+                    playLoop();
+
+                    return true;
                 }
             }
-            if (board.selectionSymbolTargets.isEmpty()&& board.selectionCardTargets.isEmpty() &&isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
+            if (board.selectionSymbolTargets.isEmpty()&& board.selectionStack.isEmpty() &&isWithinBoundingBox(mouseX, mouseY, offsetX+ MinecardTableImageLocations.PassX, offsetX+ MinecardTableImageLocations.PassX+ MinecardTableImageLocations.PassWidth,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassHeight- MinecardTableImageLocations.PassY,offsetY+ MinecardTableImageLocations.guiheight- MinecardTableImageLocations.PassY)) {
                 board.own.hasPassed = true;
                 board = board.switchTurn();
                 playLoop();

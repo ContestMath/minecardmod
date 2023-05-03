@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public class MinecardRules {
     public static int startingHandsize = 9;
+    public static int maxLoopLength = 100;
 
     public boolean isDeckLegal(List<Card> deck) {
         int numberOfCreatures = 0;

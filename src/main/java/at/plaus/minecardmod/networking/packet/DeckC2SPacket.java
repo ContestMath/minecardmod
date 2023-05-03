@@ -10,17 +10,21 @@ import java.util.function.Supplier;
 
 public class DeckC2SPacket {
     private String deckString;
+    private int x;
 
-    public DeckC2SPacket(String deck) {
+    public DeckC2SPacket(String deck, int x) {
         this.deckString = deck;
+        this.x = x;
     }
 
     public DeckC2SPacket(FriendlyByteBuf buf) {
         this.deckString = buf.readUtf();
+        this.x = buf.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeUtf(deckString);
+        buf.writeInt(x);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
@@ -30,10 +34,32 @@ public class DeckC2SPacket {
             ServerPlayer player = context.getSender();
             ServerLevel level = player.getLevel();
 
-            player.getCapability(DeckProvider.PlayerDeck0).ifPresent(deck -> {
-                deck.setTempDeck(deckString);
-                ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getTempDeck()), player);
-            });
+            if (x == 1) {
+                player.getCapability(DeckProvider.PlayerDeck1).ifPresent(deck -> {
+                    deck.setDeck(deckString);
+                    ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getDeck(), 1), player);
+                });
+            }
+            if (x == 2) {
+                player.getCapability(DeckProvider.PlayerDeck2).ifPresent(deck -> {
+                    deck.setDeck(deckString);
+                    ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getDeck(), 2), player);
+                });
+            }
+            if (x == 3) {
+                player.getCapability(DeckProvider.PlayerDeck3).ifPresent(deck -> {
+                    deck.setDeck(deckString);
+                    ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getDeck(), 3), player);
+                });
+            }
+            if (x == 4) {
+                player.getCapability(DeckProvider.PlayerDeck4).ifPresent(deck -> {
+                    deck.setDeck(deckString);
+                    ModMessages.sendToPlayer(new DeckSyncS2CPacket(deck.getDeck(), 4), player);
+                });
+            }
+
+
         });
         return true;
     }

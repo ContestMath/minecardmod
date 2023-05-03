@@ -4,17 +4,15 @@ package at.plaus.minecardmod.core.init.gui;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
+import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
+import at.plaus.minecardmod.core.init.gui.events.FindTargetsEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.antlr.v4.runtime.misc.Triple;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.units.qual.C;
-import org.spongepowered.asm.mixin.Interface;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
 
 public class Card implements Serializable {
 
@@ -36,6 +34,7 @@ public class Card implements Serializable {
     public int sacrificeCost = 0;
     public boolean isSwift = false;
     public int resistance = 0;
+    public boolean isOnFire = false;
     public boolean undieing = false;
     public List<CardSubtypes> subtypes = new ArrayList<>();
     public String frameString = "textures/gui/frame.png";
@@ -49,21 +48,23 @@ public class Card implements Serializable {
     }
 
 
-    public boolean isPlayable(Boardstate board) {
+    public boolean isTargetable(Boardstate board) {
         int sacrificeTargets = 0;
-        if (!board.enemy.hand.contains(this) && !board.own.hand.contains(this)) {
-            return false;
-        }
         for(Card card:board.getAllCardsOnBoard()) {
             if (card.getOwedHalveBoard(board).equals(getOwedHalveBoard(board))) {
                 sacrificeTargets ++;
             }
         }
-        
-        return
-                getOwedHalveBoard(board).emeraldCount >= emeraldCost &&
-                sacrificeTargets >= sacrificeCost
-                ;
+
+        if (!board.gamePaused) {
+            return
+                    getOwedHalveBoard(board).emeraldCount >= emeraldCost &&
+                            sacrificeTargets >= sacrificeCost
+                    ;
+        } else {
+            return board.getSelectionTargets().contains(this);
+        }
+
     }
 
     public static List<Class<? extends Card>> getListOfCardClasses() {
@@ -98,6 +99,12 @@ public class Card implements Serializable {
         list.add(SnowGolemCard.class);
         list.add(SlimeCard.class);
         list.add(CarpetBombingCard.class);
+        list.add(WitchCard.class);
+        list.add(BlazeCard.class);
+        list.add(BucketCard.class);
+        list.add(GuardianCard.class);
+        list.add(PhantomCard.class);
+        list.add(PhantomSwarmCard.class);
 
 
         return list;
@@ -108,9 +115,7 @@ public class Card implements Serializable {
         for (Class<? extends Card> clazz:getListOfCardClasses()) {
             try {
                 list.add(clazz.newInstance());
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -128,9 +133,7 @@ public class Card implements Serializable {
             if (this.getClass().equals(clazz)) {
                 try {
                     return clazz.newInstance();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -310,19 +313,20 @@ public class Card implements Serializable {
 
     public Boardstate selected(Boardstate board) {
         Boardstate newBoard = new Boardstate(board);
-        newBoard = newBoard.selectionCardListeners.pop().onCardSelected(board.selectionSource, this, newBoard);
+        Triple selectionTriple = newBoard.selectionStack.pop();
+        newBoard = ((CardSelectedEvent) selectionTriple.a).onCardSelected((Card) selectionTriple.c, this, newBoard);
 
-        if (newBoard.selectionCardListeners.isEmpty()) {
+        if (newBoard.selectionStack.isEmpty()) {
             newBoard.gamePaused = false;
-            newBoard.selectionCardListeners = new Stack<>();
-            newBoard.selectionCardTargets = new ArrayList<>();
-            newBoard.selectionSource = null;
         }
 
         return newBoard;
     }
 
     public Boardstate atTheStartOfTurn(Boardstate board) {
+        if (isOnFire) {
+            damage(1, board);
+        }
         return board;
     }
 
@@ -346,12 +350,15 @@ public class Card implements Serializable {
     }
 
     private Boardstate removeFromBoard(Boardstate board) {
-        List<Card> o = board.own.meleeBoard;
-        List<Card> e = board.enemy.meleeBoard;
         for (List<Card> list:board.getListOfCardLists()) {
             list.remove(this);
         }
         return board;
+    }
+
+    public Boardstate voidd(Boardstate b) {
+        getOwedHalveBoard(b).voidd.add(this);
+        return removeFromBoard(b);
     }
 
     public int getDefaultStrength(){
@@ -364,6 +371,14 @@ public class Card implements Serializable {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static FindTargetsEvent getTargets() {
+        return (source, board) -> {
+            List<Card> list = board.getAllCardsOnBoard();
+            list.remove(source);
+            return list;
+        };
     }
 }
 

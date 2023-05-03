@@ -14,14 +14,17 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class DeckProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-    public static Capability<SavedDecks> PlayerDeck0 = CapabilityManager.get(new CapabilityToken<SavedDecks>() { });
+    public static Capability<SavedDeck> PlayerDeck1 = CapabilityManager.get(new CapabilityToken<SavedDeck>() { });
+    public static Capability<SavedDeck> PlayerDeck2 = CapabilityManager.get(new CapabilityToken<SavedDeck>() { });
+    public static Capability<SavedDeck> PlayerDeck3 = CapabilityManager.get(new CapabilityToken<SavedDeck>() { });
+    public static Capability<SavedDeck> PlayerDeck4 = CapabilityManager.get(new CapabilityToken<SavedDeck>() { });
 
-    private SavedDecks savedDecks = null;
-    private final LazyOptional<SavedDecks> optional = LazyOptional.of(this::createSavedBoards);
+    private SavedDeck savedDecks = null;
+    private final LazyOptional<SavedDeck> optional = LazyOptional.of(this::createSavedBoards);
 
-    private SavedDecks createSavedBoards() {
+    private SavedDeck createSavedBoards() {
         if(this.savedDecks == null) {
-            this.savedDecks = new SavedDecks();
+            this.savedDecks = new SavedDeck();
         }
 
         return this.savedDecks;
@@ -30,7 +33,16 @@ public class DeckProvider implements ICapabilityProvider, INBTSerializable<Compo
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if(cap == PlayerDeck0) {
+        if(cap == PlayerDeck1) {
+            return optional.cast();
+        }
+        if(cap == PlayerDeck2) {
+            return optional.cast();
+        }
+        if(cap == PlayerDeck3) {
+            return optional.cast();
+        }
+        if(cap == PlayerDeck4) {
             return optional.cast();
         }
         return LazyOptional.empty();

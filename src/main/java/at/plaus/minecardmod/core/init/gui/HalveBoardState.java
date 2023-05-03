@@ -13,7 +13,7 @@ public class HalveBoardState implements Serializable {
     public List<Card> rangedBoard;
     public List<Card> specialBoard;
     public List<Card> graveyard;
-    public List<Card> exile;
+    public List<Card> voidd;
     public boolean isYourTurn = true;
     public boolean hasPassed = false;
     public int lifePoints = 2;
@@ -23,7 +23,7 @@ public class HalveBoardState implements Serializable {
 
     public HalveBoardState() {
         this.deck = new Stack<Card>();
-        this.exile = new ArrayList<Card>();
+        this.voidd = new ArrayList<Card>();
         this.hand = new ArrayList<Card>();
         this.meleeBoard = new ArrayList<Card>();
         this.rangedBoard = new ArrayList<Card>();
@@ -45,7 +45,7 @@ public class HalveBoardState implements Serializable {
         this.graveyard = new ArrayList<Card>(boardState.graveyard);
         this.emeraldCount = boardState.emeraldCount;
         this.cthulhuCounter = boardState.cthulhuCounter;
-        this.exile = boardState.exile;
+        this.voidd = boardState.voidd;
     }
 
     public HalveBoardState getOther(Boardstate board) {
@@ -89,7 +89,7 @@ public class HalveBoardState implements Serializable {
         cards.addAll(rangedBoard);
         cards.addAll(specialBoard);
         cards.addAll(graveyard);
-        cards.addAll(exile);
+        cards.addAll(voidd);
         return cards;
     }
 

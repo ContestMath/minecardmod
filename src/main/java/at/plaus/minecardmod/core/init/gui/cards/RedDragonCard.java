@@ -16,10 +16,11 @@ public class RedDragonCard extends Card {
 
     @Override
     public Boardstate etb(Boardstate board) {
-        board.gamePaused = true;
-        board.selectionCardTargets.add(board.own.hand);
-        board.selectionSource = this;
-        board.selectionCardListeners.push((source, card, boardstate) -> card.discard(boardstate));
+        board.addSelectionEvent(
+                (source, card, boardstate) -> card.discard(boardstate),
+                ((source, b) -> source.getOwedHalveBoard(b).hand),
+                this
+        );
         return super.etb(board);
     }
 }

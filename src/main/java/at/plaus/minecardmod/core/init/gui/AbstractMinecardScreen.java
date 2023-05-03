@@ -62,10 +62,10 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
     }
 
     public boolean isWithinBoundingBox(double x, double y, int xMin, int xMax, int yMin, int yMax) {
-        return x > xMin && x < xMax && y > yMin && y < yMax;
+        return x >= xMin && x < xMax && y >= yMin && y < yMax;
     }
     public boolean isWithinCardBoundingBox(double x,double y, int xMin, int yMin) {
-        return isWithinBoundingBox(x, y, xMin, xMin+ Card.cardwidth,yMin, yMin+ Card.cardheight);
+        return isWithinBoundingBox(x, y, xMin, xMin+ Card.cardwidth, yMin, yMin+ Card.cardheight);
     }
 
     //-1 if touching no cards
@@ -129,7 +129,7 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
         if (getTouchingCard(mouseX, mouseY) != null) { // && ownBoard.isYourTurn
             Card card = getTouchingCard(mouseX, mouseY);
             assert card != null;
-            if (card.isPlayable(board)) {
+            if (card.isTargetable(board)) {
                 int xMin = getCardPos(getTouchingCard(mouseX, mouseY))[0];
                 int yMin = getCardPos(getTouchingCard(mouseX, mouseY))[1];
                 fillGradient(poseStack, xMin, yMin, xMin+ Card.cardwidth, yMin+ Card.cardheight, -1072689136, -804253680);

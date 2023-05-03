@@ -18,7 +18,7 @@ public class MagmaSlimeCard extends Card {
 
     @Override
     public Boardstate atTheStartOfTurn(Boardstate board) {
-        this.strength += 3;
+        this.strength += 2;
         return super.atTheStartOfTurn(board);
     }
 }
