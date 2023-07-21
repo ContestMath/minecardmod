@@ -1,11 +1,10 @@
 package at.plaus.minecardmod.core.init.gui;
 
+import at.plaus.minecardmod.Capability.SavedUnlockedCards;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
-import at.plaus.minecardmod.networking.packet.UnlockedCardsC2SPacket;
-import at.plaus.minecardmod.networking.packet.UnlockedCardsSyncS2CPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -100,7 +99,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     }
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
-        renderCardHighlightFromList(PoseStack, mouseX, mouseY);
+        renderCardHighlightFromList(PoseStack, mouseX, mouseY, cardSelection);
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)) {
             fillGradient(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
         }
@@ -109,7 +108,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     private void renderCards(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardsFromList(PoseStack, deck);
         renderPartCardHighlightFromList(PoseStack, mouseX, mouseY, deck);
-        renderCardsFromList(PoseStack, cardSelection);
+        renderCardsFromList(PoseStack, cardSelection, deck);
     }
 
 
@@ -151,7 +150,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     public void onCloseOrSwitch() {
         String s = deckString(deck);
-        ModMessages.sendToServer(new UnlockedCardsC2SPacket(s));
+        ModMessages.sendToServer(new DeckC2SPacket(s, 1));
         isFirstTimeInit = true;
     }
 

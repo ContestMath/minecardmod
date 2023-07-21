@@ -110,14 +110,39 @@ public abstract class AbstractMinecardScreen extends AbstractContainerScreen<Min
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
 
             this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+
             index ++;
         }
         index = 0;
 
     }
 
-    public void renderCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY) {
-        if (getTouchingCard(mouseX, mouseY) != null) { // && ownBoard.isYourTurn
+    public void renderCardsFromList (PoseStack poseStack, List<Card> list, List<Card> inDeck) {
+        int index = 0;
+        for (Card card:list) {
+            int x = getCardPos(card)[0];
+            int y = getCardPos(card)[1];
+
+            RenderSystem.setShaderTexture(0,card.getTexture());
+            GuiComponent.blit(poseStack, x, y, 0, (float)0, (float)0, Card.cardwidth, Card.cardheight, 64, 64);
+
+            RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
+            GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
+            this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+            int numberInDeck = 0;
+            for (Card i:inDeck) {
+               if (i.getClass().equals(card.getClass())) {
+                   numberInDeck ++;
+               }
+            }
+            this.font.draw(poseStack, Integer.toString(card.getNumberUnlocked()-numberInDeck), x, y, 0);
+            index ++;
+        }
+        index = 0;
+    }
+
+    public void renderCardHighlightFromList(PoseStack poseStack, int mouseX, int mouseY, List<Card> cards) {
+        if (getTouchingCard(mouseX, mouseY) != null && cards.contains(getTouchingCard(mouseX, mouseY))) { // && ownBoard.isYourTurn
             Card card = getTouchingCard(mouseX, mouseY);
             int xMin = getCardPos(getTouchingCard(mouseX, mouseY))[0];
             int yMin = getCardPos(getTouchingCard(mouseX, mouseY))[1];

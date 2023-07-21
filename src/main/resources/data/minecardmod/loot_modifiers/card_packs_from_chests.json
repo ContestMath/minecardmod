@@ -1,0 +1,10 @@
+{
+  "type": "minecardmod:add_item",
+  "conditions": [
+    {
+      "condition": "block_state_property",
+      "block": "minecraft:grass"
+    }
+  ],
+  "item": "minecardmod:minecard_pack"
+}

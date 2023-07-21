@@ -1,6 +1,7 @@
 package at.plaus.minecardmod.core.init.gui;
 
 
+import at.plaus.minecardmod.Capability.SavedUnlockedCards;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.gui.events.CardDamagedEvent;
@@ -8,10 +9,12 @@ import at.plaus.minecardmod.core.init.gui.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.gui.events.FindTargetsEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import org.antlr.v4.runtime.misc.Triple;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Card implements Serializable {
@@ -67,55 +70,74 @@ public class Card implements Serializable {
 
     }
 
-    public static List<Class<? extends Card>> getListOfCardClasses() {
-        List<Class<? extends Card>> list = new ArrayList<>();
-        list.add(BlueCard.class);
-        list.add(YellowCard.class);
-        list.add(BrownCard.class);
-        list.add(ZombieCard.class);
-        list.add(WitherSkeletonCard.class);
-        list.add(BatCard.class);
-        list.add(SkeletonCard.class);
-        list.add(CreeperCard.class);
-        list.add(MushroomCowCard.class);
-        list.add(MushroomSoupCard.class);
-        list.add(GlowSquidCard.class);
-        list.add(RedDragonCard.class);
-        list.add(EnderMiteCard.class);
-        list.add(LightningStrikeCard.class);
-        list.add(AlexCard.class);
-        list.add(SteveCard.class);
-        list.add(GiantCard.class);
-        list.add(ThunderStormCard.class);
-        list.add(PickaxeCard.class);
-        list.add(SquidCard.class);
-        list.add(VillagerCard.class);
-        list.add(IronGolemCard.class);
-        list.add(CthulhuCard.class);
-        list.add(ChickenCard.class);
-        list.add(KillerBunnyCard.class);
-        list.add(AllayCard.class);
-        list.add(MagmaSlimeCard.class);
-        list.add(SnowGolemCard.class);
-        list.add(SlimeCard.class);
-        list.add(CarpetBombingCard.class);
-        list.add(WitchCard.class);
-        list.add(BlazeCard.class);
-        list.add(BucketCard.class);
-        list.add(GuardianCard.class);
-        list.add(PhantomCard.class);
-        list.add(PhantomSwarmCard.class);
+    public static List<Tuple<Integer, Class<? extends Card>>> tupleOfCardClasses() {
+        List<Tuple<Integer, Class<? extends Card>>> list = new ArrayList<>();
+        list.add(new Tuple<>(0, BlueCard.class));
+        list.add(new Tuple<>(1, YellowCard.class));
+        list.add(new Tuple<>(2, BrownCard.class));
+        list.add(new Tuple<>(3,  PhantomSwarmCard.class));
+        list.add(new Tuple<>(4, ZombieCard.class));
+        list.add(new Tuple<>(5, WitherSkeletonCard.class));
+        list.add(new Tuple<>(6, BatCard.class));
+        list.add(new Tuple<>(7, SkeletonCard.class));
+        list.add(new Tuple<>(8, CreeperCard.class));
+        list.add(new Tuple<>(9, MushroomCowCard.class));
+        list.add(new Tuple<>(10, MushroomSoupCard.class));
+        list.add(new Tuple<>(11, GlowSquidCard.class));
+        list.add(new Tuple<>(12, RedDragonCard.class));
+        list.add(new Tuple<>(13, EnderMiteCard.class));
+        list.add(new Tuple<>(14, LightningStrikeCard.class));
+        list.add(new Tuple<>(15, AlexCard.class));
+        list.add(new Tuple<>(16, SteveCard.class));
+        list.add(new Tuple<>(17, GiantCard.class));
+        list.add(new Tuple<>(18, ThunderStormCard.class));
+        list.add(new Tuple<>(19, PickaxeCard.class));
+        list.add(new Tuple<>(20, SquidCard.class));
+        list.add(new Tuple<>(21, VillagerCard.class));
+        list.add(new Tuple<>(22, IronGolemCard.class));
+        list.add(new Tuple<>(23, CthulhuCard.class));
+        list.add(new Tuple<>(24, ChickenCard.class));
+        list.add(new Tuple<>(25, KillerBunnyCard.class));
+        list.add(new Tuple<>(26, AllayCard.class));
+        list.add(new Tuple<>(27, MagmaSlimeCard.class));
+        list.add(new Tuple<>(28, SnowGolemCard.class));
+        list.add(new Tuple<>(29, SlimeCard.class));
+        list.add(new Tuple<>(30, CarpetBombingCard.class));
+        list.add(new Tuple<>(31, WitchCard.class));
+        list.add(new Tuple<>(32, BlazeCard.class));
+        list.add(new Tuple<>(33, BucketCard.class));
+        list.add(new Tuple<>(34, GuardianCard.class));
+        list.add(new Tuple<>(35, PhantomCard.class));
+        list.add(new Tuple<>(36, PiglinCard.class));
+        return list;
+    }
 
-
+    public static List<Tuple<Integer, Class<? extends Card>>> tupleOfNonTokenCardClasses(){
+        List<Tuple<Integer, Class<? extends Card>>> list =new ArrayList<>();
+        list.addAll(tupleOfCardClasses());
+        for (Tuple<Integer, Class<? extends Card>> tuple:tupleOfCardClasses()) {
+            try {
+                if (tuple.getB().newInstance().isToken) {
+                    list.remove(tuple);
+                }
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return list;
     }
 
     public static List<Card> getListOfAllCards() {
         List<Card> list = new ArrayList<>();
-        for (Class<? extends Card> clazz:getListOfCardClasses()) {
+        list.add(new ZombieCard());
+        for (Tuple<Integer, Class<? extends Card>> t : tupleOfCardClasses()) {
             try {
-                list.add(clazz.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
+                list.add(t.getB().newInstance());
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -127,17 +149,21 @@ public class Card implements Serializable {
                 this.texture);
     }
 
+    public int getNumberUnlocked() {
+        return SavedUnlockedCards.getCards().charAt(getId())-'0';
+    }
+
     @NonNull
     public Card getNew() {
-        for (Class<? extends Card> clazz:getListOfCardClasses()) {
-            if (this.getClass().equals(clazz)) {
+        for (Tuple<Integer, Class<? extends Card>> t : tupleOfCardClasses()) {
+            if (this.getClass().equals(t.getB())) {
                 try {
-                    return clazz.newInstance();
+                    return t.getB().newInstance();
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
-        }
+    }
         return null;
     }
 
@@ -178,10 +204,6 @@ public class Card implements Serializable {
     }
 
     public Boardstate etb(Boardstate board) {
-        return board;
-    }
-
-    public Boardstate afterEtb(Boardstate board) {
         return board;
     }
 
@@ -248,24 +270,10 @@ public class Card implements Serializable {
         return board.enemy;
     }
 
-    public int[] getCardPos(Boardstate board){
-        int x = 0;
-        int y = 0;
-        int index = 0;
-        for (List<Card> list: board.getListOfCardLists()) {
-            if (list.contains(this)) {
-                x = index;
-                y = list.indexOf(this);
-            }
-            index++;
-        }
-        return new int[]{x, y};
-    }
-
     public int getId() {
-        for (Class<? extends Card> clazz:getListOfCardClasses()) {
-            if (getClass().equals(clazz)) {
-               return getListOfCardClasses().indexOf(clazz);
+        for (Tuple<Integer, Class<? extends Card>> t : tupleOfCardClasses()) {
+            if (getClass().equals(t.getB())) {
+               return t.getA();
             }
         }
         return -1;
@@ -283,7 +291,7 @@ public class Card implements Serializable {
     }
 
     public static Card getCardFromId(int x) {
-        return getFromClass(getListOfCardClasses().get(x));
+        return getFromClass(tupleOfCardClasses().get(x).getB());
     }
 
 
@@ -375,10 +383,9 @@ public class Card implements Serializable {
 
     public static FindTargetsEvent getTargets() {
         return (source, board) -> {
-            List<Card> list = board.getAllCardsOnBoard();
-            list.remove(source);
-            return list;
+            return board.getAllCardsOnBoard();
         };
     }
+
 }
 

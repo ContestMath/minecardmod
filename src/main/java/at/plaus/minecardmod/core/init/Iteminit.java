@@ -1,8 +1,10 @@
 package at.plaus.minecardmod.core.init;
 
 import at.plaus.minecardmod.Minecardmod;
+import at.plaus.minecardmod.core.init.custom.MinecardPackItem;
 import at.plaus.minecardmod.core.init.custom.empty_minecard_card;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,4 +19,7 @@ public class Iteminit {
 
     public static final RegistryObject<Item> EMPTY_MINECARD_CARD = ITEMS.register("empty_minecard_card",
             ()-> new empty_minecard_card(new Item.Properties()));
+
+    public static final RegistryObject<Item> MINECARD_PACK_ITEM = ITEMS.register("minecard_pack",
+            ()-> new MinecardPackItem(new Item.Properties().rarity(Rarity.COMMON)));
 }

@@ -1,5 +1,6 @@
 package at.plaus.minecardmod.networking.packet;
 
+import at.plaus.minecardmod.Capability.SavedUnlockedCards;
 import at.plaus.minecardmod.client.ClientCardData;
 import at.plaus.minecardmod.core.init.gui.Boardstate;
 import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
@@ -27,7 +28,7 @@ public class UnlockedCardsSyncS2CPacket {
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            ClientCardData.set(cards);
+            SavedUnlockedCards.setCards(cards);
         });
         return true;
     }

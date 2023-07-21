@@ -1,9 +1,11 @@
 {
   "item.minecardmod.empty_minecard_card": "Empty minecard card",
+  "item.minecardmod.minecard_pack": "Minecard Pack",
   "block.minecardmod.minecard_table": "Minecard table",
   "screen.minecardmod.minecard_table": "Minecard table",
   "tooltip.shift": "Hold §e§lSHIFT for more information",
   "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
+  "betting_license": "Use this to play against villagers",
   "tooltip.gui.options": "Options and tools",
 
 

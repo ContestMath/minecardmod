@@ -2,8 +2,11 @@ package at.plaus.minecardmod.core.init.gui;
 
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.client.ClientCardData;
+import at.plaus.minecardmod.client.ClientDeckData;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
+import at.plaus.minecardmod.core.init.gui.Ai.CardAi;
+import at.plaus.minecardmod.core.init.gui.Ai.RandomAi;
 import at.plaus.minecardmod.core.init.gui.cards.*;
 import at.plaus.minecardmod.core.init.menu.MinecardScreenMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -37,6 +40,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     public final Inventory inv;
     public final Component component;
     public static boolean cardWasPlayed;
+    public static final CardAi AI = new RandomAi();
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
@@ -109,7 +113,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             loadGame(GlobalValues.savedBoardTemp.get(p));
         } else {
             board.enemy.isYourTurn = false;
-            String deckString = ClientCardData.get();
+            String deckString = ClientDeckData.getDeck1();
             if (!Objects.equals(deckString, "") && !Objects.equals(deckString, null)) {
 
                 board.own.deck = DeckBuilderGui.stringToDeck(deckString);
@@ -127,11 +131,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 board.enemy.deck.push(new YellowCard());
                 board.enemy.deck.push(new BrownCard());
             }
-            board.enemy.deck.push(new PhantomSwarmCard());
-            board.enemy.deck.push(new PhantomSwarmCard());
-            board.enemy.deck.push(new PhantomSwarmCard());
-            board.enemy.deck.push(new PhantomSwarmCard());
-            board.enemy.deck.push(new PhantomSwarmCard());
+            board.enemy.deck.push(new SkeletonCard());
+            board.enemy.deck.push(new SkeletonCard());
+            board.enemy.deck.push(new SkeletonCard());
+            board.enemy.deck.push(new SkeletonCard());
+            board.enemy.deck.push(new SkeletonCard());
 
             board.own.drawCard(MinecardRules.startingHandsize);
             board.enemy.drawCard(MinecardRules.startingHandsize);
@@ -371,7 +375,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 }
             } else {
                 Card card = getTouchingCard(mouseX, mouseY);
-                if (card != null && board.own.isYourTurn) {
+                if (card != null && board.own.isYourTurn && card.isTargetable(board)) {
                     board = card.selected(board);
                     if (!board.gamePaused) {
                         board = board.switchTurn();
@@ -409,12 +413,11 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void enemyPlay() {
-        if (board.enemy.isYourTurn && !board.gamePaused) {
-            board = board.playCardFromHand(board.enemy.hand.get(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size())));
-            if (board.enemy.hand.isEmpty()) {
-                board.enemy.hasPassed = true;
+        if (board.enemy.isYourTurn) {
+            board = AI.boardTransformation(board);
+            if (board.selectionStack.isEmpty()) {
+                board = board.switchTurn();
             }
-            board = board.switchTurn();
             playLoop();
         }
     }
