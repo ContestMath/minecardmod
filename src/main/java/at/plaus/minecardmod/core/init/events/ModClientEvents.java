@@ -1,7 +1,7 @@
 package at.plaus.minecardmod.core.init.events;
 
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.core.init.gui.Card;
+import at.plaus.minecardmod.core.init.CardGame.Card;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.UnlockedCardsC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;

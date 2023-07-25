@@ -1,6 +1,6 @@
 package at.plaus.minecardmod.core.init;
 
-import at.plaus.minecardmod.core.init.gui.Card;
+import at.plaus.minecardmod.core.init.CardGame.Card;
 
 import java.util.List;
 import java.util.Objects;

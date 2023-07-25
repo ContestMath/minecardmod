@@ -62,6 +62,12 @@ public class ModMessages {
                 .encoder(UnlockedCardsC2SPacket::toBytes)
                 .consumerMainThread(UnlockedCardsC2SPacket::handle)
                 .add();
+
+        net.messageBuilder(OpenScreenS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(OpenScreenS2CPacket::new)
+                .encoder(OpenScreenS2CPacket::toBytes)
+                .consumerMainThread(OpenScreenS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

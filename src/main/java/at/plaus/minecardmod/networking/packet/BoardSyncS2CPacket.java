@@ -1,7 +1,7 @@
 package at.plaus.minecardmod.networking.packet;
 
-import at.plaus.minecardmod.core.init.gui.Boardstate;
-import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
+import at.plaus.minecardmod.core.init.CardGame.Boardstate;
+import at.plaus.minecardmod.core.init.CardGame.MinecardTableGui;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

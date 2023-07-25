@@ -1,8 +1,9 @@
 package at.plaus.minecardmod.core.init;
 
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.core.init.custom.MinecardPackItem;
-import at.plaus.minecardmod.core.init.custom.empty_minecard_card;
+import at.plaus.minecardmod.core.init.item.BettingLicenseItem;
+import at.plaus.minecardmod.core.init.item.MinecardPackItem;
+import at.plaus.minecardmod.core.init.item.empty_minecard_card;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,4 +23,7 @@ public class Iteminit {
 
     public static final RegistryObject<Item> MINECARD_PACK_ITEM = ITEMS.register("minecard_pack",
             ()-> new MinecardPackItem(new Item.Properties().rarity(Rarity.COMMON)));
+
+    public static final RegistryObject<Item> BETTING_LICENSE = ITEMS.register("betting_license",
+            ()-> new BettingLicenseItem(new Item.Properties().rarity(Rarity.COMMON).stacksTo(1)));
 }

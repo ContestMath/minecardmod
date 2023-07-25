@@ -2,9 +2,8 @@
   "type": "minecardmod:add_item",
   "conditions": [
     {
-      "condition": "block_state_property",
-      "block": "minecraft:grass"
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/spawn_bonus_chest"
     }
-  ],
-  "item": "minecardmod:minecard_pack"
+  ]
 }

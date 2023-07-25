@@ -1,8 +1,8 @@
 package at.plaus.minecardmod.core.init;
 
-import at.plaus.minecardmod.core.init.gui.Boardstate;
-import at.plaus.minecardmod.core.init.gui.Card;
-import at.plaus.minecardmod.core.init.gui.HalveBoardState;
+import at.plaus.minecardmod.core.init.CardGame.Boardstate;
+import at.plaus.minecardmod.core.init.CardGame.Card;
+import at.plaus.minecardmod.core.init.CardGame.HalveBoardState;
 import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.List;

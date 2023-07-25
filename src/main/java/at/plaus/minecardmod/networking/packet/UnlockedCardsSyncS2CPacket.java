@@ -1,13 +1,9 @@
 package at.plaus.minecardmod.networking.packet;
 
 import at.plaus.minecardmod.Capability.SavedUnlockedCards;
-import at.plaus.minecardmod.client.ClientCardData;
-import at.plaus.minecardmod.core.init.gui.Boardstate;
-import at.plaus.minecardmod.core.init.gui.MinecardTableGui;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.io.IOException;
 import java.util.function.Supplier;
 
 

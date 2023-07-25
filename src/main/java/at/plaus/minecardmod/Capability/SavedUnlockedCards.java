@@ -1,9 +1,8 @@
 package at.plaus.minecardmod.Capability;
 
 import at.plaus.minecardmod.core.init.MinecardRules;
-import at.plaus.minecardmod.core.init.gui.Card;
+import at.plaus.minecardmod.core.init.CardGame.Card;
 import at.plaus.minecardmod.networking.ModMessages;
-import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
 import at.plaus.minecardmod.networking.packet.UnlockedCardsC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;

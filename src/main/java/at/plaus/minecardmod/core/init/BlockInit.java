@@ -1,10 +1,9 @@
 package at.plaus.minecardmod.core.init;
 
 import at.plaus.minecardmod.Minecardmod;
-import at.plaus.minecardmod.core.init.custom.MinecardTableBlock;
+import at.plaus.minecardmod.core.init.item.MinecardTableBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -34,7 +33,7 @@ public class BlockInit {
         BLOCKS.register(bus);
     }
 
-    public static final RegistryObject<BaseEntityBlock> minecard_TABLE = registerBlock("minecard_table",
+    public static final RegistryObject<Block> MINECARD_TABLE = registerBlock("minecard_table",
             ()-> new MinecardTableBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.CLAY).sound(SoundType.WOOD))); //.hardnessAndResistance(2, 2)
 
 }
