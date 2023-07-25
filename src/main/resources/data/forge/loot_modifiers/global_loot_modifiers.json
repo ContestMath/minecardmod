@@ -11,6 +11,13 @@
     "minecardmod:packs_from_end_city_treasure",
     "minecardmod:packs_from_nether_bridge",
     "minecardmod:packs_from_simple_dungeon",
-    "minecardmod:village_house"
+    "minecardmod:village_house",
+    "minecardmod:packs_from_igloo_chest",
+    "minecardmod:packs_from_jungle_temple",
+    "minecardmod:packs_from_shipwreck_treasure",
+    "minecardmod:packs_from_stronghold_library",
+    "minecardmod:packs_from_underwater_ruin_big",
+    "minecardmod:packs_from_underwater_ruin_small",
+    "minecardmod:packs_from_woodland_mansion"
   ]
 }
