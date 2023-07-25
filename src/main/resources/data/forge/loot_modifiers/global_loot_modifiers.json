@@ -1,6 +1,16 @@
 {
   "replace": false,
   "entries": [
-    "minecardmod:card_packs_from_chests"
+    "minecardmod:packs_from_bonus_chests",
+    "minecardmod:packs_from_bastion_bridge",
+    "minecardmod:packs_from_bastion_other",
+    "minecardmod:packs_from_bastion_treasure",
+    "minecardmod:packs_from_bonus_chests",
+    "minecardmod:packs_from_buried_treasure",
+    "minecardmod:packs_from_desert_pyramid",
+    "minecardmod:packs_from_end_city_treasure",
+    "minecardmod:packs_from_nether_bridge",
+    "minecardmod:packs_from_simple_dungeon",
+    "minecardmod:village_house"
   ]
 }

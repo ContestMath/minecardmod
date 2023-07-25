@@ -30,6 +30,7 @@ public class AddItemModifier extends LootModifier {
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         if(context.getRandom().nextFloat() >= 0.0f) {
             generatedLoot.add(new ItemStack(item));
+            int number = (int) Math.ceil(Math.pow(context.getRandom().nextFloat(),2)*3);
         }
 
         return generatedLoot;
