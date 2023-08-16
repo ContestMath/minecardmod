@@ -52,8 +52,8 @@ public class Boardstate implements Serializable {
         this.selectionSymbolListeners = new Stack<>();
         this.selectionSymbolListeners.addAll(board.selectionSymbolListeners);
         this.creaturesSacrificed = board.creaturesSacrificed;
-        this.selectionStack = board.selectionStack;
-        this.loopIndex = board.loopIndex;
+        this.selectionStack = new Stack<>();
+        this.selectionStack.addAll(board.selectionStack);
     }
 
     public Boardstate playCardFromHand(Card card) {
@@ -179,7 +179,7 @@ public class Boardstate implements Serializable {
     }
 
     public Boardstate clearBoard() {
-        Boardstate newBoard = new Boardstate(this);
+        Boardstate newBoard = this;
 
         for (Card card: getAllCardsOnBoard()) {
             newBoard = card.die(newBoard);
@@ -194,7 +194,7 @@ public class Boardstate implements Serializable {
     }
 
     public Boardstate switchTurn() {
-        Boardstate tempBoard = new Boardstate(this);
+        Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
         for (Card card:getAllCardsOnBoard()) {

@@ -38,14 +38,22 @@ public class HalveBoardState implements Serializable {
         Stack<Card> newDeck = new Stack<>();
         newDeck.addAll(boardState.deck);
         this.deck = newDeck;
-        this.hand = new ArrayList<Card>(boardState.hand);
-        this.meleeBoard = new ArrayList<Card>(boardState.meleeBoard);
-        this.rangedBoard = new ArrayList<Card>(boardState.rangedBoard);
-        this.specialBoard = new ArrayList<Card>(boardState.specialBoard);
-        this.graveyard = new ArrayList<Card>(boardState.graveyard);
+        this.hand = newCardlist(boardState.hand);
+        this.meleeBoard = newCardlist(boardState.meleeBoard);
+        this.rangedBoard = newCardlist(boardState.rangedBoard);
+        this.specialBoard = newCardlist(boardState.specialBoard);
+        this.graveyard = newCardlist(boardState.graveyard);
         this.emeraldCount = boardState.emeraldCount;
         this.cthulhuCounter = boardState.cthulhuCounter;
         this.voidd = boardState.voidd;
+    }
+
+    public static List<Card> newCardlist(List<Card> list) {
+        List<Card> newList = new ArrayList<>();
+        for (Card card:list) {
+            newList.add(card.copy());
+        }
+        return newList;
     }
 
     public HalveBoardState getOther(Boardstate board) {

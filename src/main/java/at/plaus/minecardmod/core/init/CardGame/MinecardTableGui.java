@@ -2,6 +2,7 @@ package at.plaus.minecardmod.core.init.CardGame;
 
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.client.ClientDeckData;
+import at.plaus.minecardmod.core.init.CardGame.Ai.SimpleAi;
 import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.core.init.CardGame.Ai.CardAi;
@@ -11,12 +12,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MinecardTableGui extends AbstractMinecardScreen {
 
@@ -28,13 +35,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     
     public static Boardstate board = new Boardstate();
+    private final int emeraldsCommited;
 
     int index = 0;
     public int numberStringWidth = 6;
     public boolean gameHasEnded = false;
-    public final Component component;
     public static boolean cardWasPlayed;
-    public static final CardAi AI = new RandomAi();
+    public static final CardAi AI = new SimpleAi();
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
@@ -48,9 +55,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         return board.getAllRenderableCards();
     }
 
-    public MinecardTableGui(Component component) {
-        super(component);
-        this.component = component;
+    public MinecardTableGui() {
+        super(Component.literal("I have no idea what this component is for"));
+        this.emeraldsCommited = 0;
+    }
+    public MinecardTableGui(int emeraldsCommited) {
+        super(Component.literal("I have no idea what this component is for"));
+        this.emeraldsCommited = emeraldsCommited;
     }
     
     @Nullable
@@ -117,20 +128,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                     board.own.deck.push(new BrownCard());
                 }
             }
-            for (int i = 0; i < 10; i++) {
-                board.enemy.deck.push(new BlueCard());
-                board.enemy.deck.push(new YellowCard());
-                board.enemy.deck.push(new BrownCard());
+            for (int i = 0; i < 30; i++) {
+                List<Tuple<Integer, Class<? extends Card>>> classes = Card.tupleOfCardClasses();
+                int random = ThreadLocalRandom.current().nextInt(0, classes.size()-1);
+                board.enemy.deck.push(Card.getFromClass(classes.get(34).getB()));
             }
-            board.enemy.deck.push(new SkeletonCard());
-            board.enemy.deck.push(new SkeletonCard());
-            board.enemy.deck.push(new SkeletonCard());
-            board.enemy.deck.push(new SkeletonCard());
-            board.enemy.deck.push(new SkeletonCard());
-
             board.own.drawCard(MinecardRules.startingHandsize);
             board.enemy.drawCard(MinecardRules.startingHandsize);
-            //Minecraft.getInstance().player.sendSystemMessage(Component.literal(board.own.hand.toString()));
         }
         super.startup();
     }
@@ -139,6 +143,10 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         Boardstate.loopIndex = 0;
         if (!board.selectionStack.isEmpty()) {
             board.gamePaused = true;
+            if(board.selectionStack.peek().b.onFindTargets(board.selectionStack.peek().c, board).isEmpty()) {
+                board.selectionStack.pop();
+                board.gamePaused = false;
+            }
         }
         if (board.enemy.hand.isEmpty() && board.selectionStack.isEmpty()) {
             board.enemy.hasPassed = true;
@@ -159,22 +167,27 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             endGame();
             return;
         }
-        enemyPlay();
-        //ModMessages.sendToServer(new BoardC2SPacket(Boardstate.toString(board)));
+        if (board.enemy.isYourTurn) {
+            enemyPlay();
+            //ModMessages.sendToServer(new BoardC2SPacket(Boardstate.toString(board)));
+        }
+
     }
 
     @Override
     public void render(PoseStack PoseStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(PoseStack, mouseX, mouseY, partialTicks);
-        this.renderBackground(PoseStack); //black Background
-        this.renderWindow(PoseStack, offsetX, offsetY);
-        renderOtherStuff(PoseStack);
-        renderCards(PoseStack);
-        renderHighlight(PoseStack, mouseX, mouseY);
-        this.font.draw(PoseStack, Component.literal("Minecard table"), offsetX+2, offsetY+2, -1);
-        renderValues(PoseStack, offsetX, offsetY);
-        renderAllTooltipp(PoseStack, mouseX, mouseY);
-        renderSymbolSelection(PoseStack, mouseX, mouseY);
+        if (this.minecraft != null) {
+            super.render(PoseStack, mouseX, mouseY, partialTicks);
+            this.renderBackground(PoseStack); //black Background
+            this.renderWindow(PoseStack, offsetX, offsetY);
+            renderOtherStuff(PoseStack);
+            renderCards(PoseStack);
+            renderHighlight(PoseStack, mouseX, mouseY);
+            this.font.draw(PoseStack, Component.literal("Minecard table"), offsetX+2, offsetY+2, -1);
+            renderValues(PoseStack, offsetX, offsetY);
+            renderAllTooltipp(PoseStack, mouseX, mouseY);
+            renderSymbolSelection(PoseStack, mouseX, mouseY);
+        }
     }
 
     private void renderSymbolSelection(PoseStack poseStack, int mouseX, int mouseY) {
@@ -377,7 +390,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
                 onCloseOrSwitch();
-                Minecraft.getInstance().setScreen(new DeckBuilderGui(component));
+                Minecraft.getInstance().setScreen(new DeckBuilderGui());
                 return true;
             }
         }
@@ -395,13 +408,15 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void enemyPlay() {
-        if (board.enemy.isYourTurn) {
-            board = AI.boardTransformation(board);
-            if (board.selectionStack.isEmpty()) {
-                board = board.switchTurn();
-            }
-            playLoop();
+        board = AI.boardTransformation(board);
+        if (board.enemy.hand.isEmpty() && board.selectionStack.isEmpty()) {
+            board.enemy.hasPassed = true;
         }
+        if (board.selectionStack.isEmpty()) {
+            board = board.switchTurn();
+        }
+        playLoop();
+
     }
 
     public void endRound() {
@@ -427,6 +442,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("It is a draw!"));
         } else if(board.enemy.lifePoints == 0) {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("You have won!"));
+            Minecraft.getInstance().player.addItem(new ItemStack(Items.EMERALD, emeraldsCommited*2));
         } else if(board.own.lifePoints == 0) {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("You have lost"));
         }

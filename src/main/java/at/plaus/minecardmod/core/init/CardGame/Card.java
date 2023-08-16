@@ -30,11 +30,9 @@ public class Card implements Serializable {
     public final String name;
     public boolean isHero = false;
     public boolean isSpy = false;
-    public boolean hasActiveSelection = false;
     public boolean isToken = false;
     public int emeraldCost = 0;
     public int sacrificeCost = 0;
-    public boolean isSwift = false;
     public int resistance = 0;
     public boolean isOnFire = false;
     public boolean undieing = false;
@@ -47,6 +45,17 @@ public class Card implements Serializable {
         this.type = type;
         this.tooltip = tooltip;
         this.name = name;
+    }
+
+    public Card copy() {
+        Card card = getFromClass(getClass());
+        card.strength = strength;
+        card.isHero = isHero;
+        card.isSpy = isSpy;
+        card.resistance = resistance;
+        card.isOnFire = isOnFire;
+        card.undieing = undieing;
+        return card;
     }
 
 
@@ -305,11 +314,11 @@ public class Card implements Serializable {
     }
 
     public Boardstate damage(int x, Boardstate board) {
-        Boardstate tempBoard =  new Boardstate(board);
+        Boardstate tempBoard =  board;
         if (x > resistance) {
             strength -= x - resistance;
             for (CardDamagedEvent listener:board.damageListeners) {
-                tempBoard = listener.onDamaged(x, this, new Boardstate(tempBoard));
+                tempBoard = listener.onDamaged(x, this, tempBoard);
             }
             if (strength <= 0) {
                 tempBoard = this.die(tempBoard);
@@ -319,7 +328,7 @@ public class Card implements Serializable {
     }
 
     public Boardstate selected(Boardstate board) {
-        Boardstate newBoard = new Boardstate(board);
+        Boardstate newBoard = board;
         Triple selectionTriple = newBoard.selectionStack.pop();
         newBoard = ((CardSelectedEvent) selectionTriple.a).onCardSelected((Card) selectionTriple.c, this, newBoard);
 
@@ -338,7 +347,7 @@ public class Card implements Serializable {
     }
 
     public Boardstate discard(Boardstate boardstate) {
-        Boardstate newBoard = new Boardstate(boardstate);
+        Boardstate newBoard = boardstate;
         if (this.isOwned(newBoard)) {
             newBoard.own.graveyard.add(getNew());
         } else {
@@ -351,9 +360,18 @@ public class Card implements Serializable {
     public Boardstate die(Boardstate board) {
         if (board.getAllCards().contains(this)) {
             getOwedHalveBoard(board).graveyard.add(getNew());
-            return removeFromBoard(new Boardstate(board));
+            return removeFromBoard(board);
         }
         return board;
+    }
+
+    public Boardstate fight(Boardstate board, Card target) {
+        Boardstate newBoard = board;
+        int x = target.strength;
+        int y = strength;
+        newBoard = target.damage(y, newBoard);
+        newBoard = damage(x, newBoard);
+        return newBoard;
     }
 
     private Boardstate removeFromBoard(Boardstate board) {

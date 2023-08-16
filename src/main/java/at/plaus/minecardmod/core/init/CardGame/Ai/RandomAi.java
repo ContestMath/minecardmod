@@ -13,9 +13,6 @@ public class RandomAi extends CardAi{
         Boardstate newBoard = board;
         if (board.selectionStack.isEmpty()) {
             newBoard = board.playCardFromHand(board.enemy.hand.get(ThreadLocalRandom.current().nextInt(0, board.enemy.hand.size())));
-            if (newBoard.enemy.hand.isEmpty()) {
-                newBoard.enemy.hasPassed = true;
-            }
             return newBoard;
         } else {
             List<Card> targets = newBoard.selectionStack.peek().b.onFindTargets(board.selectionStack.peek().c, newBoard);

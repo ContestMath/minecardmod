@@ -1,5 +1,6 @@
 package at.plaus.minecardmod.core.init.item;
 import at.plaus.minecardmod.core.init.CardGame.MinecardTableGui;
+import at.plaus.minecardmod.core.init.HideClientside;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,12 +22,8 @@ public class MinecardTableBlock extends Block {
     
     @Override
     public InteractionResult use(BlockState p_225533_1_, Level level, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult blockHitResult) {
-        if(!level.isClientSide()) {
-            BlockEntity blockEntity = level.getBlockEntity(blockHitResult.getBlockPos());
-
-            if(!player.isCrouching()) {
-                Minecraft.getInstance().setScreen(new MinecardTableGui(Component.literal("No idea what this is for")));
-            }
+        if(level.isClientSide() && !player.isCrouching()) {
+            HideClientside.openMinecardScreen();
         }
         return super.use(p_225533_1_, level, pos, player, p_225533_5_, blockHitResult);
     }

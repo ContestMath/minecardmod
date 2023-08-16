@@ -6,9 +6,16 @@ import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -23,7 +30,6 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public List<Card> deck = new ArrayList<Card>();
     public List<Card> cardSelection = Card.getListOfAllNonTokenCards();
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
-    public final Component component;
 
     private static final ResourceLocation GUI = new ResourceLocation(Minecardmod.MOD_ID,
             "textures/gui/minecard_table_gui.png");
@@ -43,9 +49,8 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         return list;
     }
 
-    public DeckBuilderGui(Component component) {
-        super(component);
-        this.component = component;
+    public DeckBuilderGui() {
+        super(Component.literal("I have no idea what this component is for"));
     }
 
     @Override
@@ -118,7 +123,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
             onCloseOrSwitch();
-            Minecraft.getInstance().setScreen(new MinecardTableGui(component));
+            Minecraft.getInstance().setScreen(new MinecardTableGui());
             return true;
         }
         return true;
@@ -126,12 +131,17 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 32) {
+        if (keyCode == 67 && Screen.hasControlDown()) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(deckString(deck));
+            return true;
+        } else if (keyCode == 86 && Screen.hasControlDown()) {
+            deck = stringToDeck(Minecraft.getInstance().keyboardHandler.getClipboard());
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
     }
+
 
     public void onCloseOrSwitch() {
         String s = deckString(deck);
