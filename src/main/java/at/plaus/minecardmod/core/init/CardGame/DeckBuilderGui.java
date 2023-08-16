@@ -1,6 +1,7 @@
 package at.plaus.minecardmod.core.init.CardGame;
 
 import at.plaus.minecardmod.Minecardmod;
+import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -9,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -17,6 +19,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -121,11 +124,14 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
             deck.add(getTouchingCard(mouseX, mouseY).getNew());
         }
 
+        /*
         if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
             onCloseOrSwitch();
             Minecraft.getInstance().setScreen(new MinecardTableGui());
             return true;
         }
+
+         */
         return true;
     }
 
@@ -142,12 +148,70 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         }
     }
 
+    public static Tuple<DeckValidationResult, String> deckValidation(List<Card> cardDeck){
+        if (cardDeck.size() < MinecardRules.minDeckSize) {
+            return new Tuple<>(DeckValidationResult.NOTENOUGHCARDSINDECK, Integer.toString(cardDeck.size()));
+        }
+        if (!Minecraft.getInstance().player.isCreative()) {
+            for (Card card:cardDeck) {
+                if (card.getNumberUnlocked() < DeckHashMap(cardDeck).get(card.getClass())) {
+                    return new Tuple<>(DeckValidationResult.NOTUNLOCKED, card.name);
+                }
+            }
+        } else {
+            for (Card card:cardDeck) {
+                if (3 < DeckHashMap(cardDeck).get(card.getClass())) {
+                    return new Tuple<>(DeckValidationResult.OVERSINGLECARDLIMIT, card.name);
+                }
+            }
+        }
+        return new Tuple<>(DeckValidationResult.SUCCESS, null);
+    }
+
+    public static String getDeckValidationErrorMessage(Tuple<DeckValidationResult, String> result) {
+        if (result.getA() == DeckValidationResult.NOTUNLOCKED) {
+            return new String("You do not have enough " + result.getB() + " cards unlocked. This limitation does not apply in creative mode.");
+        } else if (result.getA() == DeckValidationResult.OVERSINGLECARDLIMIT) {
+            return new String("Your deck cant contain more than " + Integer.toString(MinecardRules.maxNumberOfCardsUnlocked) + " cards of the same type. You have too many "+ result.getB() + " cards in your deck.");
+        } else if (result.getA() == DeckValidationResult.NOTENOUGHCARDSINDECK) {
+            return new String("Your deck must contain at least " + MinecardRules.minDeckSize + " cards. It only contains " + result.getB());
+        }
+        return new String("No Errors");
+    }
+
+    public static enum DeckValidationResult {
+        SUCCESS,
+        NOTUNLOCKED,
+        OVERSINGLECARDLIMIT,
+        NOTENOUGHCARDSINDECK
+    }
+
+
+    public static HashMap<Class<? extends Card>, Integer> DeckHashMap(List<Card> deck) {
+        HashMap<Class<? extends Card>, Integer> map = new HashMap<>();
+
+        for (Card card:deck) {
+            if (map.containsKey(card.getClass())) {
+                map.put(card.getClass(), map.get(card.getClass()) + 1);
+            } else {
+                map.put(card.getClass(), 1);
+            }
+        }
+        return map;
+    }
+
 
     public void onCloseOrSwitch() {
         String s = deckString(deck);
+        Tuple<DeckValidationResult, String> validation = deckValidation(deck);
+        if (validation.getA() == DeckValidationResult.SUCCESS) {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Deck saved"));
+        } else {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Your deck is illegal and cannot be taken into battle (except in creative): " + getDeckValidationErrorMessage(validation)));
+        }
         ModMessages.sendToServer(new DeckC2SPacket(s, 1));
         isFirstTimeInit = true;
-    }
+        }
 
     @Override
     public void onClose() {

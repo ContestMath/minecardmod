@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;

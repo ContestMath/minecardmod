@@ -2,6 +2,7 @@ package at.plaus.minecardmod.networking.packet;
 
 import at.plaus.minecardmod.core.init.CardGame.Boardstate;
 import at.plaus.minecardmod.core.init.CardGame.MinecardTableGui;
+import at.plaus.minecardmod.core.init.HideClientside;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -28,7 +29,7 @@ public class OpenScreenS2CPacket {
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new MinecardTableGui(x));
+            HideClientside.openMinecardScreen(x);
         });
         return true;
     }

@@ -131,7 +131,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             for (int i = 0; i < 30; i++) {
                 List<Tuple<Integer, Class<? extends Card>>> classes = Card.tupleOfCardClasses();
                 int random = ThreadLocalRandom.current().nextInt(0, classes.size()-1);
-                board.enemy.deck.push(Card.getFromClass(classes.get(34).getB()));
+                board.enemy.deck.push(Card.getFromClass(classes.get(random).getB()));
             }
             board.own.drawCard(MinecardRules.startingHandsize);
             board.enemy.drawCard(MinecardRules.startingHandsize);
@@ -388,11 +388,14 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 return true;
             }
 
+            /*
             if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
                 onCloseOrSwitch();
                 Minecraft.getInstance().setScreen(new DeckBuilderGui());
                 return true;
             }
+
+             */
         }
 
 

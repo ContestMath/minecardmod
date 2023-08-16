@@ -23,7 +23,7 @@ public class MinecardTableBlock extends Block {
     @Override
     public InteractionResult use(BlockState p_225533_1_, Level level, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult blockHitResult) {
         if(level.isClientSide() && !player.isCrouching()) {
-            HideClientside.openMinecardScreen();
+            HideClientside.openDeckBuilderScreen();
         }
         return super.use(p_225533_1_, level, pos, player, p_225533_5_, blockHitResult);
     }

@@ -8,8 +8,9 @@ import java.util.Objects;
 public class MinecardRules {
     public static final int startingHandsize = 9;
     public static final int maxLoopLength = 100;
-
+    public static final int minDeckSize = 3;
     public static final int maxNumberOfCardsUnlocked = 3;
+
 
     public boolean isDeckLegal(List<Card> deck) {
         int numberOfCreatures = 0;
