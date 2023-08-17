@@ -11,7 +11,7 @@ public class PhantomSwarmCard extends Card {
     public PhantomSwarmCard() {
         super(
                 3,
-                "textures/gui/phantom_swarm.png",
+                "textures/gui/phantom_swarm_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.phantom_swarm"},
                 "Phantom Swarm"

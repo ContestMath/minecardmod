@@ -9,7 +9,7 @@ public class VillagerCard extends Card {
     public VillagerCard() {
         super(
                 1,
-                "textures/gui/villager.png",
+                "textures/gui/villager_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.villager"},
                 "Villager");

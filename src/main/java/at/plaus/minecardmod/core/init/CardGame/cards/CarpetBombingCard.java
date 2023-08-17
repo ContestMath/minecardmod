@@ -8,7 +8,7 @@ public class CarpetBombingCard extends Card {
     public CarpetBombingCard() {
         super(
                 0,
-                "textures/gui/carpet_bombing.png",
+                "textures/gui/carpet_bombing_card.png",
                 CardTypes.SPELL,
                 new String[]{"tooltip.minecardmod.cards.carpet_bombing"},
                 "Carpet Bombing"

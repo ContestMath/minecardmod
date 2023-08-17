@@ -9,10 +9,10 @@ public class LightningStrikeCard extends Card {
     public LightningStrikeCard() {
         super(
                 0,
-                "textures/gui/lighting_strike.png",
+                "textures/gui/lighting_strike_card.png",
                 CardTypes.SPELL,
                 new String[]{"tooltip.minecardmod.cards.lighting_strike"},
-                "Lighting Strike"
+                "Lightning Strike"
         );
         this.subtypes.add(CardSubtypes.Lightning);
     }

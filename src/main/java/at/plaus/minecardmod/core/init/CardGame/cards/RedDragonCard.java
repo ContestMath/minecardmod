@@ -8,7 +8,7 @@ public class RedDragonCard extends Card {
     public RedDragonCard() {
         super(
                 12,
-                "textures/gui/red_dragon.png",
+                "textures/gui/red_dragon_card.png",
                 CardTypes.SPECIAL,
                 new String[]{"tooltip.minecardmod.cards.red_dragon"},
                 "Red dragon");

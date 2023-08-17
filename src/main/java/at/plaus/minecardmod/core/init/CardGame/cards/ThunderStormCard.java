@@ -9,7 +9,7 @@ public class ThunderStormCard extends Card {
     public ThunderStormCard() {
         super(
                 0,
-                "textures/gui/thunder_storm.png",
+                "textures/gui/thunder_storm_card.png",
                 CardTypes.SPELL,
                 new String[]{"tooltip.minecardmod.cards.thunder_storm"},
                 "Thunder Storm"

@@ -9,7 +9,7 @@ public class IronGolemCard extends Card {
     public IronGolemCard() {
         super(
                 14,
-                "textures/gui/iron_golem.png",
+                "textures/gui/iron_golem_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.iron_golem1",
                         "tooltip.minecardmod.cards.iron_golem2",

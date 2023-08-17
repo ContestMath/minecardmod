@@ -9,7 +9,7 @@ public class BucketCard extends Card {
     public BucketCard() {
         super(
                 0,
-                "textures/gui/bucket.png",
+                "textures/gui/bucket_card.png",
                 CardTypes.SPELL,
                 new String[]{"tooltip.minecardmod.cards.bucket"},
                 "Bucket");
@@ -40,7 +40,7 @@ public class BucketCard extends Card {
                         this
                 );
             }
-            if (symbol == CardMechanicSymbol.Strength) {
+            if (symbol == CardMechanicSymbol.Draw) {
                 for (Card card:boardstate.getAllCardsOnBoard()) {
                     card.isOnFire = false;
                 }

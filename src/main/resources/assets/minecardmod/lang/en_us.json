@@ -5,9 +5,10 @@
   "screen.minecardmod.minecard_table": "Minecard table",
   "tooltip.shift": "Hold §e§lSHIFT for more information",
   "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
-  "betting_license": "Use this to play against villagers",
+  "betting_license": "Use this to play against villagers to win emeralds",
   "tooltip.gui.options": "Options and tools",
   "entity.minecraft.villager.minecardmod.card_trader": "Card Trader",
+  "tooltip.minecardmod.minecard_pack_card": "Open this to add more cards to your collection!",
 
 
   "tooltip.minecardmod.cards.spy": "Spy",
@@ -21,20 +22,20 @@
 
   "tooltip.minecardmod.cards.zombie": "ETB: Play every zombie from your hand and deck.",
 
-  "tooltip.minecardmod.cards.wither_skeleton": "§oCrawling around in nether fortresses",
+  "tooltip.minecardmod.cards.wither_skeleton": "",
 
   "tooltip.minecardmod.cards.spy": "Spy",
   "tooltip.minecardmod.cards.bat2": "ETB: Your opponent draws a card.",
 
   "tooltip.minecardmod.cards.skeleton": "ETB: Deal §43 damage§r",
 
-  "tooltip.minecardmod.cards.creeper": "Explodes if another creature is placed in the melee zone.",
+  "tooltip.minecardmod.cards.creeper": "Explodes if another entity is placed in the melee zone.",
 
   "tooltip.minecardmod.cards.mushroom_cow": "ETB: Generate a mushroom soup in your hand",
 
-  "tooltip.minecardmod.cards.mushroom_soup1": "Mushroom soup: Fully heal a mob and add §43 strength§r",
+  "tooltip.minecardmod.cards.mushroom_soup1": "Mushroom soup: Fully heal an entitiy and add §43 strength§r",
 
-  "tooltip.minecardmod.cards.mushroom_soup2": "Fully heal a mob and add §43 strength§r",
+  "tooltip.minecardmod.cards.mushroom_soup2": "Fully heal an entitiy and add §43 strength§r",
 
   "tooltip.minecardmod.cards.glow_squid": "Does nothing",
 
@@ -46,7 +47,7 @@
 
   "tooltip.minecardmod.cards.giant": "Your opponent draws a card.",
 
-  "tooltip.minecardmod.cards.thunder_storm": "Deal §43 damage§r to all mobs.",
+  "tooltip.minecardmod.cards.thunder_storm": "Deal §43 damage§r to all entities.",
 
   "tooltip.minecardmod.cards.pickaxe": "Gain §a7E.",
 
@@ -54,12 +55,12 @@
 
   "tooltip.minecardmod.cards.iron_golem1": "Cost: §a14E",
   "tooltip.minecardmod.cards.iron_golem2": "Resistance 4",
-  "tooltip.minecardmod.cards.iron_golem3": "ETB: Fight a mob",
+  "tooltip.minecardmod.cards.iron_golem3": "ETB: Fight a entity",
 
   "tooltip.minecardmod.cards.chicken": "Summon another chicken at the start of each of your actions.",
 
-  "tooltip.minecardmod.cards.killer_bunny1": "Cost: Sacrifice 2 mobs",
-  "tooltip.minecardmod.cards.killer_bunny2": "ETB: Kill all mobs with 3 or less strength.",
+  "tooltip.minecardmod.cards.killer_bunny1": "Cost: Sacrifice 2 entities",
+  "tooltip.minecardmod.cards.killer_bunny2": "ETB: Kill all entities with 3 or less strength.",
 
   "tooltip.minecardmod.cards.allay": "Gain §a3E§r at the start of each of your actions.",
 
@@ -68,5 +69,20 @@
   "tooltip.minecardmod.cards.magma_slime": "Gain §43 strength§r at the start of each action.",
 
   "tooltip.minecardmod.cards.snow_golem1": "Cost: §a1E§r",
-  "tooltip.minecardmod.cards.snow_golem2": "Deal §41 damage§r to each opponent."
+  "tooltip.minecardmod.cards.snow_golem2": "Deal §41 damage§r to each enemy entity.",
+  "tooltip.minecardmod.cards.phantom_swarm": "Whenever an oponents entity enters the battlefield summon ",
+
+  "tooltip.minecardmod.cards.squid": "",
+
+  "tooltip.minecardmod.cards.piglin": "Deal §43 damage§r any amount of times while paying §a2E§r each.",
+
+  "tooltip.minecardmod.cards.guardian": "Deal §42 damage§r 2 times.",
+
+  "tooltip.minecardmod.cards.bucket": "Deal §45 damage§r, heal all damage and put out all fires on friendly entities or blink a creature.",
+
+  "tooltip.minecardmod.cards.blaze": "Set an enemy entity on fire.",
+
+  "tooltip.minecardmod.cards.witch": "Draw a card whenever you play a potion.",
+
+  "tooltip.minecardmod.cards.carpet_bombing": "Sacrifice a creature to deal §420 damage§r."
 }

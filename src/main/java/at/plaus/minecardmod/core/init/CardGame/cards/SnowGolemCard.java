@@ -9,7 +9,7 @@ public class SnowGolemCard extends Card {
     public SnowGolemCard() {
         super(
                 3,
-                "textures/gui/snow_golem.png",
+                "textures/gui/snow_golem_card.png",
                 CardTypes.RANGED,
                 new String[]{"tooltip.minecardmod.cards.snow_golem1",
                         "tooltip.minecardmod.cards.snow_golem2"

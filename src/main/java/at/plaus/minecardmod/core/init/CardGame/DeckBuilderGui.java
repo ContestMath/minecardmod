@@ -170,13 +170,13 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     public static String getDeckValidationErrorMessage(Tuple<DeckValidationResult, String> result) {
         if (result.getA() == DeckValidationResult.NOTUNLOCKED) {
-            return new String("You do not have enough " + result.getB() + " cards unlocked. This limitation does not apply in creative mode.");
+            return "You do not have enough " + result.getB() + " cards unlocked.";
         } else if (result.getA() == DeckValidationResult.OVERSINGLECARDLIMIT) {
-            return new String("Your deck cant contain more than " + Integer.toString(MinecardRules.maxNumberOfCardsUnlocked) + " cards of the same type. You have too many "+ result.getB() + " cards in your deck.");
+            return "Your deck cant contain more than " + Integer.toString(MinecardRules.maxNumberOfCardsUnlocked) + " cards of the same type. You have too many " + result.getB() + " cards in your deck.";
         } else if (result.getA() == DeckValidationResult.NOTENOUGHCARDSINDECK) {
-            return new String("Your deck must contain at least " + MinecardRules.minDeckSize + " cards. It only contains " + result.getB());
+            return "Your deck must contain at least " + MinecardRules.minDeckSize + " cards. It only contains " + result.getB();
         }
-        return new String("No Errors");
+        return "No Errors";
     }
 
     public static enum DeckValidationResult {

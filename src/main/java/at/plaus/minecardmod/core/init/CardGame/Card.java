@@ -327,6 +327,21 @@ public class Card implements Serializable {
         return tempBoard;
     }
 
+    public Boardstate heal(int x, Boardstate board) {
+        Boardstate tempBoard =  board;
+        if (getDefaultStrength() < x + strength) {
+            strength = getDefaultStrength();
+            return tempBoard;
+        }
+        strength += x;
+        return tempBoard;
+    }
+
+    public Boardstate heal(Boardstate board) {
+        strength = getDefaultStrength();
+        return board;
+    }
+
     public Boardstate selected(Boardstate board) {
         Boardstate newBoard = board;
         Triple selectionTriple = newBoard.selectionStack.pop();

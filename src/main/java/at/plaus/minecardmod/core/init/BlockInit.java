@@ -34,6 +34,6 @@ public class BlockInit {
     }
 
     public static final RegistryObject<Block> MINECARD_TABLE = registerBlock("minecard_table",
-            ()-> new MinecardTableBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.CLAY).sound(SoundType.WOOD))); //.hardnessAndResistance(2, 2)
+            ()-> new MinecardTableBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(1.5f)));
 
 }

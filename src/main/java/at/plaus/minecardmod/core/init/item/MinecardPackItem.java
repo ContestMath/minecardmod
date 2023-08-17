@@ -21,7 +21,7 @@ public class MinecardPackItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack p_77624_1_, @Nullable Level p_77624_2_, List<Component> tooltip, TooltipFlag p_77624_4_) {
-        tooltip.add(Component.translatable("tooltip.minecardmod.empty_minecard_card"));
+        tooltip.add(Component.translatable("tooltip.minecardmod.minecard_pack_card"));
         super.appendHoverText(p_77624_1_, p_77624_2_, tooltip, p_77624_4_);
     }
 
@@ -30,7 +30,7 @@ public class MinecardPackItem extends Item {
         if (!level.isClientSide()) {
             Random rand = new Random();
             for (int i=0; i<numberOfCardsGained; i++) {
-                SavedUnlockedCards.unlock(Card.tupleOfCardClasses().get(rand.nextInt(Card.tupleOfCardClasses().size())).getB());
+                SavedUnlockedCards.unlock((Card.getListOfAllNonTokenCards().get(rand.nextInt(Card.getListOfAllNonTokenCards().size())).getClass()));
             }
             player.getItemInHand(hand).shrink(1);
         }

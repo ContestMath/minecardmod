@@ -8,7 +8,7 @@ public class MushroomSoupCard extends Card {
     public MushroomSoupCard() {
         super(
                 0,
-                "textures/gui/mushroom_soup.png",
+                "textures/gui/mushroom_soup_card.png",
                 CardTypes.SPELL,
                 new String[]{"tooltip.minecardmod.cards.mushroom_soup2"},
                 "mushroom soup");
