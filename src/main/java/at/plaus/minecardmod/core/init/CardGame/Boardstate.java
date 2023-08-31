@@ -11,17 +11,16 @@ import java.util.*;
 public class Boardstate implements Serializable {
     public HalveBoardState own;
     public HalveBoardState enemy;
-    public boolean gamePaused = false;
     int creaturesSacrificed = 0;
     public Stack<Triple<CardSelectedEvent, FindTargetsEvent, Card>> selectionStack = new Stack<>();
-    public Stack<SymbolSelectedEvent> selectionSymbolListeners = new Stack<>();
     public List<CardDamagedEvent> damageListeners = new ArrayList<CardDamagedEvent>();
     public List<Tuple<EtbEvent, Card>> etbListeners = new ArrayList<>();
-    public List<CardMechanicSymbol> selectionSymbolTargets = new ArrayList<>();
     public static int loopIndex = 0;
+    public HashMap<Card, Card> copyMap = new HashMap<>();
 
     public List<Card> getAllRenderableCards() {
-        List<Card> list = new ArrayList<>(getAllCards());
+        List<Card> list = new ArrayList<>();
+        list.addAll(getAllCards());
         list.removeAll(enemy.graveyard);
         list.removeAll(own.graveyard);
         list.removeAll(enemy.hand);
@@ -32,7 +31,7 @@ public class Boardstate implements Serializable {
     }
 
     public Boardstate getReverse(){
-        Boardstate newBoard = new Boardstate(this);
+        Boardstate newBoard = this;
         newBoard.enemy = own;
         newBoard.own = enemy;
         return newBoard;
@@ -46,20 +45,22 @@ public class Boardstate implements Serializable {
     public Boardstate(Boardstate board) {
         this.enemy = new HalveBoardState(board.enemy);
         this.own = new HalveBoardState(board.own);
-        this.gamePaused = board.gamePaused;
         this.damageListeners = new ArrayList<>(board.damageListeners);
         this.etbListeners = new ArrayList<>(board.etbListeners);
-        this.selectionSymbolListeners = new Stack<>();
-        this.selectionSymbolListeners.addAll(board.selectionSymbolListeners);
         this.creaturesSacrificed = board.creaturesSacrificed;
         this.selectionStack = new Stack<>();
         this.selectionStack.addAll(board.selectionStack);
+        for (Card card:board.getAllCards()) {
+            this.copyMap.put(card, getAllCards().get(board.getAllCards().indexOf(card)));
+        }
+        for (Triple<CardSelectedEvent, FindTargetsEvent, Card> triple:board.selectionStack) {
+            triple = new Triple<>(triple.a, triple.b, this.copyMap.get(triple.c));
+        }
     }
 
     public Boardstate playCardFromHand(Card card) {
         if (card.isTargetable(this)) {
             for (int x=0; x<card.sacrificeCost;x++) {
-                gamePaused = true;
                 addSelectionEvent(
 
                         (source, selected, boardstate) -> {
@@ -110,7 +111,7 @@ public class Boardstate implements Serializable {
                 this.own.specialBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPELL)) {
-                own.graveyard.add(card.getNew());
+                own.graveyard.add(card);
             }
         } else {
             if (Objects.equals(card.type, CardTypes.MELEE)) {
@@ -123,7 +124,7 @@ public class Boardstate implements Serializable {
                 this.enemy.specialBoard.add(card);
             }
             if (Objects.equals(card.type, CardTypes.SPELL)) {
-                enemy.graveyard.add(card.getNew());
+                enemy.graveyard.add(card);
             }
         }
         Boardstate tempBoard = this;
@@ -131,7 +132,7 @@ public class Boardstate implements Serializable {
 
         if (loopIndex < MinecardRules.maxLoopLength) {
             loopIndex ++;
-            for (Tuple event:tempBoard.etbListeners) {
+            for (Tuple event:new ArrayList<>(tempBoard.etbListeners)) {
                 tempBoard = ((EtbEvent) event.getA()).onEtb(card, tempBoard, (Card) event.getB());
             }
         }
@@ -197,7 +198,7 @@ public class Boardstate implements Serializable {
         Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
-        for (Card card:getAllCardsOnBoard()) {
+        for (Card card:getAllCards()) {
             if (card.getOwedHalveBoard(tempBoard).isYourTurn) {
                 tempBoard = card.atTheStartOfTurn(tempBoard);
             }
@@ -205,18 +206,10 @@ public class Boardstate implements Serializable {
         return tempBoard;
     }
 
-
-    public List<List<Card>> getListOfCardLists () {
-        List<List<Card>> list = new ArrayList<>();
-        list.add(own.hand);
-        list.add(own.rangedBoard);
-        list.add(own.meleeBoard);
-        list.add(own.specialBoard);
-        list.add(enemy.hand);
-        list.add(enemy.meleeBoard);
-        list.add(enemy.rangedBoard);
-        list.add(enemy.specialBoard);
-        return list;
+    public void cancelSelection() {
+        selectionStack.pop();
+        enemy.option_selection = new ArrayList<>();
+        own.option_selection = new ArrayList<>();
     }
 
     public List<Card> getAllCardsOnBoard() {
@@ -228,13 +221,27 @@ public class Boardstate implements Serializable {
 
     public List<Card> getAllCards() {
         List<Card> list = new ArrayList<>();
-        list.addAll(own.getAllCards());
-        list.addAll(enemy.getAllCards());
+        for (List<Card> templist: own.getListOfCardList()) {
+            list.addAll(templist);
+        }
+        for (List<Card> templist: enemy.getListOfCardList()) {
+            list.addAll(templist);
+        }
         return list;
     }
 
     public void addSelectionEvent(CardSelectedEvent event, FindTargetsEvent targets, Card source) {
         selectionStack.push(new Triple<>(event, targets, source));
+
+        //Boardstate tempBoard = new Boardstate(this);
+        if (selectionStack.peek().b.onFindTargets(copyMap.getOrDefault(source, source), this).isEmpty()) {
+            cancelSelection();
+        }
+    }
+
+    public void clearOptions() {
+        own.option_selection = new ArrayList<>();
+        enemy.option_selection = new ArrayList<>();
     }
 
 

@@ -20,7 +20,7 @@ public class LightningStrikeCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
-                (source, card, boardstate) -> card.damage(8, new Boardstate(boardstate)),
+                (source, card, boardstate) -> card.damage(8, boardstate),
                 getTargets(),
                 this
         );

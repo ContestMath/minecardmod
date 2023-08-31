@@ -79,6 +79,10 @@
   "tooltip.minecardmod.cards.guardian": "Deal §42 damage§r 2 times.",
 
   "tooltip.minecardmod.cards.bucket": "Deal §45 damage§r, heal all damage and put out all fires on friendly entities or blink a creature.",
+  "tooltip.minecardmod.cards.bucket1": "Heal all damage and put out all fires on friendly entities.",
+  "tooltip.minecardmod.cards.bucket2": "Deal §45 damage§r.",
+  "tooltip.minecardmod.cards.bucket3": "Blink a creature.",
+
 
   "tooltip.minecardmod.cards.blaze": "Set an enemy entity on fire.",
 

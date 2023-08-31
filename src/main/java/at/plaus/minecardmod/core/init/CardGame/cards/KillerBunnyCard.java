@@ -19,7 +19,7 @@ public class KillerBunnyCard extends Card {
 
     @Override
     public Boardstate etb(Boardstate board) {
-        Boardstate newBoard = new Boardstate(board);
+        Boardstate newBoard = board;
         for (Card card: board.getAllCardsOnBoard()) {
             if (card.strength <= 3) {
                 newBoard = card.die(newBoard);

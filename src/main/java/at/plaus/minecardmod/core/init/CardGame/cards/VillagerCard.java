@@ -1,11 +1,14 @@
 package at.plaus.minecardmod.core.init.CardGame.cards;
 
-import at.plaus.minecardmod.core.init.CardGame.Boardstate;
-import at.plaus.minecardmod.core.init.CardGame.Card;
-import at.plaus.minecardmod.core.init.CardGame.CardMechanicSymbol;
-import at.plaus.minecardmod.core.init.CardGame.CardTypes;
+import at.plaus.minecardmod.client.ClientDeckData;
+import at.plaus.minecardmod.core.init.CardGame.*;
+import at.plaus.minecardmod.core.init.CardGame.events.CardSelectedEvent;
+import org.antlr.v4.runtime.misc.Triple;
+
+import java.util.ArrayList;
 
 public class VillagerCard extends Card {
+    Card option = new VillagerOption();
     public VillagerCard() {
         super(
                 1,
@@ -15,19 +18,38 @@ public class VillagerCard extends Card {
                 "Villager");
     }
 
+    private CardSelectedEvent event() {
+        return (source, card, b) -> {
+            Boardstate board = b;
+            if (card.getOwedHalveBoard(board).emeraldCount >= 5) {
+                if (card.equals(option)) {
+                    card.getOwedHalveBoard(board).emeraldCount -= 5;
+                    card.getOwedHalveBoard(board).drawCard();
+
+                    board = card.voidd(board);
+                    card.getOwedHalveBoard(board).option_selection.add(option);
+                    board.addSelectionEvent(event(), getOptionTargets(), source);
+                }
+            } else {
+                card.getOwedHalveBoard(board).option_selection = new ArrayList<>();
+                return board;
+            }
+            return board;
+        };}
+
     @Override
     public Boardstate etb(Boardstate board) {
-        board.gamePaused = true;
         this.getOwedHalveBoard(board).emeraldCount += 4;
-        Boardstate tempBoard = new Boardstate(board);
-        tempBoard.selectionSymbolTargets.add(CardMechanicSymbol.Emerald);
-        tempBoard.selectionSymbolListeners.push((symbol, boardstate) -> {
-            if (this.getOwedHalveBoard(boardstate).emeraldCount >= 5 && symbol == CardMechanicSymbol.Emerald) {
-                this.getOwedHalveBoard(boardstate).emeraldCount -= 5;
-                this.getOwedHalveBoard(boardstate).drawCard();
-            }
-            return boardstate;
-        });
-        return super.etb(tempBoard);
+        if (this.getOwedHalveBoard(board).emeraldCount >= 5) {
+            getOwedHalveBoard(board).option_selection.add(option);
+            board.addSelectionEvent(event(), getOptionTargets(), this);
+        }
+        return super.etb(board);
+    }
+
+    public static class VillagerOption extends OptionsCard {
+        public VillagerOption() {
+            super("textures/gui/villager_card.png", new String[]{"tooltip.minecardmod.cards.villager1"}, "Draw");
+        }
     }
 }

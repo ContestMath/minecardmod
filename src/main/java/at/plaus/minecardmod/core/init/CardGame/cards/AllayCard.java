@@ -18,8 +18,7 @@ public class AllayCard extends Card {
 
     @Override
     public Boardstate atTheStartOfTurn(Boardstate board) {
-        Boardstate newBoard = new Boardstate(board);
-        getOwedHalveBoard(newBoard).emeraldCount += 3;
-        return super.atTheStartOfTurn(newBoard);
+        getOwedHalveBoard(board).emeraldCount += 3;
+        return super.atTheStartOfTurn(board);
     }
 }

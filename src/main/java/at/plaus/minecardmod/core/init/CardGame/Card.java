@@ -61,13 +61,13 @@ public class Card implements Serializable {
 
     public boolean isTargetable(Boardstate board) {
         int sacrificeTargets = 0;
-        for(Card card:board.getAllCardsOnBoard()) {
+        for(Card card:board.getAllCards()) {
             if (card.getOwedHalveBoard(board).equals(getOwedHalveBoard(board))) {
                 sacrificeTargets ++;
             }
         }
 
-        if (!board.gamePaused) {
+        if (board.selectionStack.isEmpty()) {
             return
                     getOwedHalveBoard(board).emeraldCount >= emeraldCost &&
                             sacrificeTargets >= sacrificeCost
@@ -117,6 +117,7 @@ public class Card implements Serializable {
         list.add(new Tuple<>(34, GuardianCard.class));
         list.add(new Tuple<>(35, PhantomCard.class));
         list.add(new Tuple<>(36, PiglinCard.class));
+        list.add(new Tuple<>(37, BruteCard.class));
         return list;
     }
 
@@ -245,34 +246,11 @@ public class Card implements Serializable {
     }
 
     public HalveBoardState getOwedHalveBoard(Boardstate board) {
-        for (Card card:board.own.hand) {
-            if (card.equals(this)) {
-                return board.own;
-            }
-        }
-        for (Card card:board.own.meleeBoard) {
-            if (card.equals(this)) {
-                return board.own;
-            }
-        }
-        for (Card card:board.own.rangedBoard) {
-            if (card.equals(this)) {
-                return board.own;
-            }
-        }
-        for (Card card:board.own.specialBoard) {
-            if (card.equals(this)) {
-                return board.own;
-            }
-        }
-        for (Card card:board.own.graveyard) {
-            if (card.equals(this)) {
-                return board.own;
-            }
-        }
-        for (Card card:board.own.deck) {
-            if (card.equals(this)) {
-                return board.own;
+        for (List<Card> list:board.own.getListOfCardList()) {
+            for (Card card:list) {
+                if (card.equals(this)) {
+                    return board.own;
+                }
             }
         }
         return board.enemy;
@@ -317,7 +295,7 @@ public class Card implements Serializable {
         Boardstate tempBoard =  board;
         if (x > resistance) {
             strength -= x - resistance;
-            for (CardDamagedEvent listener:board.damageListeners) {
+            for (CardDamagedEvent listener:new ArrayList<>(board.damageListeners)) {
                 tempBoard = listener.onDamaged(x, this, tempBoard);
             }
             if (strength <= 0) {
@@ -346,11 +324,6 @@ public class Card implements Serializable {
         Boardstate newBoard = board;
         Triple selectionTriple = newBoard.selectionStack.pop();
         newBoard = ((CardSelectedEvent) selectionTriple.a).onCardSelected((Card) selectionTriple.c, this, newBoard);
-
-        if (newBoard.selectionStack.isEmpty()) {
-            newBoard.gamePaused = false;
-        }
-
         return newBoard;
     }
 
@@ -360,6 +333,7 @@ public class Card implements Serializable {
         }
         return board;
     }
+
 
     public Boardstate discard(Boardstate boardstate) {
         Boardstate newBoard = boardstate;
@@ -374,8 +348,11 @@ public class Card implements Serializable {
 
     public Boardstate die(Boardstate board) {
         if (board.getAllCards().contains(this)) {
-            getOwedHalveBoard(board).graveyard.add(getNew());
-            return removeFromBoard(board);
+            Boardstate newBoard = board;
+            HalveBoardState halve = getOwedHalveBoard(board);
+            newBoard = removeFromBoard(board);
+            halve.graveyard.add(getNew());
+            return newBoard;
         }
         return board;
     }
@@ -390,15 +367,18 @@ public class Card implements Serializable {
     }
 
     private Boardstate removeFromBoard(Boardstate board) {
-        for (List<Card> list:board.getListOfCardLists()) {
+        for (List<Card> list:getOwedHalveBoard(board).getListOfCardList()) {
             list.remove(this);
         }
         return board;
     }
 
     public Boardstate voidd(Boardstate b) {
-        getOwedHalveBoard(b).voidd.add(this);
-        return removeFromBoard(b);
+        Boardstate board = b;
+        HalveBoardState halve = getOwedHalveBoard(board);
+        board = removeFromBoard(board);
+        halve.voidd.add(this);
+        return board;
     }
 
     public int getDefaultStrength(){
@@ -416,6 +396,11 @@ public class Card implements Serializable {
     public static FindTargetsEvent getTargets() {
         return (source, board) -> {
             return board.getAllCardsOnBoard();
+        };
+    }
+    public static FindTargetsEvent getOptionTargets() {
+        return (source, board) -> {
+            return source.getOwedHalveBoard(board).option_selection;
         };
     }
 

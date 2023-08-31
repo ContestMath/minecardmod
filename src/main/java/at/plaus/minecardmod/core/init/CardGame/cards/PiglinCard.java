@@ -20,7 +20,7 @@ private CardSelectedEvent getEvent() {
         if (card.getOwedHalveBoard(boardstate).emeraldCount >= 2) {
             card.getOwedHalveBoard(boardstate).emeraldCount -= 2;
             boardstate.addSelectionEvent(getEvent(), getTargets(), this);
-            return card.damage(3, new Boardstate(boardstate));
+            return card.damage(3, boardstate);
         }
         return boardstate;
     };

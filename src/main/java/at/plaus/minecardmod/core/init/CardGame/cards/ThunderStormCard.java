@@ -19,12 +19,12 @@ public class ThunderStormCard extends Card {
 
     @Override
     public Boardstate etb(Boardstate board) {
-        Boardstate newBoard = new Boardstate(board);
+        Boardstate newBoard = board;
         for (Card card:board.enemy.getAllCardsOnBoard()) {
-            newBoard = card.damage(3, new Boardstate(newBoard));
+            newBoard = card.damage(3, newBoard);
         }
         for (Card card:board.own.getAllCardsOnBoard()) {
-            newBoard = card.damage(3, new Boardstate(newBoard));
+            newBoard = card.damage(3, newBoard);
         }
         return super.etb(newBoard);
     }

@@ -18,7 +18,7 @@ public class ChickenCard extends Card {
 
     @Override
     public Boardstate atTheStartOfTurn(Boardstate board) {
-        Boardstate newBoard = new Boardstate(board);
+        Boardstate newBoard = board;
         newBoard.playCard(new ChickenCard(), getOwedHalveBoard(board));
         return super.atTheStartOfTurn(newBoard);
     }

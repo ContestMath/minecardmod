@@ -1,9 +1,8 @@
 package at.plaus.minecardmod.core.init.CardGame.cards;
 
-import at.plaus.minecardmod.core.init.CardGame.Boardstate;
-import at.plaus.minecardmod.core.init.CardGame.Card;
-import at.plaus.minecardmod.core.init.CardGame.CardMechanicSymbol;
-import at.plaus.minecardmod.core.init.CardGame.CardTypes;
+import at.plaus.minecardmod.core.init.CardGame.*;
+
+import java.util.ArrayList;
 
 public class BucketCard extends Card {
     public BucketCard() {
@@ -15,17 +14,21 @@ public class BucketCard extends Card {
                 "Bucket");
         emeraldCost = 1;
     }
-
+    Card waterOption = new WaterOption();
+    Card lavaOption = new LavaOption();
+    Card milkOption = new MilkOption();
     @Override
     public Boardstate etb(Boardstate board) {
-        Boardstate tempBoard = new Boardstate(board);
-        tempBoard.selectionSymbolTargets.add(CardMechanicSymbol.Emerald);
-        tempBoard.selectionSymbolTargets.add(CardMechanicSymbol.Strength);
-        tempBoard.selectionSymbolTargets.add(CardMechanicSymbol.Draw);
-        tempBoard.selectionSymbolListeners.push((symbol, boardstate) -> {
-            if (symbol == CardMechanicSymbol.Emerald) {
+        Boardstate tempBoard = board;
+        HalveBoardState halveBoardState = getOwedHalveBoard(board);
+        halveBoardState.option_selection.add(lavaOption);
+        halveBoardState.option_selection.add(waterOption);
+        halveBoardState.option_selection.add(milkOption);
+
+        tempBoard.addSelectionEvent((source, card, boardstate) -> {
+            if (card.equals(waterOption)) {
                 boardstate.addSelectionEvent(
-                        (source, selected, b) -> {
+                        (sourceInner, selected, b) -> {
                             b = selected.voidd(b);
                             return b.appearCard(selected.getNew(), selected.getOwedHalveBoard(b));
                         },
@@ -33,20 +36,37 @@ public class BucketCard extends Card {
                         this
                 );
             }
-            if (symbol == CardMechanicSymbol.Strength) {
+            if (card.equals(lavaOption)) {
                 boardstate.addSelectionEvent(
-                        (source, selected, b) -> selected.damage(5, b),
+                        (sourceInner, selected, b) -> selected.damage(5, b),
                         getTargets(),
                         this
                 );
             }
-            if (symbol == CardMechanicSymbol.Draw) {
-                for (Card card:boardstate.getAllCardsOnBoard()) {
-                    card.isOnFire = false;
+            if (card.equals(milkOption)) {
+                for (Card cardx:boardstate.getAllCardsOnBoard()) {
+                    cardx.isOnFire = false;
                 }
             }
+            boardstate.clearOptions();
             return boardstate;
-        });
+        }, getOptionTargets(), this);
         return tempBoard;
+    }
+
+     public static class WaterOption extends OptionsCard {
+         public WaterOption() {
+             super("textures/gui/bucket_card.png", new String[]{"tooltip.minecardmod.cards.bucket1"}, "Water");
+         }
+     }
+    public static class LavaOption extends OptionsCard {
+        public LavaOption() {
+            super("textures/gui/bucket_card.png", new String[]{"tooltip.minecardmod.cards.bucket2"}, "Lava");
+        }
+    }
+    public static class MilkOption extends OptionsCard {
+        public MilkOption() {
+            super("textures/gui/bucket_card.png", new String[]{"tooltip.minecardmod.cards.bucket3"}, "Milk");
+        }
     }
 }

@@ -19,7 +19,7 @@ public class EnderMiteCard extends Card {
 
     @Override
     public Boardstate die(Boardstate board) {
-        Boardstate boardstate = new Boardstate(board);
+        Boardstate boardstate = board;
         this.getOwedHalveBoard(boardstate).drawCard();
         return super.die(boardstate);
     }

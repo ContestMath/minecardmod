@@ -32,10 +32,10 @@ public class SimpleAi extends CardAi{
     public int selectionTarget(Boardstate board) {
         List<Card> targets = board.selectionStack.peek().b.onFindTargets(board.selectionStack.peek().c, board);
         List<Boardstate> list = new ArrayList<>();
+        Boardstate newBoard = new Boardstate(board);
         for (int i = 0;i<targets.size();i++) {
-            Boardstate newBoard = new Boardstate(board);
-            List<Card> newTargets = newBoard.selectionStack.peek().b.onFindTargets(newBoard.selectionStack.peek().c, newBoard);
-            list.add(newTargets.get(i).selected(newBoard));
+            list.add(targets.get(i).selected(newBoard));
+            newBoard = new Boardstate(board);
         }
         int result = 0;
         for (int i = 1;i<targets.size();i++) {

@@ -23,7 +23,7 @@ public class ZombieCard extends Card {
         List<Card> negTempList = new ArrayList<Card>();
         Boardstate tempBoard = board;
 
-        for (Card card:board.own.hand) {
+        for (Card card:new ArrayList<>(board.own.hand)) {
             if (card.getClass().equals(ZombieCard.class)) {
                 negTempList.add(card);
                 zombies.add(card);
@@ -32,7 +32,7 @@ public class ZombieCard extends Card {
         board.own.hand.removeAll(negTempList);
         negTempList = new ArrayList<Card>();
 
-        for (Card card:board.own.deck) {
+        for (Card card:new ArrayList<>(board.own.deck)) {
             if (card.getClass().equals(ZombieCard.class)) {
                 negTempList.add(card);
                 zombies.add(card);

@@ -1,6 +1,8 @@
 package at.plaus.minecardmod.core.init.CardGame;
 
+import at.plaus.minecardmod.Capability.SavedDeck;
 import at.plaus.minecardmod.Minecardmod;
+import at.plaus.minecardmod.client.ClientDeckData;
 import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.networking.ModMessages;
 import at.plaus.minecardmod.networking.packet.DeckC2SPacket;
@@ -18,10 +20,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class DeckBuilderGui extends AbstractMinecardScreen {
@@ -30,7 +30,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public static final int cardOffset = 5;
     public final int rows = 5;
     public final int collums = 8;
-    public List<Card> deck = new ArrayList<Card>();
+    public List<Card> deck;
     public List<Card> cardSelection = Card.getListOfAllNonTokenCards();
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
@@ -47,13 +47,16 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     @Override
     List<Card> getAllrenderableCards() {
         List<Card> list = new ArrayList<>();
+        Collections.reverse(deck);
         list.addAll(deck);
+        Collections.reverse(deck);
         list.addAll(cardSelection);
         return list;
     }
 
     public DeckBuilderGui() {
         super(Component.literal("I have no idea what this component is for"));
+        this.deck = stringToDeck(ClientDeckData.getDeck1());
     }
 
     @Override
@@ -86,10 +89,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal("Deck builder"), offsetX+2, offsetY+2, -1);
     }
 
-    private void renderOtherStuff(PoseStack PoseStack, int mouseX, int mouseY) {
-        RenderSystem.setShaderTexture(0,new ResourceLocation(""));
-        this.blit(PoseStack, offsetX+MinecardTableImageLocations.changeX, offsetY+MinecardTableImageLocations.changeY, 0, 0, MinecardTableImageLocations.changeWidth, MinecardTableImageLocations.changeHeight);
-    }
+    private void renderOtherStuff(PoseStack PoseStack, int mouseX, int mouseY) {}
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardHighlightFromList(PoseStack, mouseX, mouseY, cardSelection);

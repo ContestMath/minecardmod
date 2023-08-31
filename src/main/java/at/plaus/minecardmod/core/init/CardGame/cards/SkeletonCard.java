@@ -17,7 +17,7 @@ public class SkeletonCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
-                (source, card, boardstate) -> card.damage(3, new Boardstate(boardstate)),
+                (source, card, boardstate) -> card.damage(3, boardstate),
                 getTargets(),
                 this
         );
