@@ -42,7 +42,7 @@ public class ZombieCard extends Card {
         negTempList = new ArrayList<Card>();
 
         for (Card z:zombies) {
-            tempBoard = tempBoard.playCard(z, getOwedHalveBoard(board));
+            tempBoard = tempBoard.summon(z, getOwedHalveBoard(board));
         }
         return super.etb(tempBoard);
     }

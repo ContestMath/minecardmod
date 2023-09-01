@@ -93,6 +93,12 @@ public class HalveBoardState implements Serializable {
         }
     }
 
+    public void drawCard(Card card) {
+        deck.remove(card);
+        hand.add(card);
+        Collections.shuffle(deck);
+    }
+
     public int getStrength () {
         return Card.getStrengthFromList(this.meleeBoard) + Card.getStrengthFromList(this.rangedBoard) + Card.getStrengthFromList(this.specialBoard);
     }

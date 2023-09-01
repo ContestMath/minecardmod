@@ -7,6 +7,7 @@ import at.plaus.minecardmod.core.init.CardGame.cards.*;
 import at.plaus.minecardmod.core.init.CardGame.events.CardDamagedEvent;
 import at.plaus.minecardmod.core.init.CardGame.events.CardSelectedEvent;
 import at.plaus.minecardmod.core.init.CardGame.events.FindTargetsEvent;
+import at.plaus.minecardmod.core.init.CardGame.events.StrengthBuff;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -25,7 +26,7 @@ public class Card implements Serializable {
 
     public final String[] tooltip;
     public final CardTypes type;
-    public int strength;
+    private int strength;
     public final String texture;
     public final String name;
     public boolean isHero = false;
@@ -37,6 +38,7 @@ public class Card implements Serializable {
     public boolean isOnFire = false;
     public boolean undieing = false;
     public List<CardSubtypes> subtypes = new ArrayList<>();
+    public List<StrengthBuff> buffs = new ArrayList<>();
     public String frameString = "textures/gui/frame.png";
 
     public Card(int strength, String texture, CardTypes type, String[] tooltip, String name) {
@@ -118,6 +120,16 @@ public class Card implements Serializable {
         list.add(new Tuple<>(35, PhantomCard.class));
         list.add(new Tuple<>(36, PiglinCard.class));
         list.add(new Tuple<>(37, BruteCard.class));
+        list.add(new Tuple<>(38, EnderPearlSatsisCard.class));
+        list.add(new Tuple<>(39, ShulkerCard.class));
+        list.add(new Tuple<>(40, EndermanCard.class));
+        list.add(new Tuple<>(41, VindicatorCard.class));
+        list.add(new Tuple<>(42, VexCard.class));
+        list.add(new Tuple<>(43, CopperGolemCard.class));
+        list.add(new Tuple<>(44, RascalCard.class));
+        list.add(new Tuple<>(45, NetherPortalCard.class));
+        list.add(new Tuple<>(46, SpeedrunningCard.class));
+        list.add(new Tuple<>(47, StrengthPotionCard.class));
         return list;
     }
 
@@ -200,7 +212,11 @@ public class Card implements Serializable {
     }
 
     public int getStrength(){
-        return this.strength;
+        int x = strength;
+        for (StrengthBuff buff:buffs) {
+            x += buff.buff(this);
+        }
+        return x;
     }
 
     public static int getStrengthFromList(List<Card> cardList) {
@@ -314,19 +330,17 @@ public class Card implements Serializable {
         return tempBoard;
     }
 
-    public Boardstate heal(int x, Boardstate board) {
+    public void heal(int x, Boardstate board) {
         Boardstate tempBoard =  board;
         if (getDefaultStrength() < x + strength) {
             strength = getDefaultStrength();
-            return tempBoard;
+        } else {
+            strength += x;
         }
-        strength += x;
-        return tempBoard;
     }
 
-    public Boardstate heal(Boardstate board) {
+    public void heal() {
         strength = getDefaultStrength();
-        return board;
     }
 
     public Boardstate selected(Boardstate board) {
@@ -355,6 +369,14 @@ public class Card implements Serializable {
         return newBoard;
     }
 
+    public Boardstate returnToHand(Boardstate board) {
+        Boardstate newBoard = board;
+        HalveBoardState halve = getOwedHalveBoard(newBoard);
+        newBoard = removeFromBoard(newBoard);
+        halve.hand.add(getNew());
+        return newBoard;
+    }
+
     public Boardstate die(Boardstate board) {
         if (board.getAllCards().contains(this)) {
             Boardstate newBoard = board;
@@ -368,14 +390,14 @@ public class Card implements Serializable {
 
     public Boardstate fight(Boardstate board, Card target) {
         Boardstate newBoard = board;
-        int x = target.strength;
-        int y = strength;
+        int x = target.getStrength();
+        int y = getStrength();
         newBoard = target.damage(y, newBoard);
         newBoard = damage(x, newBoard);
         return newBoard;
     }
 
-    private Boardstate removeFromBoard(Boardstate board) {
+    protected Boardstate removeFromBoard(Boardstate board) {
         for (List<Card> list:getOwedHalveBoard(board).getListOfCardList()) {
             list.remove(this);
         }
@@ -407,6 +429,13 @@ public class Card implements Serializable {
             return board.getAllCardsOnBoard();
         };
     }
+
+    public static FindTargetsEvent getTargetsOnOwnedHalveboard() {
+        return (source, board) -> {
+            return source.getOwedHalveBoard(board).getAllCardsOnBoard();
+        };
+    }
+
     public static FindTargetsEvent getOptionTargets() {
         return (source, board) -> {
             return source.getOwedHalveBoard(board).option_selection;

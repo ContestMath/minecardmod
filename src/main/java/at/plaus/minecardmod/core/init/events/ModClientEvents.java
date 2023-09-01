@@ -110,7 +110,8 @@ public class ModClientEvents {
         @Override
         public int getWidth(Font font)
         {
-            return Math.max(Card.bigCwidth, Math.max(font.width(label1), font.width(label2)));
+            int textMin = 50;
+            return Math.max(Card.bigCwidth, Math.max(Math.min(font.width(label1), textMin), Math.min(font.width(label2), textMin)));
         }
 
         @Override
@@ -132,7 +133,7 @@ public class ModClientEvents {
 
             RenderSystem.setShaderTexture(0, frame);
             GuiComponent.blit(poseStack, xCardPos, y+5, 0, (float)20, (float)20, Card.bigCwidth, Card.bigCardheight, 256, 256);
-            font.drawShadow(poseStack, Integer.toString(card.strength), xCardPos+getWidth(font)-8, y-5+Card.bigCardheight, 0xFFFFFF);
+            font.drawShadow(poseStack, Integer.toString(card.getStrength()), xCardPos+getWidth(font)-8, y-5+Card.bigCardheight, 0xFFFFFF);
 
 
             poseStack.popPose();

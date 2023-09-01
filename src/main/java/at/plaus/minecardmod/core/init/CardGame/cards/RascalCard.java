@@ -4,22 +4,22 @@ import at.plaus.minecardmod.core.init.CardGame.Boardstate;
 import at.plaus.minecardmod.core.init.CardGame.Card;
 import at.plaus.minecardmod.core.init.CardGame.CardTypes;
 
-public class EnderMiteCard extends Card {
+public class RascalCard extends Card {
 
-    public EnderMiteCard() {
+    public RascalCard() {
         super(
                 1,
-                "textures/gui/ender_mite_card.png",
+                "textures/gui/rascal_card.png",
                 CardTypes.MELEE,
-                new String[]{"tooltip.minecardmod.cards.ender_mite"},
-                "Ender Mite"
+                new String[]{"tooltip.minecardmod.cards.spy", "tooltip.minecardmod.cards.rascal"},
+                "Rascal"
         );
+        isSpy = true;
     }
 
     @Override
     public Boardstate die(Boardstate board) {
-        Boardstate boardstate = board;
-        this.getOwedHalveBoard(boardstate).drawCard();
-        return super.die(boardstate);
+        getOwedHalveBoard(board).getOther(board).emeraldCount += 13;
+        return super.die(board);
     }
 }

@@ -29,7 +29,7 @@
 
   "tooltip.minecardmod.cards.skeleton": "ETB: Deal §43 damage§r",
 
-  "tooltip.minecardmod.cards.creeper": "Explodes if another entity is placed in the melee zone.",
+  "tooltip.minecardmod.cards.creeper": "Explodes if another mob is placed in the melee zone.",
 
   "tooltip.minecardmod.cards.mushroom_cow": "ETB: Generate a mushroom soup in your hand",
 
@@ -55,7 +55,7 @@
 
   "tooltip.minecardmod.cards.iron_golem1": "Cost: §a14E",
   "tooltip.minecardmod.cards.iron_golem2": "Resistance 4",
-  "tooltip.minecardmod.cards.iron_golem3": "ETB: Fight a entity",
+  "tooltip.minecardmod.cards.iron_golem3": "ETB: Fight a mob",
 
   "tooltip.minecardmod.cards.chicken": "Summon another chicken at the start of each of your actions.",
 
@@ -69,8 +69,8 @@
   "tooltip.minecardmod.cards.magma_slime": "Gain §43 strength§r at the start of each action.",
 
   "tooltip.minecardmod.cards.snow_golem1": "Cost: §a1E§r",
-  "tooltip.minecardmod.cards.snow_golem2": "Deal §41 damage§r to each enemy entity.",
-  "tooltip.minecardmod.cards.phantom_swarm": "Whenever an oponents entity enters the battlefield summon ",
+  "tooltip.minecardmod.cards.snow_golem2": "Deal §41 damage§r to each enemy mob.",
+  "tooltip.minecardmod.cards.phantom_swarm": "Whenever an oponents mob enters the battlefield summon a phantom",
 
   "tooltip.minecardmod.cards.squid": "",
 
@@ -78,15 +78,34 @@
 
   "tooltip.minecardmod.cards.guardian": "Deal §42 damage§r 2 times.",
 
-  "tooltip.minecardmod.cards.bucket": "Deal §45 damage§r, heal all damage and put out all fires on friendly entities or blink a creature.",
+  "tooltip.minecardmod.cards.bucket": "Deal §45 damage§r, heal all damage and put out all fires on friendly entities or blink a mob.",
   "tooltip.minecardmod.cards.bucket1": "Heal all damage and put out all fires on friendly entities.",
   "tooltip.minecardmod.cards.bucket2": "Deal §45 damage§r.",
-  "tooltip.minecardmod.cards.bucket3": "Blink a creature.",
+  "tooltip.minecardmod.cards.bucket3": "Blink a mob.",
 
 
-  "tooltip.minecardmod.cards.blaze": "Set an enemy entity on fire.",
+  "tooltip.minecardmod.cards.blaze": "Set an enemy mob on fire.",
 
   "tooltip.minecardmod.cards.witch": "Draw a card whenever you play a potion.",
 
-  "tooltip.minecardmod.cards.carpet_bombing": "Sacrifice a creature to deal §420 damage§r."
+  "tooltip.minecardmod.cards.carpet_bombing": "Sacrifice a mob to deal §420 damage§r.",
+
+  "tooltip.minecardmod.cards.shulker": "Return target mob to its owners hand",
+
+  "tooltip.minecardmod.cards.enderman": "Return this mob to your hand when targeted.",
+
+  "tooltip.minecardmod.cards.ender_pearl_stasis": "Return one of your mobs to your hand",
+
+  "tooltip.minecardmod.cards.vex": "",
+
+  "tooltip.minecardmod.cards.vindicator": "Summon 2 Vexes with 1 strength each.",
+
+  "tooltip.minecardmod.cards.copper_golem": "Search your deck for a lighting card.",
+  "tooltip.minecardmod.cards.rascal": "On death: give your opponent §a13E§r",
+
+  "tooltip.minecardmod.cards.nether_portal": "Search your deck for a nether card.",
+
+  "tooltip.minecardmod.cards.speedrunning": "Both Players draw 3 cards.",
+
+  "tooltip.minecardmod.cards.strength_potion": "Double target mobs strength."
 }

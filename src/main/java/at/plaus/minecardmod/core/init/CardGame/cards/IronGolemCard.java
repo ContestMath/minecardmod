@@ -23,14 +23,8 @@ public class IronGolemCard extends Card {
 
     @Override
     public Boardstate etb(Boardstate board) {
-        board.addSelectionEvent((source, card, boardstate) -> {
-            Boardstate newBoard = boardstate;
-            int damageX = source.strength;
-            int damageY = card.strength;
-            newBoard = card.damage(damageX, newBoard);
-            newBoard = source.damage(damageY, newBoard);
-            return newBoard;
-        },
+        board.addSelectionEvent((source, card, boardstate) ->
+                (source.fight(boardstate, card)),
                 getTargets(),
                 this
                 );

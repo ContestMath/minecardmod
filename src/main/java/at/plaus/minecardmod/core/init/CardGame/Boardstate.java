@@ -14,6 +14,8 @@ public class Boardstate implements Serializable {
     int creaturesSacrificed = 0;
     public Stack<Triple<CardSelectedEvent, FindTargetsEvent, Card>> selectionStack = new Stack<>();
     public List<CardDamagedEvent> damageListeners = new ArrayList<CardDamagedEvent>();
+    public List<StartOfTurnEvent> startOfTurnListeners = new ArrayList<>();
+    public List<EndOfRoundEvent> endOfRoundListeners = new ArrayList<>();
     public List<Tuple<EtbEvent, Card>> etbListeners = new ArrayList<>();
     public static int loopIndex = 0;
     public HashMap<Card, Card> copyMap = new HashMap<>();
@@ -69,7 +71,7 @@ public class Boardstate implements Serializable {
                     if (newBoard.creaturesSacrificed >= source.sacrificeCost) {
                         source.getOwedHalveBoard(boardstate).emeraldCount -= source.emeraldCost;
                         newBoard.creaturesSacrificed = 0;
-                        newBoard = newBoard.playCard(source, source.getOwedHalveBoard(boardstate));
+                        newBoard = newBoard.summon(source, source.getOwedHalveBoard(boardstate));
                     }
                     return newBoard;
                 },
@@ -82,14 +84,18 @@ public class Boardstate implements Serializable {
             if (creaturesSacrificed >= card.sacrificeCost) {
                 card.getOwedHalveBoard(this).emeraldCount -= card.emeraldCost;
                 MinecardTableGui.cardWasPlayed = true;
-                return playCard(card, card.getOwedHalveBoard(this));
+                return summon(card, card.getOwedHalveBoard(this));
             }
         }
         MinecardTableGui.cardWasPlayed = false;
         return this;
     }
 
-    public Boardstate playCard(Card card, HalveBoardState side) {
+    public List<Card> getTargets() {
+        return selectionStack.peek().b.onFindTargets(selectionStack.peek().c, this);
+    }
+
+    public Boardstate summon(Card card, HalveBoardState side) {
         boolean isOwnBoard = true;
         if (side.equals(enemy)) {
             isOwnBoard = !isOwnBoard;
@@ -179,6 +185,32 @@ public class Boardstate implements Serializable {
         return this;
     }
 
+    public Boardstate endRound() {
+        if (own.getStrength() > enemy.getStrength()) {
+            enemy.lifePoints --;
+        }
+        if (own.getStrength() < enemy.getStrength()) {
+            own.lifePoints --;
+        }
+        if (own.getStrength() == enemy.getStrength()) {
+            own.lifePoints --;
+            enemy.lifePoints --;
+        }
+        enemy.hasPassed = false;
+        own.hasPassed = false;
+
+        Boardstate tempboard = this;
+        tempboard = tempboard.clearBoard();
+
+        for (EndOfRoundEvent event:endOfRoundListeners) {
+            tempboard = event.onEndOfRound(tempboard);
+        }
+
+        tempboard.enemy.drawCard(2);
+        tempboard.own.drawCard(2);
+        return tempboard;
+    }
+
     public Boardstate clearBoard() {
         Boardstate newBoard = this;
 
@@ -198,6 +230,9 @@ public class Boardstate implements Serializable {
         Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
+        for (StartOfTurnEvent event:startOfTurnListeners) {
+            tempBoard = event.onStartOfTurn(tempBoard);
+        }
         for (Card card:getAllCardsOnBoard()) {
             if (card.getOwedHalveBoard(tempBoard).isYourTurn) {
                 tempBoard = card.atTheStartOfTurn(tempBoard);

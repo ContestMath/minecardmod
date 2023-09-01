@@ -107,7 +107,9 @@ public abstract class AbstractMinecardScreen extends Screen {
             RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
 
-            this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+            if (card.type != CardTypes.SPELL) {
+                this.font.draw(poseStack, Integer.toString(card.getStrength()), x + Card.cardwidth - 6 * Integer.toString(card.getStrength()).length(), y + Card.cardheight - 8, 0);
+            }
 
             index ++;
         }
@@ -126,7 +128,9 @@ public abstract class AbstractMinecardScreen extends Screen {
 
             RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
-            this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+            if (card.type != CardTypes.SPELL) {
+                this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+            }
             int numberInDeck = 0;
             for (Card i:inDeck) {
                if (i.getClass().equals(card.getClass())) {

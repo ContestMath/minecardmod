@@ -23,7 +23,7 @@ public class SquidCard extends Card {
         getOwedHalveBoard(board).cthulhuCounter++;
         if (getOwedHalveBoard(board).cthulhuCounter >= CthulhuCard.SquidsToDie) {
             getOwedHalveBoard(board).cthulhuCounter = 0;
-            board.playCard(new CthulhuCard(), getOwedHalveBoard(board));
+            board.summon(new CthulhuCard(), getOwedHalveBoard(board));
         }
         return super.die(board);
     }

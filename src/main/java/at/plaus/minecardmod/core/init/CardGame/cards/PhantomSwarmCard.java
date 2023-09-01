@@ -20,7 +20,7 @@ public class PhantomSwarmCard extends Card {
 
     private final Tuple<EtbEvent, Card> summonEvent = new Tuple<>((card, b, source) -> {
         if (!(card.getOwedHalveBoard(b) == source.getOwedHalveBoard(b))) {
-            return b.playCard(new PhantomCard(), source.getOwedHalveBoard(b));
+            return b.summon(new PhantomCard(), source.getOwedHalveBoard(b));
         }
         return b;
     },

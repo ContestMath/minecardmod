@@ -174,7 +174,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             board = board.switchTurn();
         }
         if (board.own.hasPassed && board.enemy.hasPassed) {
-            endRound();
+            board = board.endRound();
         }
         if (board.own.lifePoints == 0 || board.enemy.lifePoints == 0) {
             endGame();
@@ -277,7 +277,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength()).length())/2, offsetY+5, -1);
 
         if (!board.selectionStack.isEmpty()) {
-            this.font.draw(PoseStack, Component.literal("Press space to decline to select target(s)"), 5, this.height-8, -1);
+            this.font.draw(PoseStack, Component.literal("Press space to decline to select a target for " + board.selectionStack.peek().c.name), 5, this.height-8, -1);
         }
     }
 
@@ -359,23 +359,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         playLoop();
     }
 
-    public void endRound() {
-        if (board.own.getStrength() > board.enemy.getStrength()) {
-            board.enemy.lifePoints --;
-        }
-        if (board.own.getStrength() < board.enemy.getStrength()) {
-            board.own.lifePoints --;
-        }
-        if (board.own.getStrength() == board.enemy.getStrength()) {
-            board.own.lifePoints --;
-            board.enemy.lifePoints --;
-        }
-        board.enemy.hasPassed = false;
-        board.own.hasPassed = false;
-        board = board.clearBoard();
-        board.enemy.drawCard(2);
-        board.own.drawCard(2);
-    }
+
     public void endGame() {
         gameHasEnded = true;
         if (board.enemy.lifePoints == 0 && board.own.lifePoints == 0) {

@@ -47,8 +47,8 @@ public class CreeperCard extends Card {
     }
 
     @Override
-    public Boardstate die(Boardstate board) {
+    protected Boardstate removeFromBoard(Boardstate board) {
         board.etbListeners.remove(explodeEvent);
-        return super.die(board);
+        return super.removeFromBoard(board);
     }
 }

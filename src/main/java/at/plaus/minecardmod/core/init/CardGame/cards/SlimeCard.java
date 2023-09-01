@@ -18,7 +18,7 @@ public class SlimeCard extends Card {
 
     @Override
     public Boardstate atTheStartOfTurn(Boardstate board) {
-        this.strength += 1;
+        buffs.add((card) -> 1);
         return super.atTheStartOfTurn(board);
     }
 }
