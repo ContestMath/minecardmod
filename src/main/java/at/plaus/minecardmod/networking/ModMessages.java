@@ -68,6 +68,12 @@ public class ModMessages {
                 .encoder(OpenScreenS2CPacket::toBytes)
                 .consumerMainThread(OpenScreenS2CPacket::handle)
                 .add();
+
+        net.messageBuilder(GiveEmeraldC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(GiveEmeraldC2SPacket::new)
+                .encoder(GiveEmeraldC2SPacket::toBytes)
+                .consumerMainThread(GiveEmeraldC2SPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

@@ -1,28 +1,28 @@
 package at.plaus.minecardmod.networking.packet;
 
-import at.plaus.minecardmod.Capability.SavedUnlockedCards;
-import at.plaus.minecardmod.Capability.UnlockedCardsProvider;
+import at.plaus.minecardmod.Capability.DeckProvider;
 import at.plaus.minecardmod.networking.ModMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class UnlockedCardsC2SPacket {
-    private final String cards;
-
-    public UnlockedCardsC2SPacket(String deck) {
-        this.cards = deck;
+public class GiveEmeraldC2SPacket {
+    int x;
+    public GiveEmeraldC2SPacket(int x) {
+        this.x = x;
     }
 
-    public UnlockedCardsC2SPacket(FriendlyByteBuf buf) {
-        this.cards = buf.readUtf();
+    public GiveEmeraldC2SPacket(FriendlyByteBuf buf) {
+        this.x = buf.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buf) {
-        buf.writeUtf(cards);
+        buf.writeInt(x);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
@@ -31,12 +31,7 @@ public class UnlockedCardsC2SPacket {
 
             ServerPlayer player = context.getSender();
             ServerLevel level = player.getLevel();
-
-            player.getCapability(UnlockedCardsProvider.PlayerUnlockedCards).ifPresent(cards -> {
-                SavedUnlockedCards.setCards(this.cards);
-                ModMessages.sendToPlayer(new UnlockedCardsSyncS2CPacket(SavedUnlockedCards.getCards()), player);
-            });
-
+            player.addItem(new ItemStack(Items.EMERALD, x));
 
 
         });

@@ -7,6 +7,7 @@ import at.plaus.minecardmod.networking.packet.UnlockedCardsC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.stringtemplate.v4.ST;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 public class SavedUnlockedCards {
     private static String cards;
+    private static String tempCards;
 
 
     public void copyFrom(SavedUnlockedCards source) {
@@ -26,21 +28,25 @@ public class SavedUnlockedCards {
     }
 
     public static String getCards() {
-        if (cards == null) {
-            cards = "";
+        return getCards(cards);
+    }
+
+    private static String getCards(String s) {
+        if (s == null) {
+            s = "";
         }
-        int cardLen = cards.length();
+        int cardLen = s.length();
         if (cardLen < Card.getListOfAllCards().size()) {
             for (int i = 0; i < Card.getListOfAllCards().size()-cardLen; i++) {
-                cards = cards + "0";
+                s = s + "0";
             }
         }
 
-        return cards;
+        return s;
     }
 
-    public static void unlock(Class<? extends Card> clazz) {
-        List<Character> chars = getCards().chars().mapToObj(e->(char)e).collect(Collectors.toList());
+    private static void unlockInner(Class<? extends Card> clazz) {
+        List<Character> chars = getCards(tempCards).chars().mapToObj(e->(char)e).collect(Collectors.toList());
         StringBuilder tempString = new StringBuilder();
         int index = Card.getFromClass(clazz).getId();
         int numberUnlocked = chars.get(index) - '0';
@@ -52,25 +58,24 @@ public class SavedUnlockedCards {
         for (char c:chars) {
             tempString.append(c);
         }
-        ModMessages.sendToServer(new UnlockedCardsC2SPacket(tempString.toString()));
+        tempCards = tempString.toString();
     }
 
-    public static Stack<Card> stringToDeck(String s) {
-        Stack<Card> deck =  new Stack<>();
-        StringBuilder tempString = new StringBuilder();
-        List<Character> chars = s.chars().mapToObj(e->(char)e).collect(Collectors.toList());
-        int i = 0;
+    private static void sendPacket (String s) {
+        ModMessages.sendToServer(new UnlockedCardsC2SPacket(s));
+    }
 
-        for (Character character:chars) {
-            tempString.append(character);
-            i++;
-            if ((i % 4) == 0) {
-                deck.push(Card.getCardFromId(Integer.parseInt(tempString.toString())));
-                i = 0;
-                tempString = new StringBuilder();
-            }
+    public static void unlock(Class<? extends Card> clazz) {
+        unlockInner(clazz);
+        sendPacket(tempCards);
+    }
+
+
+    public static void unlock(List<Class<? extends Card>> clazzList) {
+        for (Class<? extends Card> clazz:clazzList) {
+            unlockInner(clazz);
         }
-        return deck;
+        sendPacket(tempCards);
     }
 
     public void saveNBTData(CompoundTag nbt) {

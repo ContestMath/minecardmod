@@ -140,7 +140,6 @@ public class Card implements Serializable {
 
     public static List<Card> getListOfAllCards() {
         List<Card> list = new ArrayList<>();
-        list.add(new ZombieCard());
         for (Tuple<Integer, Class<? extends Card>> t : tupleOfCardClasses()) {
             try {
                 list.add(t.getB().newInstance());
@@ -285,6 +284,16 @@ public class Card implements Serializable {
         List<Card> list = new ArrayList<>();
         for (Card card:getListOfAllCards()) {
             if (!card.isToken) {
+                list.add(card);
+            }
+        }
+        return list;
+    }
+
+    public static List<Card> getListOfUnlockedCards() {
+        List<Card> list = new ArrayList<>();
+        for (Card card:getListOfAllNonTokenCards()) {
+            if (card.getNumberUnlocked() > 0) {
                 list.add(card);
             }
         }

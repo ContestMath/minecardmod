@@ -12,6 +12,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -29,9 +30,11 @@ public class MinecardPackItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide()) {
             Random rand = new Random();
+            List<Class<? extends Card>> list = new ArrayList<>();
             for (int i=0; i<numberOfCardsGained; i++) {
-                SavedUnlockedCards.unlock((Card.getListOfAllNonTokenCards().get(rand.nextInt(Card.getListOfAllNonTokenCards().size())).getClass()));
+                list.add(Card.getListOfAllNonTokenCards().get(rand.nextInt(Card.getListOfAllNonTokenCards().size())).getClass());
             }
+            SavedUnlockedCards.unlock(list);
             player.getItemInHand(hand).shrink(1);
         }
         return super.use(level, player, hand);

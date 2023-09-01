@@ -7,6 +7,9 @@ import at.plaus.minecardmod.core.init.GlobalValues;
 import at.plaus.minecardmod.core.init.MinecardRules;
 import at.plaus.minecardmod.core.init.CardGame.Ai.CardAi;
 import at.plaus.minecardmod.core.init.CardGame.cards.*;
+import at.plaus.minecardmod.networking.ModMessages;
+import at.plaus.minecardmod.networking.packet.DeckSyncS2CPacket;
+import at.plaus.minecardmod.networking.packet.GiveEmeraldC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -379,7 +382,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("It is a draw!"));
         } else if(board.enemy.lifePoints == 0) {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("You have won!"));
-            Minecraft.getInstance().player.addItem(new ItemStack(Items.EMERALD, emeraldsCommited*2));
+            ModMessages.sendToServer(new GiveEmeraldC2SPacket(emeraldsCommited*2));
         } else if(board.own.lifePoints == 0) {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("You have lost"));
         }

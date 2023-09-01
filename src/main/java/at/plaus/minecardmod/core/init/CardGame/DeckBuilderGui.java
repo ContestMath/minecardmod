@@ -31,7 +31,7 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public final int rows = 5;
     public final int collums = 8;
     public List<Card> deck;
-    public List<Card> cardSelection = Card.getListOfAllNonTokenCards();
+    public List<Card> cardSelection;
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
 
     private static final ResourceLocation GUI = new ResourceLocation(Minecardmod.MOD_ID,
@@ -57,6 +57,11 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
     public DeckBuilderGui() {
         super(Component.literal("I have no idea what this component is for"));
         this.deck = stringToDeck(ClientDeckData.getDeck1());
+        if (Minecraft.getInstance().player.isCreative()) {
+            this.cardSelection = Card.getListOfAllNonTokenCards();
+        } else {
+            this.cardSelection = Card.getListOfUnlockedCards();
+        }
     }
 
     @Override

@@ -198,7 +198,7 @@ public class Boardstate implements Serializable {
         Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
-        for (Card card:getAllCards()) {
+        for (Card card:getAllCardsOnBoard()) {
             if (card.getOwedHalveBoard(tempBoard).isYourTurn) {
                 tempBoard = card.atTheStartOfTurn(tempBoard);
             }
