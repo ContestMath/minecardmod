@@ -66,7 +66,6 @@ public abstract class AbstractMinecardScreen extends Screen {
         return isWithinBoundingBox(x, y, xMin, xMin+ Card.cardwidth, yMin, yMin+ Card.cardheight);
     }
 
-    //-1 if touching no cards
     @Nullable
     public Card getTouchingCard(double mouseX, double mouseY){
         int index = 0;

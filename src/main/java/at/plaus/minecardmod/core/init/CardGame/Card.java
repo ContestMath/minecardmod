@@ -347,10 +347,12 @@ public class Card implements Serializable {
         Boardstate newBoard = board;
         Triple selectionTriple = newBoard.selectionStack.pop();
         newBoard = ((CardSelectedEvent) selectionTriple.a).onCardSelected((Card) selectionTriple.c, this, newBoard);
+        MinecardTableGui.log.add("Ability of  " + name + " was used to select " + ((Card) selectionTriple.c).name);
         return newBoard;
     }
 
     public Boardstate atTheStartOfTurn(Boardstate board) {
+        MinecardTableGui.log.add("Start of turn of " + name + " triggered");
         if (isOnFire) {
             damage(1, board);
         }

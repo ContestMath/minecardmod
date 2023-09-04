@@ -84,6 +84,7 @@ public class Boardstate implements Serializable {
             if (creaturesSacrificed >= card.sacrificeCost) {
                 card.getOwedHalveBoard(this).emeraldCount -= card.emeraldCost;
                 MinecardTableGui.cardWasPlayed = true;
+                MinecardTableGui.log.add("Played " + card.name);
                 return summon(card, card.getOwedHalveBoard(this));
             }
         }
@@ -230,6 +231,7 @@ public class Boardstate implements Serializable {
         Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
+        MinecardTableGui.log.add("The turn of " + getHalveboardOnTurn().ownerName(this) + " started");
         for (StartOfTurnEvent event:startOfTurnListeners) {
             tempBoard = event.onStartOfTurn(tempBoard);
         }
@@ -239,6 +241,14 @@ public class Boardstate implements Serializable {
             }
         }
         return tempBoard;
+    }
+
+    public HalveBoardState getHalveboardOnTurn() {
+        if (own.isYourTurn) {
+            return own;
+        } else {
+            return enemy;
+        }
     }
 
     public void cancelSelection() {
@@ -267,8 +277,6 @@ public class Boardstate implements Serializable {
 
     public void addSelectionEvent(CardSelectedEvent event, FindTargetsEvent targets, Card source) {
         selectionStack.push(new Triple<>(event, targets, source));
-
-        //Boardstate tempBoard = new Boardstate(this);
         if (selectionStack.peek().b.onFindTargets(copyMap.getOrDefault(source, source), this).isEmpty()) {
             cancelSelection();
         }

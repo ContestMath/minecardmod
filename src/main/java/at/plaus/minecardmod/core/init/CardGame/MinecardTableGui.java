@@ -44,6 +44,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     public boolean gameHasEnded = false;
     public static boolean cardWasPlayed;
     public static int tickCount = 0;
+    public static List<String> log;
     public static final CardAi AI = new SimpleAi();
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
@@ -55,7 +56,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
 
     @Override
     List<Card> getAllrenderableCards() {
-        return board.getAllRenderableCards();
+        return board.getAllCards();
     }
 
     public MinecardTableGui() {
@@ -121,6 +122,13 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     @Override
     public void startup() {
         Player p = Minecraft.getInstance().player;
+
+        log = new ArrayList<>();
+        log.add("");
+        log.add("");
+        log.add("");
+        log.add("");
+        log.add("");
 
         if (GlobalValues.savedBoardTemp.containsKey(p)) {
             loadGame(GlobalValues.savedBoardTemp.get(p));
@@ -198,8 +206,17 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             renderHighlight(PoseStack, mouseX, mouseY);
             this.font.draw(PoseStack, Component.literal("Minecard table"), offsetX+2, offsetY+2, -1);
             renderValues(PoseStack, offsetX, offsetY);
+            renderLog(PoseStack);
             renderOptionSelection(PoseStack, mouseX, mouseY);
             renderAllTooltipp(PoseStack, mouseX, mouseY);
+        }
+    }
+
+    private void renderLog(PoseStack PoseStack) {
+        List<String> list = new ArrayList<>(log);
+        Collections.reverse(list);
+        for (int i = 0;i<5;i++) {
+            this.font.draw(PoseStack, Component.literal(list.get(i)), offsetX+2, offsetY+MinecardTableImageLocations.guiheight-10-8*i, -1);
         }
     }
 

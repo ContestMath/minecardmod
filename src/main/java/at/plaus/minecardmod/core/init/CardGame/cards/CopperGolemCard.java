@@ -12,19 +12,20 @@ import java.util.List;
 public class CopperGolemCard extends Card {
     public CopperGolemCard() {
         super(
-                9,
+                2,
                 "textures/gui/copper_golem_card.png",
                 CardTypes.MELEE,
                 new String[]{"tooltip.minecardmod.cards.copper_golem"},
                 "Copper Golem");
+        this.emeraldCost = 3;
     }
 
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
                 (source, card, boardstate) -> {
-                    card.getOwedHalveBoard(board).drawCard(card);
-                    return board;
+                    card.getOwedHalveBoard(boardstate).drawCard(card);
+                    return boardstate;
                 },
                 getLighningCardsFromDeck(),
                 this
@@ -41,6 +42,7 @@ public class CopperGolemCard extends Card {
                     list.add(card);
                 }
             }
+            board.clearOptions();
             return list;
         };
     }

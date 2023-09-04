@@ -31,7 +31,7 @@ public class VillagerCard extends Card {
                     board.addSelectionEvent(event(), getOptionTargets(), source);
                 }
             } else {
-                card.getOwedHalveBoard(board).option_selection = new ArrayList<>();
+                board.clearOptions();
                 return board;
             }
             return board;

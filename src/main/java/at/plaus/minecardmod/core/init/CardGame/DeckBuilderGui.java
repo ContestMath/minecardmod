@@ -28,8 +28,8 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
 
     public int page = 0;
     public static final int cardOffset = 5;
-    public final int rows = 5;
-    public final int collums = 8;
+    public final int rows = 6;
+    public final int collums = 12;
     public List<Card> deck;
     public List<Card> cardSelection;
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");

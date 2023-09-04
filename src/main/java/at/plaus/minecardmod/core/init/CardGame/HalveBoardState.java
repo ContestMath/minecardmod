@@ -14,7 +14,7 @@ public class HalveBoardState implements Serializable {
     public List<Card> specialBoard;
     public List<Card> graveyard;
     public List<Card> voidd;
-    public List<Card> option_selection = new ArrayList<>();
+    public List<Card> option_selection;
     public boolean isYourTurn = true;
     public boolean hasPassed = false;
     public int lifePoints = 2;
@@ -30,6 +30,7 @@ public class HalveBoardState implements Serializable {
         this.rangedBoard = new ArrayList<Card>();
         this.specialBoard = new ArrayList<Card>();
         this.graveyard = new ArrayList<Card>();
+        this.option_selection = new ArrayList<>();
     }
 
     public HalveBoardState(HalveBoardState boardState) {
@@ -102,13 +103,14 @@ public class HalveBoardState implements Serializable {
     public int getStrength () {
         return Card.getStrengthFromList(this.meleeBoard) + Card.getStrengthFromList(this.rangedBoard) + Card.getStrengthFromList(this.specialBoard);
     }
-    public boolean getIsYourTurn() {
-        return this.isYourTurn;
-    }
-    public void setYourTurn(boolean b) {
-        this.isYourTurn = b;
-    }
 
+    public String ownerName(Boardstate board) {
+        if (board.own.equals(this)) {
+            return "You";
+        } else {
+            return "Opponent";
+        }
+    }
 
     public List<Card> getAllCardsOnBoard() {
         List<Card> cards = new ArrayList<Card>();

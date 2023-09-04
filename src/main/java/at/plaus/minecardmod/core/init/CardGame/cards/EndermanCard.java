@@ -17,6 +17,7 @@ public class EndermanCard extends Card {
     @Override
     public Boardstate selected(Boardstate board) {
         if (board.getAllCardsOnBoard().contains(this)) {
+            board.cancelSelection();
             return returnToHand(board);
         } else {
             return super.selected(board);
