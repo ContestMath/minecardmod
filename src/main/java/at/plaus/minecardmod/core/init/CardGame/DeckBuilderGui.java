@@ -94,7 +94,10 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         this.font.draw(PoseStack, Component.literal("Deck builder"), offsetX+2, offsetY+2, -1);
     }
 
-    private void renderOtherStuff(PoseStack PoseStack, int mouseX, int mouseY) {}
+    private void renderOtherStuff(PoseStack PoseStack, int mouseX, int mouseY) {
+        String s = "Deck size: " + deck.size();
+        this.font.draw(PoseStack, Component.literal(s), offsetX-2+MinecardTableImageLocations.guiwidth-font.width(s), offsetY+2, -1);
+    }
 
     private void renderHighlight(PoseStack PoseStack, int mouseX, int mouseY) {
         renderCardHighlightFromList(PoseStack, mouseX, mouseY, cardSelection);

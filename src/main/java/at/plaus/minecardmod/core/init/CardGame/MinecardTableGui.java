@@ -45,6 +45,9 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     public static boolean cardWasPlayed;
     public static int tickCount = 0;
     public static List<String> log;
+    public boolean showLog = false;
+    public final int numberLogLines = 5;
+    public int startingLogLine = 0;
     public static final CardAi AI = new SimpleAi();
 
     public static final Component name = Component.translatable("tooltip.minecardmod.minecard_table");
@@ -116,7 +119,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 return new int[]{x, yStart- Card.cardheight*7/2-5*space};
             }
         }
-        return new int[]{0, 0};
+        return new int[]{-MinecardTableImageLocations.guiwidth, -MinecardTableImageLocations.guiheight};
     }
 
     @Override
@@ -124,11 +127,9 @@ public class MinecardTableGui extends AbstractMinecardScreen {
         Player p = Minecraft.getInstance().player;
 
         log = new ArrayList<>();
-        log.add("");
-        log.add("");
-        log.add("");
-        log.add("");
-        log.add("");
+        for (int i = 0;i<numberLogLines;i++) {
+            log.add("");
+        }
 
         if (GlobalValues.savedBoardTemp.containsKey(p)) {
             loadGame(GlobalValues.savedBoardTemp.get(p));
@@ -206,7 +207,9 @@ public class MinecardTableGui extends AbstractMinecardScreen {
             renderHighlight(PoseStack, mouseX, mouseY);
             this.font.draw(PoseStack, Component.literal("Minecard table"), offsetX+2, offsetY+2, -1);
             renderValues(PoseStack, offsetX, offsetY);
-            renderLog(PoseStack);
+            if (showLog) {
+                renderLog(PoseStack);
+            }
             renderOptionSelection(PoseStack, mouseX, mouseY);
             renderAllTooltipp(PoseStack, mouseX, mouseY);
         }
@@ -215,8 +218,8 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     private void renderLog(PoseStack PoseStack) {
         List<String> list = new ArrayList<>(log);
         Collections.reverse(list);
-        for (int i = 0;i<5;i++) {
-            this.font.draw(PoseStack, Component.literal(list.get(i)), offsetX+2, offsetY+MinecardTableImageLocations.guiheight-10-8*i, -1);
+        for (int i = 0;i<numberLogLines;i++) {
+            this.font.draw(PoseStack, Component.literal(list.get(i + startingLogLine)), offsetX+2, offsetY+MinecardTableImageLocations.guiheight-10-8*i, -1);
         }
     }
 
@@ -299,6 +302,19 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollMode) {
+        if (showLog) {
+            startingLogLine += scrollMode;
+            if (startingLogLine < 0) {
+                startingLogLine = 0;
+            } else if (startingLogLine >= log.size() - numberLogLines) {
+                startingLogLine = log.size() - 1 - numberLogLines;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollMode);
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 32) {
             if (!board.selectionStack.isEmpty() && board.own.isYourTurn) {
@@ -309,7 +325,8 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 playLoop();
             }
             return true;
-        } else if (keyCode == 81) {
+        } else if (keyCode == 76) {
+            showLog = !showLog;
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);

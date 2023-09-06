@@ -1,11 +1,12 @@
 {
   "item.minecardmod.empty_minecard_card": "Empty minecard card",
   "item.minecardmod.minecard_pack": "Minecard Pack",
+  "item.minecardmod.betting_license": "Betting License",
   "block.minecardmod.minecard_table": "Minecard table",
   "screen.minecardmod.minecard_table": "Minecard table",
   "tooltip.shift": "Hold §e§lSHIFT for more information",
   "tooltip.minecardmod.empty_minecard_card": "Its an empty card",
-  "betting_license": "Use this to play against villagers to win emeralds",
+  "tooltip.minecardmod.betting_license": "Use this to play against villagers to win emeralds",
   "tooltip.gui.options": "Options and tools",
   "entity.minecraft.villager.minecardmod.card_trader": "Card Trader",
   "tooltip.minecardmod.minecard_pack_card": "Open this to add more cards to your collection!",
