@@ -1,6 +1,7 @@
 package at.plaus.minecardmod.core.init;
 
 import at.plaus.minecardmod.client.ClientDeckData;
+import at.plaus.minecardmod.core.init.CardGame.BettingGui;
 import at.plaus.minecardmod.core.init.CardGame.DeckBuilderGui;
 import at.plaus.minecardmod.core.init.CardGame.MinecardTableGui;
 import net.minecraft.client.Minecraft;
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.Random;
 
 public class HideClientside {
-    public static void openMinecardScreen (int x) {
+    public static void openMinecardScreen () {
         String deckString = ClientDeckData.getDeck1();
         if (!Objects.equals(deckString, "") && !Objects.equals(deckString, null)) {
             Tuple<DeckBuilderGui.DeckValidationResult, String> deckValidation = DeckBuilderGui.deckValidation(DeckBuilderGui.stringToDeck(deckString));
@@ -20,7 +21,7 @@ public class HideClientside {
                 Minecraft.getInstance().player.sendSystemMessage(Component.literal("Your deck is illegal and cant be taken into battle"));
                 return;
             }
-            Minecraft.getInstance().setScreen(new MinecardTableGui(x));
+            Minecraft.getInstance().setScreen(new BettingGui());
         }
     }
 

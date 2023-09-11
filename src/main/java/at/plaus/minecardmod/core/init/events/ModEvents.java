@@ -146,7 +146,7 @@ public class ModEvents {
     public static void addInteraction(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer && event.getTarget() instanceof Villager && player.getItemInHand(event.getHand()).getItem().equals(Iteminit.BETTING_LICENSE.get()) && player.isCrouching() && !event.getLevel().isClientSide()) {
-            ModMessages.sendToPlayer(new OpenScreenS2CPacket(5), (ServerPlayer) player);
+            ModMessages.sendToPlayer(new OpenScreenS2CPacket(), (ServerPlayer) player);
         }
     }
 }

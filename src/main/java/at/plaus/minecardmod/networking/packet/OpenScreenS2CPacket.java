@@ -13,23 +13,20 @@ import java.util.function.Supplier;
 
 
 public class OpenScreenS2CPacket {
-    private final int x;
-    public OpenScreenS2CPacket(int x) {
-        this.x = x;
+    public OpenScreenS2CPacket() {
     }
 
     public OpenScreenS2CPacket(FriendlyByteBuf buf) {
-        this.x = buf.readInt();
+
     }
 
     public void toBytes(FriendlyByteBuf buf) {
-        buf.writeInt(x);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            HideClientside.openMinecardScreen(x);
+            HideClientside.openMinecardScreen();
         });
         return true;
     }

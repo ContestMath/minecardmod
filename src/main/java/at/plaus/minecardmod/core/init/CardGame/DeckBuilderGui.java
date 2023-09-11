@@ -131,15 +131,6 @@ public class DeckBuilderGui extends AbstractMinecardScreen {
         if (button == 0 && getTouchingCard(mouseX, mouseY) != null) {
             deck.add(getTouchingCard(mouseX, mouseY).getNew());
         }
-
-        /*
-        if (isWithinBoundingBox(mouseX, mouseY, offsetX+MinecardTableImageLocations.changeX, offsetX+MinecardTableImageLocations.changeX+MinecardTableImageLocations.changeWidth, offsetY+MinecardTableImageLocations.changeY, offsetY+MinecardTableImageLocations.changeY+MinecardTableImageLocations.changeHeight)){
-            onCloseOrSwitch();
-            Minecraft.getInstance().setScreen(new MinecardTableGui());
-            return true;
-        }
-
-         */
         return true;
     }
 
