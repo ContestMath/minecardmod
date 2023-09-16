@@ -6,7 +6,7 @@ public class OptionsCard extends Card {
         super(
                 0,
                 texture,
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 tooltip,
                 name
         );

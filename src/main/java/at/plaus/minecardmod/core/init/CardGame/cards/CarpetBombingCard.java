@@ -9,7 +9,7 @@ public class CarpetBombingCard extends Card {
         super(
                 0,
                 "textures/gui/carpet_bombing_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.carpet_bombing"},
                 "Carpet Bombing"
         );
@@ -19,7 +19,7 @@ public class CarpetBombingCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
-                (source, card, boardstate) -> card.damage(8, boardstate),
+                (source, card, boardstate) -> card.damage(8, boardstate, source),
                 getTargets(),
                 this
         );

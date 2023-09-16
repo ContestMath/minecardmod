@@ -23,7 +23,7 @@ public class SnowGolemCard extends Card {
     public Boardstate etb(Boardstate board) {
         for (Card card: board.getAllCardsOnBoard()) {
             if (!card.getOwedHalveBoard(board).equals(getOwedHalveBoard(board))) {
-                card.damage(1, board);
+                card.damage(1, board, this);
             }
         }
         return super.etb(board);

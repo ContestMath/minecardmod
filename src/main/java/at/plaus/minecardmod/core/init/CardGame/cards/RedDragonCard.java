@@ -18,7 +18,7 @@ public class RedDragonCard extends Card {
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
                 (source, card, boardstate) -> card.discard(boardstate),
-                ((source, b) -> source.getOwedHalveBoard(b).hand),
+                getCardsInHand(),
                 this
         );
         return super.etb(board);

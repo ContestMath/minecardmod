@@ -9,7 +9,7 @@ public class PickaxeCard extends Card {
         super(
                 0,
                 "textures/gui/pickaxe_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.pickaxe"},
                 "Pickaxe");
     }

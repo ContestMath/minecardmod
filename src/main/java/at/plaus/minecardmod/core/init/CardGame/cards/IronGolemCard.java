@@ -2,6 +2,7 @@ package at.plaus.minecardmod.core.init.CardGame.cards;
 
 import at.plaus.minecardmod.core.init.CardGame.Boardstate;
 import at.plaus.minecardmod.core.init.CardGame.Card;
+import at.plaus.minecardmod.core.init.CardGame.CardSubtypes;
 import at.plaus.minecardmod.core.init.CardGame.CardTypes;
 
 public class IronGolemCard extends Card {
@@ -17,6 +18,7 @@ public class IronGolemCard extends Card {
                 },
                 "Iron Golem"
         );
+        subtypes.add(CardSubtypes.ARTIFACT);
         this.emeraldCost = 7;
         this.resistance = 4;
     }

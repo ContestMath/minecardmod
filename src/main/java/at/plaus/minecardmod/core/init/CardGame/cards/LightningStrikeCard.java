@@ -10,7 +10,7 @@ public class LightningStrikeCard extends Card {
         super(
                 0,
                 "textures/gui/lighting_strike_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.lighting_strike"},
                 "Lightning Strike"
         );
@@ -20,7 +20,7 @@ public class LightningStrikeCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent(
-                (source, card, boardstate) -> card.damage(8, boardstate),
+                (source, card, boardstate) -> card.damage(8, boardstate, source),
                 getTargets(),
                 this
         );

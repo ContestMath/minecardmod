@@ -133,7 +133,7 @@ public class ModClientEvents {
 
             RenderSystem.setShaderTexture(0, frame);
             GuiComponent.blit(poseStack, xCardPos, y+5, 0, (float)20, (float)20, Card.bigCwidth, Card.bigCardheight, 256, 256);
-            font.drawShadow(poseStack, Integer.toString(card.getStrength()), xCardPos+getWidth(font)-8, y-5+Card.bigCardheight, 0xFFFFFF);
+            font.drawShadow(poseStack, Integer.toString(card.getDefaultStrength()), xCardPos+getWidth(font)-8, y-5+Card.bigCardheight, 0xFFFFFF);
 
 
             poseStack.popPose();

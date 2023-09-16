@@ -2,6 +2,7 @@ package at.plaus.minecardmod.core.init.CardGame;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Tuple;
 
 import java.io.Serializable;
 import java.util.*;
@@ -100,8 +101,8 @@ public class HalveBoardState implements Serializable {
         Collections.shuffle(deck);
     }
 
-    public int getStrength () {
-        return Card.getStrengthFromList(this.meleeBoard) + Card.getStrengthFromList(this.rangedBoard) + Card.getStrengthFromList(this.specialBoard);
+    public int getStrength (Boardstate board) {
+        return Card.getStrengthFromList(this.meleeBoard, board) + Card.getStrengthFromList(this.rangedBoard, board) + Card.getStrengthFromList(this.specialBoard, board);
     }
 
     public String ownerName(Boardstate board) {
@@ -119,5 +120,4 @@ public class HalveBoardState implements Serializable {
         cards.addAll(this.specialBoard);
         return cards;
     }
-
 }

@@ -4,5 +4,5 @@ public enum CardTypes {
     MELEE,
     RANGED,
     SPECIAL,
-    SPELL
+    EFFECT
 }

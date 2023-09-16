@@ -9,7 +9,7 @@ public class SpeedrunningCard extends Card {
         super(
                 0,
                 "textures/gui/speedrunning_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.speedrunning"},
                 "Speedrunning"
         );

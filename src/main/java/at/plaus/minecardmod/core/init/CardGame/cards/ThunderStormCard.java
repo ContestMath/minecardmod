@@ -10,7 +10,7 @@ public class ThunderStormCard extends Card {
         super(
                 0,
                 "textures/gui/thunder_storm_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.thunder_storm"},
                 "Thunder Storm"
         );
@@ -21,10 +21,10 @@ public class ThunderStormCard extends Card {
     public Boardstate etb(Boardstate board) {
         Boardstate newBoard = board;
         for (Card card:board.enemy.getAllCardsOnBoard()) {
-            newBoard = card.damage(3, newBoard);
+            newBoard = card.damage(3, newBoard, this);
         }
         for (Card card:board.own.getAllCardsOnBoard()) {
-            newBoard = card.damage(3, newBoard);
+            newBoard = card.damage(3, newBoard, this);
         }
         return super.etb(newBoard);
     }

@@ -4,10 +4,7 @@ package at.plaus.minecardmod.core.init.CardGame;
 import at.plaus.minecardmod.Capability.SavedUnlockedCards;
 import at.plaus.minecardmod.Minecardmod;
 import at.plaus.minecardmod.core.init.CardGame.cards.*;
-import at.plaus.minecardmod.core.init.CardGame.events.CardDamagedEvent;
-import at.plaus.minecardmod.core.init.CardGame.events.CardSelectedEvent;
-import at.plaus.minecardmod.core.init.CardGame.events.FindTargetsEvent;
-import at.plaus.minecardmod.core.init.CardGame.events.StrengthBuff;
+import at.plaus.minecardmod.core.init.CardGame.events.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -15,6 +12,7 @@ import org.antlr.v4.runtime.misc.Triple;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Card implements Serializable {
@@ -38,8 +36,8 @@ public class Card implements Serializable {
     public boolean isOnFire = false;
     public boolean undieing = false;
     public List<CardSubtypes> subtypes = new ArrayList<>();
-    public List<StrengthBuff> buffs = new ArrayList<>();
     public String frameString = "textures/gui/frame.png";
+    public List<Tuple<StrengthBuff, Card>> buffs = new ArrayList<>();
 
     public Card(int strength, String texture, CardTypes type, String[] tooltip, String name) {
         this.strength = strength;
@@ -58,6 +56,12 @@ public class Card implements Serializable {
         card.isOnFire = isOnFire;
         card.undieing = undieing;
         return card;
+    }
+
+    public void addCopiedCardBuffs(Card card, HashMap<Card, Card> copyMap) {
+        for (Tuple<StrengthBuff, Card> buff:card.buffs) {
+            copyMap.get(card).buffs.add(new Tuple<>(buff.getA(), copyMap.get(buff.getB())));
+        }
     }
 
 
@@ -130,6 +134,12 @@ public class Card implements Serializable {
         list.add(new Tuple<>(45, NetherPortalCard.class));
         list.add(new Tuple<>(46, SpeedrunningCard.class));
         list.add(new Tuple<>(47, StrengthPotionCard.class));
+        list.add(new Tuple<>(48, PillagerCard.class));
+        list.add(new Tuple<>(49, FireworksCard.class));
+        list.add(new Tuple<>(50, TreasureMapCard.class));
+        list.add(new Tuple<>(51, DiamondSwordCard.class));
+        list.add(new Tuple<>(52, LagMachineCard.class));
+        list.add(new Tuple<>(53, CrossbowCard.class));
         return list;
     }
 
@@ -211,18 +221,21 @@ public class Card implements Serializable {
         return tempTooltip;
     }
 
-    public int getStrength(){
+    public int getStrength(Boardstate board){
         int x = strength;
-        for (StrengthBuff buff:buffs) {
-            x += buff.buff(this);
+        for (Tuple<StrengthBuff, Card> buff:buffs) {
+            x += buff.getA().buff(board, x,this, buff.getB());
+        }
+        for (Tuple<StrengthBuff, Card> buff:board.buffs) {
+            x += buff.getA().buff(board, x,this, buff.getB());
         }
         return x;
     }
 
-    public static int getStrengthFromList(List<Card> cardList) {
+    public static int getStrengthFromList(List<Card> cardList, Boardstate board) {
         int total = 0;
         for (Card i:cardList){
-            total += i.getStrength();
+            total += i.getStrength(board);
         }
         return total;
     }
@@ -316,13 +329,18 @@ public class Card implements Serializable {
         return list;
     }
 
-    public Boardstate damage(int x, Boardstate board) {
+    public Boardstate damage(int x, Boardstate board, Card source) {
         Boardstate tempBoard =  board;
+        for (Tuple<BeforeCardDamagedEvent, Card> listener:board.beforeDamageListeners) {
+            tempBoard = listener.getA().onDamaged(x, this, tempBoard, source, listener.getB());
+        }
+        x += board.tempSpellDamage;
         if (x > resistance) {
             strength -= x - resistance;
-            for (CardDamagedEvent listener:new ArrayList<>(board.damageListeners)) {
-                tempBoard = listener.onDamaged(x, this, tempBoard);
+            for (Tuple<AfterCardDamagedEvent, Card> listener:board.afterDamageListeners) {
+                tempBoard = listener.getA().onDamaged(x, this, tempBoard, source, listener.getB());
             }
+            board.tempSpellDamage = 0;
             if (strength <= 0) {
                 tempBoard = this.die(tempBoard);
             }
@@ -354,7 +372,7 @@ public class Card implements Serializable {
     public Boardstate atTheStartOfTurn(Boardstate board) {
         MinecardTableGui.log.add("Start of turn of " + name + " triggered");
         if (isOnFire) {
-            damage(1, board);
+            damage(1, board, null);
         }
         return board;
     }
@@ -392,10 +410,10 @@ public class Card implements Serializable {
 
     public Boardstate fight(Boardstate board, Card target) {
         Boardstate newBoard = board;
-        int x = target.getStrength();
-        int y = getStrength();
-        newBoard = target.damage(y, newBoard);
-        newBoard = damage(x, newBoard);
+        int x = target.getStrength(newBoard);
+        int y = getStrength(newBoard);
+        newBoard = target.damage(y, newBoard, this);
+        newBoard = damage(x, newBoard, target);
         return newBoard;
     }
 
@@ -412,6 +430,10 @@ public class Card implements Serializable {
         board = removeFromBoard(board);
         halve.voidd.add(this);
         return board;
+    }
+
+    public void addBuff(StrengthBuff buff, Card card) {
+        buffs.add(new Tuple<>(buff, card));
     }
 
     public int getDefaultStrength(){
@@ -431,12 +453,16 @@ public class Card implements Serializable {
             return board.getAllCardsOnBoard();
         };
     }
+    public static FindTargetsEvent getCardsInHand() {
+        return ((source, b) -> source.getOwedHalveBoard(b).hand);
+    }
 
     public static FindTargetsEvent getTargetsOnOwnedHalveboard() {
         return (source, board) -> {
             return source.getOwedHalveBoard(board).getAllCardsOnBoard();
         };
     }
+
 
     public static FindTargetsEvent getOptionTargets() {
         return (source, board) -> {

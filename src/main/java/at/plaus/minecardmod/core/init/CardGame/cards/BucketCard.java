@@ -2,14 +2,12 @@ package at.plaus.minecardmod.core.init.CardGame.cards;
 
 import at.plaus.minecardmod.core.init.CardGame.*;
 
-import java.util.ArrayList;
-
 public class BucketCard extends Card {
     public BucketCard() {
         super(
                 0,
                 "textures/gui/bucket_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.bucket"},
                 "Bucket");
         emeraldCost = 1;
@@ -38,7 +36,7 @@ public class BucketCard extends Card {
             }
             if (card.equals(lavaOption)) {
                 boardstate.addSelectionEvent(
-                        (sourceInner, selected, b) -> selected.damage(5, b),
+                        (sourceInner, selected, b) -> selected.damage(5, b, sourceInner),
                         getTargets(),
                         this
                 );

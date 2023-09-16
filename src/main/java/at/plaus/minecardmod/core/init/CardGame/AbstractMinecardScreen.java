@@ -106,8 +106,30 @@ public abstract class AbstractMinecardScreen extends Screen {
             RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
 
-            if (card.type != CardTypes.SPELL) {
-                this.font.draw(poseStack, Integer.toString(card.getStrength()), x + Card.cardwidth - 6 * Integer.toString(card.getStrength()).length(), y + Card.cardheight - 8, 0);
+            if (card.type != CardTypes.EFFECT) {
+                this.font.draw(poseStack, Integer.toString(card.getDefaultStrength()), x + Card.cardwidth - 6 * Integer.toString(card.getDefaultStrength()).length(), y + Card.cardheight - 8, 0);
+            }
+
+            index ++;
+        }
+        index = 0;
+
+    }
+
+    public void renderCardsFromList (PoseStack poseStack, List<Card> list, Boardstate board) {
+        int index = 0;
+        for (Card card:list) {
+            int x = getCardPos(card)[0];
+            int y = getCardPos(card)[1];
+
+            RenderSystem.setShaderTexture(0,card.getTexture());
+            GuiComponent.blit(poseStack, x, y, 0, (float)0, (float)0, Card.cardwidth, Card.cardheight, 64, 64);
+
+            RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
+            GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
+
+            if (card.type != CardTypes.EFFECT) {
+                this.font.draw(poseStack, Integer.toString(card.getStrength(board)), x + Card.cardwidth - 6 * Integer.toString(card.getStrength(board)).length(), y + Card.cardheight - 8, 0);
             }
 
             index ++;
@@ -127,8 +149,8 @@ public abstract class AbstractMinecardScreen extends Screen {
 
             RenderSystem.setShaderTexture(0, new ResourceLocation(Minecardmod.MOD_ID,card.frameString));
             GuiComponent.blit(poseStack, x, y, 0, (float)5, (float)5, Card.cardwidth, Card.cardheight, 64, 64);
-            if (card.type != CardTypes.SPELL) {
-                this.font.draw(poseStack, Integer.toString(card.getStrength()), x+ Card.cardwidth-6*Integer.toString(card.getStrength()).length(), y+ Card.cardheight-8, 0);
+            if (card.type != CardTypes.EFFECT) {
+                this.font.draw(poseStack, Integer.toString(card.getDefaultStrength()), x+ Card.cardwidth-6*Integer.toString(card.getDefaultStrength()).length(), y+ Card.cardheight-8, 0);
             }
             int numberInDeck = 0;
             for (Card i:inDeck) {

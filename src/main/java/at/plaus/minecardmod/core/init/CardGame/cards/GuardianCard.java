@@ -21,13 +21,13 @@ public class GuardianCard extends Card {
 
     private final CardSelectedEvent getDamageEvent1() {
         return (source, card, b) -> {
-        b = card.damage(2, b);
+        b = card.damage(2, b, source);
         b.addSelectionEvent(damageEvent2, getTargets(), this);
         return b;
     };}
 
     private final CardSelectedEvent damageEvent2 = (source, card, b) -> {
-        return card.damage(2, b);
+        return card.damage(2, b, source);
     };
 
     @Override

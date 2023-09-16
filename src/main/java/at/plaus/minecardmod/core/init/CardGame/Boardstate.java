@@ -11,14 +11,18 @@ import java.util.*;
 public class Boardstate implements Serializable {
     public HalveBoardState own;
     public HalveBoardState enemy;
+    public int tempSpellDamage = 0;
     int creaturesSacrificed = 0;
     public Stack<Triple<CardSelectedEvent, FindTargetsEvent, Card>> selectionStack = new Stack<>();
-    public List<CardDamagedEvent> damageListeners = new ArrayList<CardDamagedEvent>();
-    public List<StartOfTurnEvent> startOfTurnListeners = new ArrayList<>();
-    public List<EndOfRoundEvent> endOfRoundListeners = new ArrayList<>();
+    public List<Tuple<AfterCardDamagedEvent, Card>> afterDamageListeners = new ArrayList<>();
+    public List<Tuple<BeforeCardDamagedEvent, Card>> beforeDamageListeners = new ArrayList<>();
+    public List<Tuple<StartOfTurnEvent, Card>> startOfTurnListeners = new ArrayList<>();
+    public List<Tuple<EndOfRoundEvent, Card>> endOfRoundListeners = new ArrayList<>();
     public List<Tuple<EtbEvent, Card>> etbListeners = new ArrayList<>();
+    public List<Tuple<StrengthBuff, Card>> buffs = new ArrayList<>();
     public static int loopIndex = 0;
     public HashMap<Card, Card> copyMap = new HashMap<>();
+    public boolean hasPlayedACard = false;
 
     public List<Card> getAllRenderableCards() {
         List<Card> list = new ArrayList<>();
@@ -47,17 +51,43 @@ public class Boardstate implements Serializable {
     public Boardstate(Boardstate board) {
         this.enemy = new HalveBoardState(board.enemy);
         this.own = new HalveBoardState(board.own);
-        this.damageListeners = new ArrayList<>(board.damageListeners);
-        this.etbListeners = new ArrayList<>(board.etbListeners);
-        this.creaturesSacrificed = board.creaturesSacrificed;
-        this.selectionStack = new Stack<>();
-        this.selectionStack.addAll(board.selectionStack);
         for (Card card:board.getAllCards()) {
             this.copyMap.put(card, getAllCards().get(board.getAllCards().indexOf(card)));
         }
+        for (Card card:board.getAllCards()) {
+            card.addCopiedCardBuffs(card, copyMap);
+        }
+
+        this.creaturesSacrificed = board.creaturesSacrificed;
+        this.selectionStack = new Stack<>();
+        this.selectionStack.addAll(board.selectionStack);
         for (Triple<CardSelectedEvent, FindTargetsEvent, Card> triple:board.selectionStack) {
             triple = new Triple<>(triple.a, triple.b, this.copyMap.get(triple.c));
         }
+        this.afterDamageListeners = getNewTupleList(board.afterDamageListeners, copyMap);
+        this.beforeDamageListeners = getNewTupleList(board.beforeDamageListeners, copyMap);
+        this.buffs = getNewTupleList(board.buffs, copyMap);
+        this.startOfTurnListeners = getNewTupleList(board.startOfTurnListeners, copyMap);
+        this.endOfRoundListeners = getNewTupleList(board.endOfRoundListeners, copyMap);
+        this.etbListeners = getNewTupleList(board.etbListeners, copyMap);
+    }
+
+    public static <T> List<Tuple<T, Card>> getNewTupleList (List<Tuple<T, Card>> list, HashMap<Card, Card> map) {
+        List<Tuple<T, Card>> toReturn = new ArrayList<>();
+        for (Tuple<T, Card> tuple:list) {
+            toReturn.add(new Tuple<>(tuple.getA(), map.get(tuple.getB())));
+        }
+        return toReturn;
+    }
+
+    public <T> void removeEvent (T event, List<Tuple<T, Card>> list) {
+        List<Tuple<T, Card>> toRemove = new ArrayList<>();
+        for (Tuple<T, Card> tuple:list) {
+            if (tuple.getA().equals(event)) {
+                toRemove.add(tuple);
+            }
+        }
+        list.removeAll(toRemove);
     }
 
     public Boardstate playCardFromHand(Card card) {
@@ -85,6 +115,7 @@ public class Boardstate implements Serializable {
                 card.getOwedHalveBoard(this).emeraldCount -= card.emeraldCost;
                 MinecardTableGui.cardWasPlayed = true;
                 MinecardTableGui.log.add("Played " + card.name);
+                hasPlayedACard = true;
                 return summon(card, card.getOwedHalveBoard(this));
             }
         }
@@ -93,6 +124,9 @@ public class Boardstate implements Serializable {
     }
 
     public List<Card> getTargets() {
+        if (selectionStack.isEmpty()) {
+            return new ArrayList<>();
+        }
         return selectionStack.peek().b.onFindTargets(selectionStack.peek().c, this);
     }
 
@@ -117,7 +151,7 @@ public class Boardstate implements Serializable {
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
                 this.own.specialBoard.add(card);
             }
-            if (Objects.equals(card.type, CardTypes.SPELL)) {
+            if (Objects.equals(card.type, CardTypes.EFFECT)) {
                 own.graveyard.add(card);
             }
         } else {
@@ -130,7 +164,7 @@ public class Boardstate implements Serializable {
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
                 this.enemy.specialBoard.add(card);
             }
-            if (Objects.equals(card.type, CardTypes.SPELL)) {
+            if (Objects.equals(card.type, CardTypes.EFFECT)) {
                 enemy.graveyard.add(card);
             }
         }
@@ -165,7 +199,7 @@ public class Boardstate implements Serializable {
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
                 this.own.specialBoard.add(card);
             }
-            if (Objects.equals(card.type, CardTypes.SPELL)) {
+            if (Objects.equals(card.type, CardTypes.EFFECT)) {
                 own.graveyard.add(card.getNew());
             }
         } else {
@@ -178,7 +212,7 @@ public class Boardstate implements Serializable {
             if (Objects.equals(card.type, CardTypes.SPECIAL)) {
                 this.enemy.specialBoard.add(card);
             }
-            if (Objects.equals(card.type, CardTypes.SPELL)) {
+            if (Objects.equals(card.type, CardTypes.EFFECT)) {
                 enemy.graveyard.add(card.getNew());
             }
         }
@@ -187,13 +221,13 @@ public class Boardstate implements Serializable {
     }
 
     public Boardstate endRound() {
-        if (own.getStrength() > enemy.getStrength()) {
+        if (own.getStrength(this) > enemy.getStrength(this)) {
             enemy.lifePoints --;
         }
-        if (own.getStrength() < enemy.getStrength()) {
+        if (own.getStrength(this) < enemy.getStrength(this)) {
             own.lifePoints --;
         }
-        if (own.getStrength() == enemy.getStrength()) {
+        if (own.getStrength(this) == enemy.getStrength(this)) {
             own.lifePoints --;
             enemy.lifePoints --;
         }
@@ -203,8 +237,8 @@ public class Boardstate implements Serializable {
         Boardstate tempboard = this;
         tempboard = tempboard.clearBoard();
 
-        for (EndOfRoundEvent event:endOfRoundListeners) {
-            tempboard = event.onEndOfRound(tempboard);
+        for (Tuple<EndOfRoundEvent, Card> event:endOfRoundListeners) {
+            tempboard = event.getA().onEndOfRound(tempboard, event.getB());
         }
 
         tempboard.enemy.drawCard(2);
@@ -231,9 +265,10 @@ public class Boardstate implements Serializable {
         Boardstate tempBoard = this;
         tempBoard.own.isYourTurn = !tempBoard.own.isYourTurn;
         tempBoard.enemy.isYourTurn = !tempBoard.enemy.isYourTurn;
+        hasPlayedACard = false;
         MinecardTableGui.log.add("The turn of " + getHalveboardOnTurn().ownerName(this) + " started");
-        for (StartOfTurnEvent event:startOfTurnListeners) {
-            tempBoard = event.onStartOfTurn(tempBoard);
+        for (Tuple<StartOfTurnEvent, Card> event:startOfTurnListeners) {
+            tempBoard = event.getA().onStartOfTurn(tempBoard, event.getB());
         }
         for (Card card:getAllCardsOnBoard()) {
             if (card.getOwedHalveBoard(tempBoard).isYourTurn) {
@@ -280,6 +315,20 @@ public class Boardstate implements Serializable {
         if (selectionStack.peek().b.onFindTargets(copyMap.getOrDefault(source, source), this).isEmpty()) {
             cancelSelection();
         }
+    }
+
+    public void addBuff(StrengthBuff buff, Card card) {
+        buffs.add(new Tuple<>(buff, card));
+    }
+
+    public void removeBuff(StrengthBuff buff) {
+        List<Tuple<StrengthBuff,  Card>> toRemove = new ArrayList<>();
+        for (Tuple<StrengthBuff,  Card> tuple:buffs) {
+            if (tuple.getA().equals(buff)) {
+                toRemove.add(tuple);
+            }
+        }
+        buffs.removeAll(toRemove);
     }
 
     public void clearOptions() {

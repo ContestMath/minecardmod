@@ -10,7 +10,7 @@ public class StrengthPotionCard extends Card {
         super(
                 0,
                 "textures/gui/strength_potion_card.png",
-                CardTypes.SPELL,
+                CardTypes.EFFECT,
                 new String[]{"tooltip.minecardmod.cards.strength_potion"},
                 "Strength Potion");
         subtypes.add(CardSubtypes.POTION);
@@ -19,7 +19,7 @@ public class StrengthPotionCard extends Card {
     @Override
     public Boardstate etb(Boardstate board) {
         board.addSelectionEvent((source, card, boardstate) -> {
-            card.buffs.add(Card::getStrength);
+            card.addBuff((b, x, c, s) -> x, source);
             return boardstate;
         },
                 getTargets(),

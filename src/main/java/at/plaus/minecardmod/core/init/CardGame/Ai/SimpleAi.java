@@ -14,7 +14,7 @@ public class SimpleAi extends CardAi{
     public Boardstate boardTransformation(Boardstate board) {
         Boardstate newBoard = board;
         if (board.selectionStack.isEmpty()) {
-            if ((board.own.hasPassed && board.own.getStrength() < board.enemy.getStrength()) || (board.own.getStrength()-7>board.enemy.getStrength() && board.enemy.lifePoints>1) || (board.enemy.getStrength()-7>board.own.getStrength())) {
+            if ((board.own.hasPassed && board.own.getStrength(board) < board.enemy.getStrength(board)) || (board.own.getStrength(board)-7>board.enemy.getStrength(board) && board.enemy.lifePoints>1) || (board.enemy.getStrength(board)-7>board.own.getStrength(board))) {
                 board.enemy.hasPassed = true;
                 return board;
             }
@@ -39,7 +39,7 @@ public class SimpleAi extends CardAi{
         }
         int result = 0;
         for (int i = 1;i<targets.size();i++) {
-            if (list.get(i).enemy.getStrength() - list.get(i).own.getStrength() > list.get(result).enemy.getStrength() - list.get(result).own.getStrength()) {
+            if (list.get(i).enemy.getStrength(list.get(i)) - list.get(i).own.getStrength(list.get(i)) > list.get(result).enemy.getStrength(list.get(i)) - list.get(result).own.getStrength(list.get(i))) {
                 result = i;
             }
         }

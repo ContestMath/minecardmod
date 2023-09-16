@@ -170,10 +170,10 @@ public class MinecardTableGui extends AbstractMinecardScreen {
                 board.selectionStack.pop();
             }
         }
-        if (board.enemy.hand.isEmpty() && board.selectionStack.isEmpty()) {
+        if (board.enemy.hand.isEmpty() && board.selectionStack.isEmpty() && !board.hasPlayedACard) {
             board.enemy.hasPassed = true;
         }
-        if (board.own.hand.isEmpty() && board.selectionStack.isEmpty()) {
+        if (board.own.hand.isEmpty() && board.selectionStack.isEmpty() && !board.hasPlayedACard) {
             board.own.hasPassed = true;
         }
         if (board.own.hasPassed && board.own.isYourTurn) {
@@ -226,7 +226,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     private void renderOptionSelection(PoseStack poseStack, int mouseX, int mouseY) {
         if (!board.own.option_selection.isEmpty()) {
             this.renderBackground(poseStack);
-            renderCardsFromList(poseStack, board.own.option_selection);
+            renderCardsFromList(poseStack, board.own.option_selection, board);
         }
     }
 
@@ -259,7 +259,7 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     }
 
     public void renderCards (PoseStack PoseStack) {
-        renderCardsFromList(PoseStack, getAllrenderableCards());
+        renderCardsFromList(PoseStack, getAllrenderableCards(), board);
     }
 
     public void renderOtherStuff(PoseStack PoseStack) {
@@ -292,9 +292,9 @@ public class MinecardTableGui extends AbstractMinecardScreen {
     public void renderValues(PoseStack PoseStack, int offsetX, int offsetY) {
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length()/2)-16, offsetY+ MinecardTableImageLocations.guiheight-18, -1);
         this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.deck.size())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.deck.size()).length()/2)-16, offsetY+ Card.cardheight+2, -1);
-        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.enemy.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2-20, -1);
-        this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.getStrength())), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength()).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
-        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength()).length())/2, offsetY+5, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.getStrength(board))), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.enemy.getStrength(board)).length()), offsetY+ MinecardTableImageLocations.guiheight/2-20, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.own.getStrength(board))), offsetX+ MinecardTableImageLocations.guiwidth-this.numberStringWidth*(Integer.toString(board.own.getStrength(board)).length()), offsetY+ MinecardTableImageLocations.guiheight/2+20, -1);
+        this.font.draw(PoseStack, Component.literal(Integer.toString(board.enemy.hand.size())), offsetX+ (MinecardTableImageLocations.guiwidth-this.numberStringWidth*Integer.toString(board.own.getStrength(board)).length())/2, offsetY+5, -1);
 
         if (!board.selectionStack.isEmpty()) {
             this.font.draw(PoseStack, Component.literal("Press space to decline to select a target for " + board.selectionStack.peek().c.name), 5, this.height-8, -1);

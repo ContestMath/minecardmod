@@ -108,5 +108,19 @@
 
   "tooltip.minecardmod.cards.speedrunning": "Both Players draw 3 cards.",
 
-  "tooltip.minecardmod.cards.strength_potion": "Double target mobs strength."
+  "tooltip.minecardmod.cards.strength_potion": "Double target mobs strength.",
+
+  "tooltip.minecardmod.cards.treasure_map": "Search your deck for an artifact card.",
+
+  "tooltip.minecardmod.cards.redstone_computer": "For the rest of the round gain §a3E§r at the start of your turn.",
+
+  "tooltip.minecardmod.cards.pillager": "All your cards in the melee zone get 2 additional strength.",
+
+  "tooltip.minecardmod.cards.fireworks": "Deal §43 damage§r and",
+
+  "tooltip.minecardmod.cards.diamond_sword": "Give a mob 7 strength.",
+
+  "tooltip.minecardmod.cards.lag_machine": "For the rest of the round each player has to discard a card at the start of their turn.",
+
+  "tooltip.minecardmod.cards.crossbow": "Deal 10 Damage. For the rest of the round your fireworks will deal 6 more damage."
 }
